@@ -1,0 +1,32 @@
+<div class="create-container">
+  <div class="create-header">
+    <span>Crear Nuevo Usuario</span>
+    <button class="btn-close-x" (click)="close.emit()">×</button>
+  </div>
+
+  <div class="create-body">
+    <div class="input-group">
+      <label>Nombre Completo</label>
+      <input type="text" [(ngModel)]="newUser.nombre" placeholder="Ej. Juan Pérez">
+    </div>
+
+    <div class="input-group">
+      <label>Correo Electrónico</label>
+      <input type="email" [(ngModel)]="newUser.email" placeholder="ejemplo@test.com">
+    </div>
+
+    <div class="input-group">
+      <label>Rol Asignado</label>
+      <select [(ngModel)]="newUser.rol" class="form-select">
+        <option value="personal">Personal</option>
+        <option value="secretaria">Secretaria</option>
+        <option value="supervisor">Supervisor</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="create-footer">
+    <button class="btn-cancel" (click)="close.emit()">Cancelar</button>
+    <button class="btn-save" (click)="crear()">Crear Usuario</button>
+  </div>
+</div>

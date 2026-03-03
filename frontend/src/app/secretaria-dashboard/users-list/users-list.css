@@ -1,0 +1,149 @@
+.table-card {
+    background: white;
+    border-radius: 12px;
+    padding: 35px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    margin-bottom: 40px;
+    border: 1px solid rgba(0,0,0,0.02);
+    transition: transform 0.3s ease;
+}
+
+.table-card:hover {
+    transform: translateY(-2px);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    border-bottom: 2px solid #f1f5f9;
+    padding-bottom: 15px;
+}
+
+.card-header h2 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+    font-size: 1.5rem;
+    color: #2c3e50;
+    font-weight: 700;
+}
+
+.badge-count {
+    background-color: #8b2136;
+    color: white;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    box-shadow: 0 4px 6px rgba(139, 33, 54, 0.2);
+}
+
+.table-responsive {
+    width: 100%; 
+    overflow-x: auto; 
+}
+
+.simple-table { 
+    width: 100%; 
+    border-collapse: separate; 
+    border-spacing: 0; 
+    font-size: 0.95rem;
+}
+
+.simple-table thead tr {
+    background-color: #f8fafc;
+}
+
+.simple-table th { 
+    text-align: left; 
+    padding: 15px; 
+    color: #64748b; 
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase; 
+    letter-spacing: 0.05em;
+    border-bottom: 2px solid #e2e8f0; 
+}
+
+.simple-table td { 
+    padding: 15px;
+    border-bottom: 1px solid #f1f1f1;
+    vertical-align: middle; 
+    color: #334155;
+}
+
+.simple-table tbody tr {
+    transition: background-color 0.2s;
+}
+
+.simple-table tbody tr:hover {
+    background-color: #fffbf0;
+}
+
+.time-col { 
+    color: #64748b; 
+    font-family: 'Consolas', monospace; 
+    font-weight: 600;
+}
+
+.badge {
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-align: center;
+    display: inline-block;
+    min-width: 90px;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
+}
+
+.role-badge { 
+    background-color: #e8f6f3; 
+    color: #27ae60;
+    padding: 6px 12px; 
+    border-radius: 6px; 
+    font-weight: 800; 
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    text-align: center;
+    display: inline-block;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.role-badge.secretaria {
+    background-color: #fce7e7;
+    color: #c0392b;
+}
+
+.btn-icon { 
+    cursor: pointer; 
+    border: 1px solid #e2e8f0; 
+    background: white; 
+    padding: 8px 12px; 
+    border-radius: 6px; 
+    color: #64748b;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    margin-right: 5px;
+}
+
+.btn-icon:hover { 
+    background-color: #fff;
+    border-color: #d4a055;
+    color: #ba9156;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.fade-in { 
+    animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1); 
+}
+
+@keyframes fadeIn { 
+    from { opacity: 0; transform: translateY(10px); } 
+    to { opacity: 1; transform: translateY(0); } 
+}

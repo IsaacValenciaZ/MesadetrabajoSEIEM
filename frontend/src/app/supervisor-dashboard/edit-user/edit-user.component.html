@@ -1,0 +1,23 @@
+<div class="edit-container">
+  <div class="edit-header">
+    <span>Editar Usuario</span>
+    <button class="btn-close-x" (click)="close.emit()">×</button>
+  </div>
+
+  <div class="edit-body">
+    <div class="input-group">
+      <label>NOMBRE COMPLETO:</label>
+      <input type="text" [(ngModel)]="user.nombre" placeholder="Nombre">
+    </div>
+
+    <div class="input-group">
+      <label>CORREO ELECTRONICO:</label>
+      <input type="email" [(ngModel)]="user.email" placeholder="Correo">
+    </div>
+  </div>
+
+  <div class="edit-footer">
+    <button class="btn-cancel" (click)="close.emit()">Cancelar</button>
+    <button class="btn-save" (click)="guardar()">Guardar cambios</button>
+  </div>
+</div>

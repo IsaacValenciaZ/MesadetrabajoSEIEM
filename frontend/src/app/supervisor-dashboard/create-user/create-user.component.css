@@ -1,0 +1,36 @@
+.create-container {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+
+.create-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  font-weight: 800;
+  color: #56212f; 
+  font-size: 1.1rem;
+  border-bottom: 2px solid #f3f4f6;
+  padding-bottom: 10px;
+}
+
+.btn-close-x { background: none; border: none; font-size: 24px; cursor: pointer; color: #9ca3af; }
+
+.input-group { margin-bottom: 15px; }
+.input-group label { display: block; font-size: 0.85rem; margin-bottom: 5px; color: #4b5563; font-weight: 600; }
+.input-group input, .input-group select {
+  width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; box-sizing: border-box;
+}
+.input-group input:focus { border-color: #977e5b; outline: none; }
+
+.create-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+.btn-cancel { background: #f3f4f6; color: #4b5563; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+.btn-save { background: #56212f; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+.btn-save:hover { background: #3f1621; }
+
+

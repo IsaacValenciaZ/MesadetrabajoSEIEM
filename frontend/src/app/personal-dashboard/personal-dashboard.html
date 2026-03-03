@@ -1,0 +1,43 @@
+<div class="dashboard-layout">
+  <aside class="sidebar" [class.closed]="!menuLateralAbierto">
+    <div class="sidebar-header">
+      <div class="brand">
+        <h2>Bienvenido {{ usuarioActual.nombre }}</h2>
+        <span class="role-badge">Panel Técnico</span>
+      </div>
+    </div> 
+
+    <nav class="sidebar-nav">
+      <a routerLink="mis-reportes" routerLinkActive="active" class="nav-item">Pendientes</a>
+      <a routerLink="historial" routerLinkActive="active" class="nav-item">Historial</a>
+
+      <div class="spacer"></div>
+
+      <div class="user-info-sidebar profile-link" routerLink="perfil">
+        <div class="avatar-circle">{{ usuarioActual.nombre?.charAt(0) }}</div>
+        <div class="user-details">
+          <span class="user-name">{{ usuarioActual.nombre }}</span>
+          <span class="user-role">Visualizar Perfil</span> 
+        </div>
+      </div>
+
+      <button (click)="cerrarSesion()" class="btn-logout">Cerrar Sesión</button>
+    </nav>
+  </aside>
+
+  <div class="main-wrapper">
+    <header class="top-bar">
+      <div class="flex-start">
+        <button class="hamburger-btn" (click)="alternarMenuLateral()">☰</button>
+
+        <div class="header-top logos-container">
+           <img src="icons/seiem_blanco.svg" class="logo-header" alt="Logotipo Institucional SEIEM">
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

@@ -1,0 +1,164 @@
+<div class="gob-bar">
+  <div class="logos-container">
+    <img src="icons/seiem_blanco.svg" class="SEIEM" alt="Logo SEIEM">
+  </div>
+</div>
+
+<div class="dashboard-container">
+
+  <header class="header">
+    <div class="header-content">
+      <h1>PANEL DE ADMINISTRACIÓN</h1>
+      <p>Resumen de usuarios registrados en el sistema.</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-create" (click)="openCreateModal()">+ Crear Usuario</button>
+      <button class="btn-logout" (click)="logout()">Cerrar Sesión</button>
+    </div>
+    <div class="sidebar">
+  <div class="menu-container-resaltado">
+    
+    <div class="menu-header-main" (click)="toggleControlPersonal()" [class.active-header]="isControlPersonalOpen">
+      <div class="menu-title-wrapper">
+        <div class="hamburger-icon">
+          <span></span>
+          <span></span>
+          <span></span>
+       
+        </div>
+        <span class="text-label">CONTROL DE PERSONAL</span>   
+      </div>
+   
+      <i class="fas fa-chevron-down arrow-icon" [class.open]="isControlPersonalOpen"></i>
+    <div class="menu-content" [class.show]="isControlPersonalOpen">
+      <a routerLink="/admin/tickets-list" routerLinkActive="active-item" class="menu-link">
+        <i class="fas fa-file-invoice"></i> Historial de Tickets
+      </a>
+    </div>
+    </div>
+  </div>
+</div>
+  </header>
+
+  <div class="stats-grid">
+    <div class="card stat-card personal" 
+         (click)="applyFilter('personal')" 
+         [class.active-card]="currentFilter === 'personal'">
+      <span class="stat-label">PERSONAL</span>
+      <span class="stat-number">{{ countPersonal }}</span>
+      <div class="indicator"></div>
+    </div>
+
+    <div class="card stat-card supervisor" 
+         (click)="applyFilter('supervisor')" 
+         [class.active-card]="currentFilter === 'supervisor'">
+      <span class="stat-label">SUPERVIRSORES</span>
+      <span class="stat-number">{{ countSupervisor }}</span>
+      <div class="indicator"></div>
+    </div>
+
+    <div class="card stat-card secretaria" 
+         (click)="applyFilter('secretaria')" 
+         [class.active-card]="currentFilter === 'secretaria'">
+      <span class="stat-label">SECRETARIAS</span>
+      <span class="stat-number">{{ countSecretaria }}</span>
+      <div class="indicator"></div>
+  </div>
+
+    <div class="card stat-card total" 
+         (click)="applyFilter('all')" 
+         [class.active-card]="currentFilter === 'all'">
+      <span class="stat-label">USUARIOS TOTALES</span>
+      <span class="stat-number">{{ totalUsers }}</span>
+    </div>
+  </div>
+
+  <div class="card table-card">
+    <div class="card-header">
+      <h2>{{ filterTitle }}</h2>
+    </div>
+
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>NOMBRE</th>
+            <th>CORREO ELECTRONICO</th>
+            <th>ROL</th>
+            <th style="text-align: center;">DETALLES</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of filteredList; track user.id) {
+          <tr>
+            <td class="name-cell">
+              <div class="avatar-circle">{{ user.nombre.charAt(0) }}</div>
+              {{ user.nombre }}
+            </td>
+            
+            <td class="email-cell">{{ user.email }}</td>
+            
+            <td>
+              <span class="badge" 
+                    [class.badge-personal]="user.rol.toLowerCase() === 'personal'"
+                    [class.badge-supervisor]="user.rol.toLowerCase() === 'supervisor'"
+                    [class.badge-admin]="user.rol.toLowerCase() === 'admin' || user.rol.toLowerCase() === 'administrador'">
+                {{ user.rol }}
+              </span>
+            </td>
+
+            <td class="actions-cell">
+              <div class="actions-buttons">
+                <button class="btn-action view" (click)="openViewModal(user)">Ver</button>
+                <button class="btn-action edit" (click)="openEditModal(user)">Editar</button>
+                <button class="btn-action delete" (click)="openDeleteModal(user)">Eliminar</button>
+                <button class="btn-action performance" (click)="verDesempeno(user)">Rendiemiento de Personal</button>
+              </div>
+            </td>
+          </tr>
+          }
+          @if (filteredList.length === 0) {
+            <tr>
+              <td colspan="4" style="text-align: center; padding: 20px; color: #666;">
+                No se encontraron usuarios en esta categoría.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div> 
+
+@if (showCreate) {
+  <div class="modal-overlay">
+    <app-create-user (close)="closeModals()" (create)="handleCreateUser($event)"></app-create-user>
+  </div>
+}
+
+@if (showView) {
+  <div class="modal-overlay">
+    <app-view-user [user]="selectedUser" (close)="closeModals()"></app-view-user>
+  </div>
+}
+
+@if (showEdit) {
+  <div class="modal-overlay">
+    <app-edit-user [user]="selectedUser" (close)="closeModals()"></app-edit-user>
+  </div>
+}
+
+@if (showDelete) {
+  <div class="modal-overlay">
+    <app-delete-user [user]="selectedUser" (close)="closeModals()"></app-delete-user>
+  </div>
+}
+
+@if (showPerformance && selectedUser) {
+  <app-performance-user 
+    [user]="selectedUser" 
+    (close)="closeModals()">
+  </app-performance-user>
+}
+

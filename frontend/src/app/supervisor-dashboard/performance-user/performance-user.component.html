@@ -1,0 +1,47 @@
+<div class="perf-overlay">
+  <div class="perf-window">
+    <div class="perf-header">
+      <div>
+        <h2>Historial de tickets por Personal Tecnico</h2>
+        <p style="color: #666; margin-top: 5px;">{{ user?.nombre }} | Periodo {{ mesSeleccionado }}</p>
+      </div>
+      <div class="perf-actions">
+        <select class="month-select" [(ngModel)]="mesSeleccionado" (change)="procesarRendimiento()">
+          <option *ngFor="let m of mesesDisponibles" [value]="m">{{ obtenerNombreMes(m) }}</option>
+        </select>
+        <button class="btn-close" (click)="cerrar()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="main-stats" *ngIf="stats">
+      <div class="stat-card">
+        <span class="stat-label">Total Reportes</span>
+        <span class="stat-value">{{ stats.total }}</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Tiempo Promedio</span>
+        <span>⏱️<b>{{ stats.tiempoPromedio }}</b></span>
+         <p>Tiempo promedio de solución en {{ obtenerNombreMes(mesSeleccionado) }}</p>
+      </div>
+    </div>
+    
+    <div class="charts-grid" *ngIf="stats">
+      <div class="chart-box">
+        <h3>Estatus General</h3>
+        <canvas id="perfEstatus"></canvas>
+      </div>
+
+      <div class="chart-box">
+        <h3>Puntualidad</h3>
+        <canvas id="perfPuntualidad"></canvas>
+      </div>
+
+      <div class="chart-box">
+        <h3>Distribución Tiempos</h3>
+        <canvas id="perfTiempos"></canvas>
+      </div>
+    </div>
+  </div>
+</div>

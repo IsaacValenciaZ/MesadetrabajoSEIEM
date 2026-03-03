@@ -1,0 +1,133 @@
+<div class="view-section fade-in">
+  <div class="section-header">
+    <div>
+      <h1>Historial de Reportes</h1>
+      <p>Consulta tus tickets organizados por mes y evalúa tu rendimiento.</p>
+    </div>
+    <div class="filters-container" style="position: relative;"> 
+        <select class="month-select" [(ngModel)]="mesSeleccionado" (change)="aplicarFiltroMes()">
+            <option *ngFor="let mes of mesesDisponibles" [value]="mes">{{ obtenerNombreMes(mes) }}</option>
+        </select>
+        <button class="btn-summary" (click)="toggleCalendario()" title="Filtrar por día">
+            <span class="material-symbols-outlined">calendar_month</span>
+        </button>
+        <button class="btn-summary" (click)="verResumenMensual()" title="Ver métricas del mes">
+             <span class="material-symbols-outlined">bar_chart</span>
+        </button>
+        
+        <div class="calendar-popup fade-in" *ngIf="mostrarCalendario && diasCalendario.length > 0">
+            <div class="calendar-wrapper">
+                <div class="calendar-header">
+                    <span>Dom</span><span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span>
+                </div>
+                <div class="calendar-grid">
+                    <div *ngFor="let dia of diasCalendario" 
+                         class="calendar-day" 
+                         [ngClass]="{ 
+                             'empty': !dia.dia, 
+                             'has-tickets': dia.tieneTickets, 
+                             'selected': dia.dia === diaSeleccionado, 
+                             'no-tickets': dia.dia && !dia.tieneTickets 
+                         }"
+                         (click)="seleccionarDia(dia)">
+                         <span *ngIf="dia.dia">{{ dia.dia }}</span>
+                         <div *ngIf="dia.tieneTickets" class="dot-indicator"></div>
+                         <div *ngIf="dia.dia && !dia.tieneTickets" class="empty-mark">-</div>
+                    </div>
+                </div>
+                <div class="calendar-legend">
+                    <small *ngIf="diaSeleccionado" (click)="seleccionarDia({dia: diaSeleccionado})" style="cursor: pointer; color: #56212f; font-weight: bold; text-decoration: underline;">Mostrar todo el mes</small>
+                    <small *ngIf="!diaSeleccionado">Selecciona un día en el calendario</small>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <div *ngIf="gruposPorDia.length === 0 && !cargando" class="empty-general">
+      <div class="empty-state">No hay reportes finalizados para el período seleccionado.</div>
+  </div>
+
+  <div *ngFor="let grupo of gruposPorDia" class="day-group fade-in">
+      <div class="date-divider">
+          <div class="left-info">
+              <span class="date-text">{{ grupo.fecha | date:'fullDate' | titlecase }}</span>
+              <span class="count-badge">{{ grupo.tickets.length }} reportes</span>
+          </div>
+          <button class="btn-stats" (click)="verEstadisticasDia(grupo)">
+              <span class="material-symbols-outlined">donut_large</span>
+          </button>
+      </div>
+
+      <div class="table-card">
+        <div class="table-responsive">
+          <table class="simple-table history-table">
+            <thead>
+              <tr>
+                <th>#ID</th>
+                <th>Hora Asignación</th> 
+                <th>Hora Término</th> 
+                <th>Solicitante</th>
+                <th>Departamento</th>
+                <th>Ext / Tel</th>
+                <th>Clasificación</th>
+                <th class="text-center">Estatus</th>
+                <th class="text-center">Métrica</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let ticket of grupo.tickets" class="row-clickable" (click)="abrirModalTicket(ticket)">
+                <td class="text-muted"><strong>#{{ ticket.id }}</strong></td>
+                
+                <td class="time-col">{{ ticket.fecha | date:'HH:mm' }} hrs</td>
+                
+                <td class="time-col" style="color: #555;">
+                  {{ ticket.fecha_fin ? (ticket.fecha_fin | date:'HH:mm') + ' hrs' : '-' }}
+                </td>
+                
+                <td><strong>{{ ticket.nombre_usuarios || ticket.nombre_usuario }}</strong></td>
+                
+                <td>{{ ticket.departamento }}</td>
+
+                <td style="font-weight: 600; color: #475569;">{{ ticket.extension_tel || '-' }}</td>
+                
+                <td>
+                    <span class="badge" [ngClass]="'cat-' + ticket.descripcion.toLowerCase().split('/')[0]">
+                        {{ ticket.descripcion }}
+                    </span>
+
+                     <span *ngIf="ticket.descripcion === 'Dictaminar' && ticket.cantidad_dicta" class="qty-badge" style="margin-top: 5px; display: block;">
+                     EQ: {{ ticket.cantidad_dicta }}
+                 </span>
+
+                 <span *ngIf="ticket.descripcion === 'Correo' && ticket.correo_tipo" class="qty-badge" style="margin-top: 5px; display: block;">
+                     Dom: {{ ticket.correo_tipo }}
+                 </span>
+
+                 <span *ngIf="ticket.descripcion === 'Tecnico' && ticket.soporte_tipo" class="qty-badge" style="margin-top: 5px; display: block; white-space: normal; line-height: 1.2;">
+                     {{ ticket.soporte_tipo }}
+                 </span>
+
+                </td>
+                
+                <td class="text-center">
+                   <span [class]="ticket.estado === 'Incompleto' ? 'badge-incomplete' : 'badge-completed'">
+                     {{ ticket.estado === 'Completo' ? 'Completado' : 'Incumplido' }}
+                   </span>
+                </td>
+                
+                <td class="text-center">
+                    <div *ngIf="ticket.estado !== 'Incompleto'">
+                        <span *ngIf="ticket.fecha_fin <= ticket.fecha_limite" class="badge-status success">A Tiempo</span>
+                        <span *ngIf="ticket.fecha_fin > ticket.fecha_limite" class="badge-status lateT">Atrasado</span>
+                    </div>
+                    <span *ngIf="ticket.estado === 'Incompleto'" class="badge-status late">Caducado</span>
+                </td>
+
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+  </div>
+</div>

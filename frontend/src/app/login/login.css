@@ -1,0 +1,265 @@
+:host {
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  display: block;
+  color: #333;
+}
+
+.page-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.header-top {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 15px 5% 5px 5%;
+  background-color: white;
+}
+
+.logos-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.logo-header {
+  height: 60px;
+  width: auto;
+  object-fit: contain;
+}
+
+.color-bar-top {
+  height: 40px;
+  background-color: #8b2136;
+  width: 100%;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 20px;
+  background-color: white;
+}
+
+.login-card-border {
+  width: 100%;
+  max-width: 900px;
+  border: 3px solid #8b2136;
+  border-radius: 20px;
+  padding: 50px;
+  background: white;
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+}
+
+.login-content {
+  display: flex;
+  width: 100%;
+  flex-wrap: wrap;
+  gap: 60px; 
+  padding: 20px;
+}
+
+.empty-space {
+  flex: 1;
+  min-width: 300px;
+  position: relative; 
+  overflow: hidden;   
+  background: linear-gradient(135deg, #f1eded 0%, #ffffff 100%); 
+  border-top-left-radius: 17px; 
+  border-bottom-left-radius: 17px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.blob {
+  position: absolute;
+  opacity: 0.9;
+  filter: blur(1px);
+  z-index: 1; 
+}
+
+/* Bolas */
+.blob-top {
+  top: -60px;   
+  left: -60px;
+  width: 180px;
+  height: 160px;
+  background: linear-gradient(45deg, #8b2136, #b03a55);
+  border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+}
+
+.blob-bottom {
+  bottom: -40px;
+  right: -40px;
+  width: 150px;
+  height: 150px;
+  background: linear-gradient(45deg, #ba9156, #e0b472);
+  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  opacity: 0.6;
+}
+
+.brand-showcase {
+  position: relative;
+  z-index: 10; 
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Formulario */
+.form-section {
+  flex: 1;
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 40px; 
+  color: #000;
+}
+
+.group {
+  position: relative;
+  margin-bottom: 45px; 
+}
+
+.main-input {
+  font-size: 16px;
+  padding: 10px 10px 10px 5px;
+  display: block;
+  width: 100%; 
+  border: none;
+  border-bottom: 1px solid #6c6c6c; 
+  background: transparent;
+  color: #333;
+  box-sizing: border-box;
+}
+
+.main-input:focus {
+  outline: none;
+}
+
+.floating-label {
+  color: #999999;
+  font-size: 16px;
+  font-weight: normal;
+  position: absolute;
+  pointer-events: none;
+  left: 5px;
+  top: 10px;
+  transition: 0.2s ease all;
+}
+
+.main-input:focus ~ .floating-label,
+.main-input:valid ~ .floating-label {
+  top: -20px;      
+  font-size: 14px; 
+  color: #8b2136;  
+  font-weight: bold;
+}
+
+.highlight-span {
+  position: absolute;
+  height: 2px; 
+  width: 0px;  
+  bottom: 0; 
+  left: 0;
+  pointer-events: none;
+  background: #8b2136;
+  transition: width 0.3s ease;
+}
+
+.main-input:focus ~ .highlight-span {
+  width: 100%;
+}
+
+.btn-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.btn-primary {
+  background-color: #8b2136;
+  color: white;
+  border: none;
+  padding: 12px 40px;
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.btn-primary:hover {
+  background-color: #ba9156;
+}
+
+.forgot-pass-container {
+  text-align: right;
+  margin-top: -25px; 
+  margin-bottom: 25px; 
+}
+
+.forgot-pass-link {
+  color: #8b2136;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.forgot-pass-link:hover {
+  color: #ba9156; 
+  text-decoration: underline;
+}
+
+.fondo-pattern {
+  width: 100%;
+  height: 180px;
+  background-image:
+    linear-gradient(
+      to bottom,
+      rgba(255,255,255,1) 0%,
+      rgba(255,255,255,0.8) 25%,
+      rgba(255,255,255,0.3) 55%,
+      rgba(255,255,255,0) 100%
+    ),
+    url("/icons/Flores.png");
+  background-repeat: no-repeat;
+  background-position: center bottom;
+  background-size: 100% auto;
+}
+
+@media (max-width: 1024px) {
+  .login-content { gap: 30px; }
+  .login-card-border { padding: 30px; }
+}
+
+@media (min-width: 1400px) {
+  .login-card-border { max-width: 1100px; }
+}
+
+@media screen and (max-width: 1366px) and (max-height: 768px) {
+  .main-content { padding: 30px 20px; }
+  .login-card-border { max-width: 750px; padding: 30px; }
+  .login-content { gap: 40px; }
+  .empty-space { min-height: 200px; }
+  .brand-showcase img, .hero-logo { max-width: 260px; }
+  h2 { font-size: 1.6rem; margin-bottom: 30px; }
+  .group { margin-bottom: 35px; }
+  .btn-primary { padding: 10px 32px; font-size: 0.95rem; }
+  .fondo-pattern { height: 140px; }
+}

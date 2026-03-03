@@ -1,0 +1,71 @@
+.panel-container {
+  padding: 20px;
+  background-color: #f4f4f4; /* Fondo gris claro */
+  min-height: 100vh;
+}
+
+.panel-header h2 {
+  color: #4a1421; /* Guinda SEIEM */
+  margin-bottom: 5px;
+}
+
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.custom-table th {
+  background-color: #4a1421; /* Encabezado Guinda */
+  color: #fff;
+  padding: 15px;
+  text-align: left;
+  font-weight: 500;
+}
+
+.custom-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #eee;
+  color: #333;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar-circle {
+  width: 30px;
+  height: 30px;
+  background-color: #bfa15f; 
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.badge-personal {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.btn-action {
+  background-color: #bfa15f;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}

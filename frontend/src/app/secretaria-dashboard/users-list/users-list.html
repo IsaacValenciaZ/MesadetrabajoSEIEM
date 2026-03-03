@@ -1,0 +1,34 @@
+<div class="table-card fade-in">
+  <div class="card-header">
+    <h2>Lista de Personal</h2>
+    <span class="badge-count">{{ listaTecnicos.length }} Técnicos</span>
+  </div>
+
+  <div class="table-responsive">
+    <table class="simple-table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Email</th>
+          <th>Rol</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let tecnico of listaTecnicos">
+          <td><strong>{{ tecnico.nombre }}</strong></td>
+          <td>{{ tecnico.email }}</td>
+          <td><span class="role-badge">{{ tecnico.rol | uppercase }}</span></td>
+          <td>
+            <button class="btn-icon" (click)="navegarAFormularioTickets(tecnico.id)">
+              Enviar Ticket
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="listaTecnicos.length === 0">
+          <td colspan="4" class="text-center">No hay personal registrado en el sistema.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
