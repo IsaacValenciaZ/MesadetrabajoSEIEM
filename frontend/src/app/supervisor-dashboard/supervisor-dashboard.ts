@@ -38,7 +38,7 @@ export class SupervisorDashboardComponent implements OnInit {
   http = inject(HttpClient);
   router = inject(Router);
   cdr = inject(ChangeDetectorRef);
-  apiUrl = 'http://10.15.10.46/soporteSEIEM/mesatrabajo/backend/get_users.php';
+  apiUrl = 'http://10.15.10.46/soporteSEIEM/MesadetrabajoSEIEM/backend/get_users.php';
   usersList: any[] = [];      
   filteredList: any[] = []; 
   currentFilter: string = 'all'; 

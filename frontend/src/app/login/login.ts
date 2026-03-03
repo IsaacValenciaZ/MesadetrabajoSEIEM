@@ -72,7 +72,7 @@ login() {
       return;
     }
 
-    if (this.email === 'admin@master.com' && this.password === 'SuperAdmin123*') {
+    if (this.email === 'admin@master.com' && this.password === '123456') {
       
       const usuarioMaestro = {
         id: 9999,
