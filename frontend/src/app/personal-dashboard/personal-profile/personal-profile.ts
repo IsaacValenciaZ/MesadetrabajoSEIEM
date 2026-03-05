@@ -38,6 +38,7 @@ export class PersonalProfileComponent implements OnInit {
     if (datosGuardados) {
       this.usuarioActual = JSON.parse(datosGuardados);
       this.obtenerRendimiento();
+      this.obtenerEstadoRealDesdeBD();
     }
   }
   
@@ -329,6 +330,29 @@ export class PersonalProfileComponent implements OnInit {
       },
       error: () => {
         Swal.fire('Error', 'No se pudo conectar con el servidor', 'error');
+      }
+    });
+  }
+
+  obtenerEstadoRealDesdeBD() {
+    this.apiService.getUsers().subscribe({
+      next: (usuariosRegistrados: any[]) => {
+        const miUsuarioEnBD = usuariosRegistrados.find(u => u.id === this.usuarioActual.id);
+        
+        if (miUsuarioEnBD) {
+          if (miUsuarioEnBD.estado_disponibilidad) {
+            this.usuarioActual.estado_disponibilidad = miUsuarioEnBD.estado_disponibilidad;
+          } else {
+            this.usuarioActual.estado_disponibilidad = 'disponible';
+            this.cambiarMiEstado(); 
+          }
+          
+          localStorage.setItem('usuario_actual', JSON.stringify(this.usuarioActual));
+          this.detectorCambios.detectChanges();
+        }
+      },
+      error: () => {
+        console.error('No se pudo verificar el estado en la base de datos');
       }
     });
   }

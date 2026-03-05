@@ -9,8 +9,8 @@ export class ApiService {
   
   private http = inject(HttpClient);
   
- // private baseUrl = 'http://10.15.10.46/soporteSEIEM/MesadetrabajoSEIEM/backend'; 
-   private baseUrl = 'http://localhost/mesatrabajoBACKEND/backend/'; 
+ private baseUrl = 'http://10.15.10.46/soporteSEIEM/MesadetrabajoSEIEM/backend'; 
+//private baseUrl = 'http://localhost/mesatrabajoBACKEND/backend/'; 
 
   constructor() { }
 

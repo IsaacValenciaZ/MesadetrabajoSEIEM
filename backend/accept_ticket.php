@@ -4,7 +4,7 @@ include_once("db_connect.php");
 $ticket_id = isset($_GET['ticket_id']) ? $_GET['ticket_id'] : null;
 $tech_id = isset($_GET['tech_id']) ? $_GET['tech_id'] : null;
 
-$url_destino = "http://localhost:4200/personal/mis-reportes";
+$url_destino = "http://10.15.10.46:4200/personal/mis-reportes";
 
 if ($ticket_id && $tech_id) {
     try {

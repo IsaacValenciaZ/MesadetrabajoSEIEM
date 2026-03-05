@@ -80,8 +80,9 @@ if(isset($postdata) && !empty($postdata)) {
                                     </div>
                                     <p style='color: #977e5b; font-size: 13px; font-style: italic;'>* Deberás cambiar esta contraseña en el apartado ¿Olvidaste tu Contraseña? en el Login.</p>
                                     <div style='text-align: center; margin-top: 30px;'>
-                                        <a href='http://localhost:4200/login' style='background-color: #56212f; color: #ffffff; padding: 15px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;'>Acceder al Login</a>
+                                        <a href='http://10.15.10.46:4200/login' style='background-color: #56212f; color: #ffffff; padding: 15px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;'>Acceder al Login</a>
                                         </div>
+                                        
                                 </div>
                                 <div style='background-color: #f9f9f9; padding: 20px; text-align: center; color: #999999; font-size: 11px; border-top: 1px solid #eeeeee;'>
                                     <p style='margin: 0;'>Este correo es informativo, favor de no responder.</p>
