@@ -13,7 +13,7 @@ export class PersonalActivoComponent implements OnInit {
   private http = inject(HttpClient);
  
   private apiUrl = 'http://localhost/mesatrabajoBACKEND/backend/get_users.php';
-  
+  //private apiUrl = 'http://localhost/mesatrabajoBACKEND/backend/get_users.php';
   personalList: any[] = [];
   loading: boolean = true;
 

@@ -17,10 +17,11 @@ Chart.register(...registerables);
 })
 export class UserProfileComponent implements OnInit {
 
-  private clienteHttp = inject(HttpClient);
-  private servicioApi = inject(ApiService);
+  private http = inject(HttpClient);
+  private apiService = inject(ApiService);
   private detectorCambios = inject(ChangeDetectorRef);
-  private rutaActualizacion = 'http://localhost/mesatrabajoBACKEND/backend/update_profile.php'; 
+  private apiUrl = 'http://localhost/mesatrabajoBACKEND/backend/update_profile.php'; 
+ // private apiUrl = 'http://10.15.10.46/soporteSEIEM/MesadetrabajoSEIEM/backend/update_profile.php'; 
 
   datosUsuario: any = { nombre: '', email: '' }; 
   nuevaContrasena = '';
@@ -55,7 +56,7 @@ export class UserProfileComponent implements OnInit {
   }
 
   obtenerRendimientoHistorico(idUsuario: number) {
-      this.servicioApi.getTicketsCreadosPorSecretaria(idUsuario).subscribe({
+      this.apiService.getTicketsCreadosPorSecretaria(idUsuario).subscribe({
           next: (respuestaServidor: any[]) => {
               this.historialTicketsCreados = respuestaServidor || [];
               
@@ -259,7 +260,7 @@ export class UserProfileComponent implements OnInit {
          Swal.fire('Atención', 'Datos incompletos', 'warning'); return;
      }
      const objetoEnvio = { id: this.datosUsuario.id, nombre: this.datosUsuario.nombre, email: this.datosUsuario.email, password: this.nuevaContrasena };
-     this.clienteHttp.post(this.rutaActualizacion, objetoEnvio).subscribe({
+     this.http.post(this.apiUrl, objetoEnvio).subscribe({
          next: (respuestaServidor: any) => {
              if(respuestaServidor.status) {
                  const sesionAlmacenada = localStorage.getItem('usuario_actual');

@@ -37,11 +37,17 @@
         <input type="tel" [(ngModel)]="nuevoTicket.extension_tel" name="extension_tel" placeholder="Escribe la extensión o número de teléfono" class="simple-input" maxlength="12" (keypress)="validarSoloNumeros($event)" required>
       </div>
 
-      <div class="form-group">
+        <div class="form-group">
         <label>Técnico Asignado:</label>
-        <select [(ngModel)]="nuevoTicket.personalId" class="simple-input">
+        <select class="simple-input" [(ngModel)]="nuevoTicket.personalId" required>
           <option value="" disabled selected>-- Selecciona Técnico --</option>
-          <option *ngFor="let tecnico of listaTecnicos" [value]="tecnico.id">{{ tecnico.nombre }}</option> 
+          <option *ngFor="let tecnico of listaTecnicos" 
+                  [value]="tecnico.id" 
+                  [disabled]="tecnico.estado_disponibilidad === 'ocupado' || tecnico.estado_disponibilidad === 'ausente'">
+            {{ tecnico.estado_disponibilidad === 'ocupado' ? '🟠' : (tecnico.estado_disponibilidad === 'ausente' ? '🔴' : '🟢') }} 
+            {{ tecnico.nombre }} 
+            ({{ tecnico.estado_disponibilidad || 'disponible' }})
+          </option>
         </select>
       </div>
 

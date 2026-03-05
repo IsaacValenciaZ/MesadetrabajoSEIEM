@@ -184,7 +184,29 @@
 }
 
 @media (max-width: 768px) {
-    .table-responsive { overflow-x: auto; }
-    .section-header { flex-direction: column; align-items: flex-start; gap: 15px; }
-    .big-counter { width: 100%; display: flex; justify-content: space-between; align-items: center; }
+    .table-responsive { 
+        overflow-x: auto; 
+    }
+    
+    .section-header { 
+        flex-direction: column; 
+        align-items: flex-start; 
+        gap: 15px; 
+    }
+    
+    .big-counter { 
+        width: 100%; 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+    }
+
+    .view-section {
+        padding-top: 20px;
+        padding-bottom: 20px;
+    }
+
+    .table-card {
+        padding: 15px;
+    }
 }

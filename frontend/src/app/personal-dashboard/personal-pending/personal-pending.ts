@@ -1,7 +1,8 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy ,inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api'; 
 import Swal from 'sweetalert2'; 
+import { Subscription, interval } from 'rxjs';
 
 @Component({
   selector: 'app-personal-pending',
@@ -14,6 +15,7 @@ export class PersonalPendingComponent implements OnInit {
 
   private apiService = inject(ApiService);
   private cdr = inject(ChangeDetectorRef);
+  private pollingSubscription: Subscription | undefined;
 
   usuarioActual: any = {};
   listaTicketsPendientes: any[] = []; 
@@ -25,11 +27,57 @@ export class PersonalPendingComponent implements OnInit {
     if (usuarioGuardado) {
       this.usuarioActual = JSON.parse(usuarioGuardado);
       this.obtenerTicketsPendientes();
+
+      this.pollingSubscription = interval(15000).subscribe(() => {
+          this.obtenerTicketsPendientesSilenicoso();
+      });
     }
   }
 
+  obtenerTicketsPendientesSilenicoso() {
+      this.ejecutarLlamadaApi();
+  }
+
+  private ejecutarLlamadaApi() {
+    this.apiService.getMisTickets(this.usuarioActual.nombre).subscribe({
+      next: (datosDelServidor) => {
+        const todosLosTickets = datosDelServidor || [];
+        this.fechaReferenciaActual = new Date();
+      
+        const idsAntiguos = this.listaTicketsPendientes.map(t => t.id);
+
+        const nuevaListaTickets = todosLosTickets.filter((ticket: any) => 
+            ticket.estado === 'En espera' || ticket.estado === 'Asignado' || !ticket.estado
+        );
+    
+        nuevaListaTickets.sort((a, b) => {
+             return new Date(a.fecha_limite).getTime() - new Date(b.fecha_limite).getTime();
+        });
+        
+        const idsNuevos = nuevaListaTickets.map(t => t.id);
+        const hayTicketsNuevos = idsNuevos.some(id => !idsAntiguos.includes(id));
+        
+        this.listaTicketsPendientes = nuevaListaTickets;
+        this.cargandoDatos = false;
+        this.cdr.detectChanges(); 
+        
+        if(hayTicketsNuevos && idsAntiguos.length > 0) {
+             const Toast = Swal.mixin({
+                toast: true, position: 'top-end', showConfirmButton: false, timer: 3000
+             });
+             Toast.fire({ icon: 'info', title: '¡Tienes nuevos reportes asignados!' });
+        }
+
+      },
+      error: (err) => {
+        this.cargandoDatos = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
   obtenerTicketsPendientes() {
     this.cargandoDatos = true;
+    this.ejecutarLlamadaApi();
     
     this.apiService.getMisTickets(this.usuarioActual.nombre).subscribe({
       next: (datosDelServidor) => {
@@ -168,50 +216,140 @@ export class PersonalPendingComponent implements OnInit {
   }
 
   abrirModalFinalizacion(ticketSeleccionado: any) {
-    Swal.fire({
+
+    let canvas: HTMLCanvasElement;
+    let ctx: CanvasRenderingContext2D | null;
+    let isDrawing = false;
+    let isEmpty = true;
+
+Swal.fire({
       title: `Finalizar Ticket #${ticketSeleccionado.id}`,
       html: `
         <div style="text-align: left;">
-          <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 20px;">Por favor, documenta la solución para cerrar este ticket.</p>
+          <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 10px;">Documenta la solución y solicita la firma de conformidad.</p>
           
           <label style="font-weight: 800; color: #56212f; font-size: 0.95rem;">Resolución del problema:</label>
-          <textarea id="solucion-text" class="swal2-textarea" style="margin: 10px 0; width: 100%; height: 120px; box-sizing: border-box; font-family: inherit; font-size: 0.95rem; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1;" placeholder="Ej. Se reemplazó el cable de red, se instaló Office 365..."></textarea>
+          <textarea id="solucion-text" class="swal2-textarea" style="margin: 5px 0 15px 0; width: 100%; height: 80px; box-sizing: border-box; font-family: inherit; font-size: 0.95rem; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1;" placeholder="Ej. Se reemplazó el cable de red..."></textarea>
           
-          <label style="font-weight: 800; color: #56212f; font-size: 0.95rem; display: block; margin-top: 15px;">Evidencia Fotográfica (Opcional pero recomendada):</label>
-          <input type="file" id="evidencia-file" class="swal2-file" accept="image/*" style="width: 100%; margin: 10px 0 0 0; box-sizing: border-box; padding: 10px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px;">
+          <label style="font-weight: 800; color: #56212f; font-size: 0.95rem; display: block;">Firma del Solicitante:</label>
+          <div style="border: 1px solid #cbd5e1; border-radius: 8px; background: #f8fafc; margin-top: 5px; touch-action: none;">
+             <canvas id="firma-canvas" style="width: 100%; height: 180px; cursor: crosshair;"></canvas>
+          </div>
+          <div style="text-align: right; margin-top: 5px; margin-bottom: 15px;">
+             <button type="button" id="btn-limpiar-firma" style="background: none; border: none; color: #b45309; text-decoration: underline; cursor: pointer; font-size: 0.85rem; font-weight: bold;">Limpiar Firma</button>
+          </div>
+
+          <label style="font-weight: 800; color: #56212f; font-size: 0.95rem; display: block;">Evidencia Fotográfica:</label>
+          <input type="file" id="evidencia-file" class="swal2-file" accept="image/*" style="width: 100%; margin: 5px 0 0 0; box-sizing: border-box; padding: 10px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px;">
         </div>
       `,
       showCancelButton: true,
       confirmButtonText: 'Guardar y Cerrar',
       confirmButtonColor: '#56212f',
       cancelButtonText: 'Cancelar',
+      cancelButtonColor: '#000000',
+     width: '600px',
+      didOpen: () => {
+        canvas = document.getElementById('firma-canvas') as HTMLCanvasElement;
+        ctx = canvas.getContext('2d');
+        const btnLimpiar = document.getElementById('btn-limpiar-firma');
+
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+
+        const getPos = (evt: MouseEvent | TouchEvent) => {
+            const rectInfo = canvas.getBoundingClientRect();
+            let clientX, clientY;
+            if (evt instanceof MouseEvent) {
+                clientX = evt.clientX;
+                clientY = evt.clientY;
+            } else {
+                clientX = evt.touches[0].clientX;
+                clientY = evt.touches[0].clientY;
+            }
+            return { x: clientX - rectInfo.left, y: clientY - rectInfo.top };
+        };
+
+        const startDrawing = (e: MouseEvent | TouchEvent) => {
+            e.preventDefault();
+            isDrawing = true;
+            isEmpty = false;
+            const pos = getPos(e);
+            ctx?.beginPath();
+            ctx?.moveTo(pos.x, pos.y);
+        };
+
+        const draw = (e: MouseEvent | TouchEvent) => {
+            e.preventDefault();
+            if (!isDrawing || !ctx) return;
+            const pos = getPos(e);
+            ctx.lineTo(pos.x, pos.y);
+            ctx.strokeStyle = '#0f172a'; 
+            ctx.lineWidth = 2.5; 
+            ctx.lineCap = 'round';
+            ctx.stroke();
+        };
+
+        const stopDrawing = () => {
+            isDrawing = false;
+            ctx?.closePath();
+        };
+
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+
+        canvas.addEventListener('touchstart', startDrawing, { passive: false });
+        canvas.addEventListener('touchmove', draw, { passive: false });
+        canvas.addEventListener('touchend', stopDrawing);
+
+        btnLimpiar?.addEventListener('click', () => {
+            ctx?.clearRect(0, 0, canvas.width, canvas.height);
+            isEmpty = true;
+        });
+      },
       preConfirm: () => {
         const descripcionResolucion = (document.getElementById('solucion-text') as HTMLTextAreaElement).value;
         const archivoEvidencia = (document.getElementById('evidencia-file') as HTMLInputElement).files?.[0];
 
         if (!descripcionResolucion || descripcionResolucion.trim() === '') {
-          Swal.showValidationMessage('La descripción de la solución es estrictamente obligatoria');
+          Swal.showValidationMessage('La descripción de la solución es obligatoria');
+          return false;
+        }
+
+        if (isEmpty) {
+          Swal.showValidationMessage('La firma de conformidad es obligatoria');
           return false;
         }
         
-        return { resolucion: descripcionResolucion, archivo: archivoEvidencia };
+        const firmaBase64 = canvas.toDataURL('image/png');
+
+        return { resolucion: descripcionResolucion, archivo: archivoEvidencia, firma: firmaBase64 };
       }
     }).then((resultadoModal) => {
       if (resultadoModal.isConfirmed) {
         this.procesarCierreDeTicket(
             ticketSeleccionado.id, 
-            resultadoModal.value.resolucion, 
+            resultadoModal.value.resolucion,
+            resultadoModal.value.firma,
             resultadoModal.value.archivo
         );
       }
     });
   }
 
-  procesarCierreDeTicket(idTicket: number, resolucionTexto: string, archivoAdjunto?: File) {
+procesarCierreDeTicket(idTicket: number, resolucionTexto: string, firmaBase64: string, archivoAdjunto?: File) {
     const formularioDatos = new FormData();
     formularioDatos.append('id', idTicket.toString());
     formularioDatos.append('estado', 'Completo');
     formularioDatos.append('descripcion_resolucion', resolucionTexto);
+    formularioDatos.append('firma', firmaBase64); 
+    
+    if (this.usuarioActual && this.usuarioActual.id) {
+        formularioDatos.append('usuario_id', this.usuarioActual.id.toString());
+    }
     
     if (archivoAdjunto) {
       formularioDatos.append('evidencia', archivoAdjunto);
@@ -220,9 +358,13 @@ export class PersonalPendingComponent implements OnInit {
     this.apiService.actualizarEstadoTicketConEvidencia(formularioDatos).subscribe({
       next: (respuestaServidor: any) => {
         if (respuestaServidor.status === true) {
+          this.usuarioActual.estado_disponibilidad = 'disponible';
+          localStorage.setItem('usuario_actual', JSON.stringify(this.usuarioActual));
+
           Swal.fire({ 
               icon: 'success', 
               title: 'Ticket cerrado correctamente', 
+              text: 'Tu estado ha cambiado a Disponible 🟢',
               timer: 2000, 
               showConfirmButton: false 
           });
@@ -231,9 +373,7 @@ export class PersonalPendingComponent implements OnInit {
           Swal.fire('Error', respuestaServidor.message || 'No se pudo actualizar el estado del ticket', 'error');
         }
       },
-      error: (err) => {
-        Swal.fire('Error de conexión', 'No se pudo conectar con el servidor', 'error');
-      }
+      error: (err) => Swal.fire('Error de conexión', 'No se pudo conectar con el servidor', 'error')
     });
   }
 }

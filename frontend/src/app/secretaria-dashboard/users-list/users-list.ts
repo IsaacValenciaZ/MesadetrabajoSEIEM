@@ -9,14 +9,14 @@ import { Input } from '@angular/core';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './users-list.html',
-  styleUrl: './users-list.css'
+  styleUrls: ['./users-list.css'] 
 })
 export class UsersListComponent implements OnInit {
   private servicioApi = inject(ApiService);
   private enrutador = inject(Router);
   private detectorCambios = inject(ChangeDetectorRef); 
   
-@Input() esSupervisor: boolean = false;
+  @Input() esSupervisor: boolean = false;
   listaUsuariosGeneral: any[] = [];
 
   ngOnInit() {
