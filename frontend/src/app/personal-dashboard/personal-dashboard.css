@@ -279,3 +279,29 @@
     object-fit: contain;
     filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); 
 }
+
+@media (max-width: 768px) {
+    .sidebar {
+        position: absolute; 
+        top: 70px; 
+        height: calc(100vh - 70px); 
+        z-index: 90; 
+        box-shadow: 4px 10px 15px rgba(0,0,0,0.3); 
+    }
+
+    .top-bar {
+        padding: 10px 15px; 
+    }
+
+    .logo-header {
+        height: 38px; 
+    }
+
+    .content {
+        padding: 15px; 
+    }
+
+    .user-info-sidebar {
+        padding: 10px; 
+    }
+}

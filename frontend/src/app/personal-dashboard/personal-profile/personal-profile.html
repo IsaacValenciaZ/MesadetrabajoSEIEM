@@ -4,13 +4,25 @@
       <div class="avatar-container">
          <div class="big-avatar">{{ usuarioActual.nombre?.charAt(0) }}</div>
       </div>
+      
     </div>
 
     <div class="profile-body">
-      <div class="header-text">
+     <div class="header-text">
           <h2>{{ usuarioActual.nombre }}</h2>
           <p class="role-badge">Personal Administrativo</p>
-      </div>
+          
+          <div style="margin-top: 15px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+              <label style="font-weight: bold; color: #64748b; font-size: 0.9rem;">Mi Disponibilidad:</label>
+              <select [(ngModel)]="usuarioActual.estado_disponibilidad" (change)="cambiarMiEstado()" 
+                      style="padding: 6px 6px; border-radius: 20px; border: 2px solid #e2e8f0; font-weight: 700; cursor: pointer; outline: none; background-color: #fff; width: 140px;"
+                      [ngStyle]="{'color': usuarioActual.estado_disponibilidad === 'disponible' ? '#166534' : (usuarioActual.estado_disponibilidad === 'ocupado' ? '#b45309' : '#b91c1c')}">
+                  <option value="disponible">🟢 Disponible</option>
+                  <option value="ocupado">🟠 Ocupado</option>
+                  <option value="ausente">🔴 Ausente</option>
+              </select>
+          </div>
+          </div>
 
       <div class="form-content">
         <div class="form-row">
@@ -91,4 +103,25 @@
           </div>
       </div>
   </div>
+
+    <h3 class="section-divider">Análisis detallado</h3>
+
+  <div class="stats-grid">
+    <div class="stats-card" style="justify-content: center;">
+        <h4 style="margin: 10px 0; color: #56212f;">Tiempo Medio de Solución</h4>
+        <span class="material-symbols-outlined" style="font-size: 3rem; color: #ba9156;">timer</span>
+        <h2 style="font-size: 2.5rem; margin: 0; color: #333;">{{ tiempoPromedioTexto }}</h2>
+        <p style="color: #64748b; font-size: 0.85rem; text-align: center; margin-top: 5px;">Tiempo promedio que tardas en resolver un reporte este mes.</p>
+    </div>
+
+    <div class="stats-card">
+        <h4 style="margin: 0 0 15px 0; color: #56212f; width: 100%; text-align: center;">Problemas más resueltos</h4>
+        <div style="width: 100%; display: flex; flex-direction: column; gap: 12px;">
+            <div *ngFor="let cat of topCategorias" style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 10px; border-radius: 8px;">
+                <span style="font-weight: 600; color: #333;">{{ cat.nombre }}</span>
+                <span class="role-badge" style="background: #56212f; color: white; border: none;">{{ cat.cantidad }} tickets</span>
+            </div>
+        </div>
+    </div>
+</div>
 </div>

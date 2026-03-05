@@ -8,7 +8,7 @@
     <table class="simple-table">
       <thead>
         <tr>
-          <th>Nombre</th>
+          <th>Nombre del Técnico</th>
           <th>Email</th>
           <th>Rol</th>
           <th>Acciones</th>
@@ -16,7 +16,21 @@
       </thead>
       <tbody>
         <tr *ngFor="let tecnico of listaTecnicos">
-          <td><strong>{{ tecnico.nombre }}</strong></td>
+          <td>
+            <div class="user-info-cell">
+              <div class="status-indicator" 
+                   [ngClass]="{
+                     'status-green': tecnico.estado_disponibilidad === 'disponible' || !tecnico.estado_disponibilidad, 
+                     'status-orange': tecnico.estado_disponibilidad === 'ocupado', 
+                     'status-red': tecnico.estado_disponibilidad === 'ausente'
+                   }">
+              </div>
+              <div class="user-details">
+                <strong>{{ tecnico.nombre }}</strong>
+                <span class="status-text">{{ tecnico.estado_disponibilidad || 'disponible' | titlecase }}</span>
+              </div>
+            </div>
+          </td>
           <td>{{ tecnico.email }}</td>
           <td><span class="role-badge">{{ tecnico.rol | uppercase }}</span></td>
           <td>
