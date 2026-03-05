@@ -387,53 +387,70 @@ abrirModalTicket(ticketSeleccionado: any) {
     });
   }
 
-  verEvidenciaFinal(ticket: any) {
-      const imagenData = ticket.evidencia_archivo; 
-
+verEvidenciaFinal(ticket: any) {
       Swal.fire({
-        title: `Resolución del Ticket #${ticket.id}`,
-        html: `
-          <div style="text-align: left; padding: 5px;">
-            <p style="font-weight: bold; color: #56212f; margin-bottom: 5px;">Descripción de la solución:</p>
-            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 5px solid #27ae60; margin-bottom: 15px; max-height: 150px; overflow-y: auto;">
-              ${ticket.descripcion_resolucion || 'El técnico no proporcionó una descripción de las tareas realizadas.'}
-            </div>
-
-            ${ticket.firma_base64 ? `
-              <p style="font-weight: bold; color: #56212f; margin-bottom: 5px;">Firma de conformidad:</p>
-              <div style="text-align: center; border: 1px solid #e2e8f0; padding: 10px; border-radius: 8px; background: #ffffff; margin-bottom: 15px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
-                <img src="${ticket.firma_base64}" style="width: 100%; max-height: 120px; object-fit: contain;">
-              </div>
-            ` : ''}
-            
-            ${imagenData ? `
-              <p style="font-weight: bold; color: #56212f; margin-bottom: 5px;">Evidencia fotográfica:</p>
-              <div style="text-align: center; border: 1px solid #ddd; padding: 10px; border-radius: 8px; background: #1a1a1a;">
-                <img id="img-evidencia-${ticket.id}" src="${imagenData}" 
-                     style="width: 100%; max-height: 400px; object-fit: contain; border-radius: 4px; cursor: zoom-in; transition: transform 0.2s;"
-                     onmouseover="this.style.transform='scale(1.02)'"
-                     onmouseout="this.style.transform='scale(1)'">
-                <small style="display:block; color: #aaa; margin-top: 8px; font-weight: bold;">
-                  <span class="material-symbols-outlined" style="font-size: 14px; vertical-align: middle;">zoom_in</span> 
-                  Haz clic en la imagen para ampliarla
-                </small>
-              </div>
-            ` : '<p style="color: #999; font-style: italic; text-align: center;">Sin evidencia fotográfica adjunta.</p>'}
-          </div>
-        `,
-        confirmButtonText: 'Cerrar',
-        confirmButtonColor: '#56212f',
-        width: '650px',
-        didOpen: () => {
-          if (imagenData) {
-            const visorImagen = document.getElementById(`img-evidencia-${ticket.id}`);
-            if (visorImagen) {
-                visorImagen.addEventListener('click', () => {
-                this.abrirImagenCompleta(imagenData, ticket.id, ticket);
-              });
-            }
+          title: 'Cargando evidencia...',
+          text: 'Descargando imágenes de la base de datos',
+          allowOutsideClick: false,
+          didOpen: () => {
+              Swal.showLoading();
           }
-        }
+      });
+
+      this.apiService.getEvidenciaTicket(ticket.id).subscribe({
+          next: (evidencia) => {
+              const imagenData = evidencia.evidencia_archivo; 
+              const firmaData = evidencia.firma_base64;
+
+              Swal.fire({
+                title: `Resolución del Ticket #${ticket.id}`,
+                html: `
+                  <div style="text-align: left; padding: 5px;">
+                    <p style="font-weight: bold; color: #56212f; margin-bottom: 5px;">Descripción de la solución:</p>
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 5px solid #27ae60; margin-bottom: 15px; max-height: 150px; overflow-y: auto;">
+                      ${ticket.descripcion_resolucion || 'El técnico no proporcionó una descripción de las tareas realizadas.'}
+                    </div>
+
+                    ${firmaData ? `
+                      <p style="font-weight: bold; color: #56212f; margin-bottom: 5px;">Firma de <span style="color: #000000;">${ticket.nombre_usuario}</span>:</p>
+                      <div style="text-align: center; border: 1px solid #e2e8f0; padding: 10px; border-radius: 8px; background: #ffffff; margin-bottom: 15px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
+                        <img src="${firmaData}" style="width: 100%; max-height: 120px; object-fit: contain;">
+                      </div>
+                    ` : ''}
+                    
+                    ${imagenData ? `
+                      <p style="font-weight: bold; color: #56212f; margin-bottom: 5px;">Evidencia fotográfica:</p>
+                      <div style="text-align: center; border: 1px solid #ddd; padding: 10px; border-radius: 8px; background: #1a1a1a;">
+                        <img id="img-evidencia-${ticket.id}" src="${imagenData}" 
+                             style="width: 100%; max-height: 400px; object-fit: contain; border-radius: 4px; cursor: zoom-in; transition: transform 0.2s;"
+                             onmouseover="this.style.transform='scale(1.02)'"
+                             onmouseout="this.style.transform='scale(1)'">
+                        <small style="display:block; color: #aaa; margin-top: 8px; font-weight: bold;">
+                          <span class="material-symbols-outlined" style="font-size: 14px; vertical-align: middle;">zoom_in</span> 
+                          Haz clic en la imagen para ampliarla
+                        </small>
+                      </div>
+                    ` : '<p style="color: #999; font-style: italic; text-align: center;">Sin evidencia fotográfica adjunta.</p>'}
+                  </div>
+                `,
+                confirmButtonText: 'Cerrar',
+                confirmButtonColor: '#56212f',
+                width: '650px',
+                didOpen: () => {
+                  if (imagenData) {
+                    const visorImagen = document.getElementById(`img-evidencia-${ticket.id}`);
+                    if (visorImagen) {
+                        visorImagen.addEventListener('click', () => {
+                        this.abrirImagenCompleta(imagenData, ticket.id, ticket);
+                      });
+                    }
+                  }
+                }
+              });
+          },
+          error: () => {
+              Swal.fire('Error', 'No se pudo cargar la evidencia fotográfica.', 'error');
+          }
       });
   }
 

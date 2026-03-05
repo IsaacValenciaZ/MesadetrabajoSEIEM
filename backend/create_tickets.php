@@ -25,9 +25,10 @@ if(isset($data->nombre_usuario) && isset($data->personal) && isset($data->descri
         $extension_tel = isset($data->extension_tel) ? $data->extension_tel : null;
 
         $sql = "INSERT INTO tickets (nombre_usuario, departamento, descripcion, prioridad, personal, notas, fecha_limite, fecha_fin, secretaria_id, cantidad_dicta, extension_tel, correo_tipo, soporte_tipo, estado) 
-                VALUES (:user, :depto, :desc, :prio, :pers, :notas, :limite, NULL, :secretariaId, :cant, :ext_tel, :correo_tipo, :soporte_tipo, 'En espera')";
+                VALUES (:user, :depto, :desc, :prio, :pers, :notas, :limite, NULL, :secretariaId, :cant, :ext_tel, :correo_tipo, :soporte_tipo, :estado)";
         
         $stmt = $conn->prepare($sql);
+        
         $stmt->execute([
             ':user'         => $data->nombre_usuario,
             ':depto'        => $data->departamento,
@@ -40,7 +41,8 @@ if(isset($data->nombre_usuario) && isset($data->personal) && isset($data->descri
             ':cant'         => $cantidad,
             ':ext_tel'      => $extension_tel,
             ':correo_tipo'  => $correo_tipo,
-            ':soporte_tipo' => $soporte_tipo
+            ':soporte_tipo' => $soporte_tipo,
+            ':estado'       => 'En espera' 
         ]);
 
         $ticket_id = $conn->lastInsertId(); 
@@ -48,12 +50,12 @@ if(isset($data->nombre_usuario) && isset($data->personal) && isset($data->descri
         if(isset($data->personal_email) && isset($data->personal_id)) {
             $enlace_aceptar = "http://10.15.10.46/soporteSEIEM/MesadetrabajoSEIEM/backend/accept_ticket.php?ticket_id={$ticket_id}&tech_id={$data->personal_id}";
                                             //http://10.15.10.46/soporteSEIEM/MesadetrabajoSEIEM/
+                                            
             $mail = new PHPMailer(true);
             try {
                 $mail->isSMTP();
                 $mail->SMTPAuth   = true;
                 $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-                
                 $mail->Host       = MAIL_HOST; 
                 $mail->Username   = MAIL_USER; 
                 $mail->Password   = MAIL_PASS; 
@@ -122,7 +124,11 @@ if(isset($data->nombre_usuario) && isset($data->personal) && isset($data->descri
     
         echo json_encode(["status" => true, "message" => "Ticket creado correctamente"]);
     } catch (PDOException $e) {
-        echo json_encode(["status" => false, "error" => $e->getMessage()]);
+        echo json_encode([
+            "status" => false, 
+            "error" => "Error SQL Crudo: " . $e->getMessage(),
+            "detalles_estado" => "Intenté insertar 'En espera'"
+        ]);
     }
 } else {
     echo json_encode(["status" => false, "message" => "Faltan datos obligatorios"]);

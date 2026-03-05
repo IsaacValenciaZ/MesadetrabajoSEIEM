@@ -30,6 +30,10 @@ export class ApiService {
     return this.http.post<any>(`${this.baseUrl}/update_tickets_personal.php`, { id, estado: nuevoEstado });
   }
 
+  getEvidenciaTicket(id: number): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/get_evidencia_personal.php?id=${id}`);
+  }
+
   getTicketsCreadosPorSecretaria(idSecretaria: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/get_secretaria_tickets.php?id=${idSecretaria}`);
   }
