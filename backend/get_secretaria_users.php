@@ -8,7 +8,7 @@ include_once("db_connect.php");
 
 try {
 
-    $sql = "SELECT id, nombre, email, rol FROM usuarios";
+    $sql = "SELECT id, nombre, email, rol, estado_disponibilidad FROM usuarios";
     $stmt = $conn->prepare($sql);
     $stmt->execute();
 
