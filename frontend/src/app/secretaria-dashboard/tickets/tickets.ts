@@ -307,9 +307,22 @@ export class TicketsComponent implements OnInit {
       personal_email: tecnicoElegido ? tecnicoElegido.email : null
     };
 
+    Swal.fire({
+      title: 'Procesando ticket...',
+      html: 'Guardando reporte y notificando al técnico. <br><b>Por favor espera...</b>',
+      allowOutsideClick: false,
+      showConfirmButton: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
     this.apiService.createTicket(cargaDatosTicket).subscribe({
       next: (respuestaServidor) => {
         if(respuestaServidor.status === true) {
+          
+          Swal.close();
+
           const alertaFlotante = Swal.mixin({
             toast: true, 
             position: 'top-end', 
