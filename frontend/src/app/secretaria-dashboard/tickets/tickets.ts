@@ -159,7 +159,6 @@ export class TicketsComponent implements OnInit {
       iconColor: '#977e5b'
     });
   }
-
   procesarRegistroTicket() {
     const camposVacios: string[] = [];
 
@@ -201,6 +200,17 @@ export class TicketsComponent implements OnInit {
     }
 
     const tecnicoElegido = this.listaTecnicos.find(tecnico => tecnico.id == this.nuevoTicket.personalId);
+
+    if (tecnicoElegido && (tecnicoElegido.estado_disponibilidad === 'ocupado' || tecnicoElegido.estado_disponibilidad === 'ausente')) {
+        Swal.fire({
+            title: 'Técnico no disponible',
+            text: `El técnico ${tecnicoElegido.nombre} se encuentra ${tecnicoElegido.estado_disponibilidad}. Por favor selecciona otro.`,
+            icon: 'error',
+            confirmButtonColor: '#56212f'
+        });
+        return; 
+    }
+
     const datosSecretaria = JSON.parse(localStorage.getItem('usuario_actual') || '{}');
 
     const cargaDatosTicket = {
@@ -214,7 +224,9 @@ export class TicketsComponent implements OnInit {
       extension_tel: this.nuevoTicket.extension_tel, 
       correo_tipo: this.nuevoTicket.correo_tipo, 
       soporte_tipo: detallesSoporte,
-      personal: tecnicoElegido ? tecnicoElegido.nombre : 'Sin asignar' 
+      personal: tecnicoElegido ? tecnicoElegido.nombre : 'Sin asignar',
+      personal_id: tecnicoElegido ? tecnicoElegido.id : null,
+      personal_email: tecnicoElegido ? tecnicoElegido.email : null
     };
 
     this.apiService.createTicket(cargaDatosTicket).subscribe({

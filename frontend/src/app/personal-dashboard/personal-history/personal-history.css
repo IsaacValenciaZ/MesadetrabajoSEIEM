@@ -504,3 +504,58 @@
     color: #666;
     margin-top: 2px;
 }
+
+@media (max-width: 768px) {
+    .view-section {
+        padding-top: 20px;
+        padding-bottom: 20px;
+    }
+
+    .section-header { 
+        flex-direction: column; 
+        align-items: flex-start; 
+        gap: 20px; 
+    }
+
+    .filters-container {
+        width: 100%;
+        flex-wrap: wrap; 
+        justify-content: flex-start;
+    }
+
+    .month-select {
+        flex: 1; 
+        min-width: unset;
+    }
+
+    .calendar-popup {
+        right: auto;
+        left: 0;
+        top: 60px; 
+    }
+
+    .calendar-wrapper {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .date-divider {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .left-info {
+        flex-wrap: wrap;
+    }
+
+    .table-responsive { 
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch; 
+        margin-bottom: 10px;
+    }
+    
+    .table-card {
+        padding: 15px; 
+    }
+}

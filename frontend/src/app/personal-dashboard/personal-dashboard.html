@@ -7,22 +7,22 @@
       </div>
     </div> 
 
-    <nav class="sidebar-nav">
-      <a routerLink="mis-reportes" routerLinkActive="active" class="nav-item">Pendientes</a>
-      <a routerLink="historial" routerLinkActive="active" class="nav-item">Historial</a>
+   <nav class="sidebar-nav">
+      <a routerLink="mis-reportes" routerLinkActive="active" class="nav-item" (click)="menuLateralAbierto = false">Pendientes</a>
+      <a routerLink="historial" routerLinkActive="active" class="nav-item" (click)="menuLateralAbierto = false">Historial</a>
 
       <div class="spacer"></div>
 
-      <div class="user-info-sidebar profile-link" routerLink="perfil">
-        <div class="avatar-circle">{{ usuarioActual.nombre?.charAt(0) }}</div>
-        <div class="user-details">
-          <span class="user-name">{{ usuarioActual.nombre }}</span>
-          <span class="user-role">Visualizar Perfil</span> 
-        </div>
-      </div>
+    <div class="user-info-sidebar profile-link" routerLink="perfil" (click)="menuLateralAbierto = false">
+    <div class="avatar-circle">{{ usuarioActual.nombre?.charAt(0) }}</div>
+    <div class="user-details">
+      <span class="user-name">{{ usuarioActual.nombre }}</span>
+      <span class="user-role">Visualizar Perfil</span> 
+    </div>
+  </div>
 
       <button (click)="cerrarSesion()" class="btn-logout">Cerrar Sesión</button>
-    </nav>
+  </nav>
   </aside>
 
   <div class="main-wrapper">

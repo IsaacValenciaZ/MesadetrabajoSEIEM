@@ -263,3 +263,68 @@ h2 {
   .btn-primary { padding: 10px 32px; font-size: 0.95rem; }
   .fondo-pattern { height: 140px; }
 }
+
+@media (max-width: 768px) {
+  .main-content {
+    padding: 20px 15px; 
+  }
+
+  .login-card-border {
+    padding: 0; 
+    border-width: 2px; 
+    flex-direction: column; 
+  }
+
+  .login-content {
+    flex-direction: column; 
+    gap: 0;
+    padding: 0;
+  }
+
+  .empty-space {
+    min-width: 100%;
+    min-height: 180px;
+    border-radius: 17px 17px 0 0;
+  }
+
+  .form-section {
+    min-width: 100%;
+    padding: 30px 20px;
+    box-sizing: border-box;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    margin-bottom: 25px;
+    text-align: center;
+  }
+
+  .btn-container {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .btn-primary {
+    width: 100%; 
+    padding: 15px;
+    font-size: 1.05rem;
+  }
+
+  .blob-top {
+    width: 120px;
+    height: 100px;
+    top: -40px;
+    left: -40px;
+  }
+
+  .blob-bottom {
+    width: 100px;
+    height: 100px;
+    bottom: -20px;
+    right: -20px;
+  }
+
+  .hero-logo {
+    max-width: 180px;
+  }
+}

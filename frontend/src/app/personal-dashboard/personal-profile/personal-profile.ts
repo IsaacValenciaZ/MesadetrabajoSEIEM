@@ -1,7 +1,6 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core'; 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
 import Swal from 'sweetalert2';
 import { ApiService } from '../../services/api'; 
 import { Chart, registerables } from 'chart.js';
@@ -16,10 +15,9 @@ Chart.register(...registerables);
   styleUrls: ['./personal-profile.css']
 })
 export class PersonalProfileComponent implements OnInit {
-  private http = inject(HttpClient);
+  
   private apiService = inject(ApiService);
-  private cdr = inject(ChangeDetectorRef); 
-  private apiUrl = 'http://localhost/mesatrabajoBACKEND/backend/update_profile.php'; 
+  private detectorCambios = inject(ChangeDetectorRef); 
 
   usuarioActual: any = { nombre: '', email: '' }; 
   nuevaContrasena = '';
@@ -30,6 +28,8 @@ export class PersonalProfileComponent implements OnInit {
   ticketsCompletados = 0;
   ticketsIncompletos = 0;
   porcentajeEficiencia = 0;
+  tiempoPromedioTexto = '0h 0m';
+  topCategorias: any[] = [];
 
   ngOnInit() {
     this.establecerMesActual(); 
@@ -38,6 +38,7 @@ export class PersonalProfileComponent implements OnInit {
     if (datosGuardados) {
       this.usuarioActual = JSON.parse(datosGuardados);
       this.obtenerRendimiento();
+      this.obtenerEstadoRealDesdeBD();
     }
   }
   
@@ -68,7 +69,37 @@ export class PersonalProfileComponent implements OnInit {
             this.porcentajeEficiencia = Math.round((this.ticketsCompletados / this.totalTickets) * 100);
         }
 
-        this.cdr.detectChanges(); 
+        let sumaMinutos = 0;
+        let ticketsValidos = 0;
+        const conteoCategorias: any = {};
+
+        ticketsDelMes.forEach(ticket => {
+            if (ticket.estado === 'Completo') {
+                if (!conteoCategorias[ticket.descripcion]) conteoCategorias[ticket.descripcion] = 0;
+                conteoCategorias[ticket.descripcion]++;
+
+                if (ticket.fecha && ticket.fecha_fin) {
+                    const inicio = new Date(ticket.fecha).getTime();
+                    const fin = new Date(ticket.fecha_fin).getTime();
+                    sumaMinutos += (fin - inicio) / (1000 * 60);
+                    ticketsValidos++;
+                }
+            }
+        });
+
+        if (ticketsValidos > 0) {
+            const prom = Math.round(sumaMinutos / ticketsValidos);
+            const horas = Math.floor(prom / 60);
+            const mins = prom % 60;
+            this.tiempoPromedioTexto = `${horas}h ${mins}m`;
+        }
+        
+        this.topCategorias = Object.keys(conteoCategorias)
+            .map(key => ({ nombre: key, cantidad: conteoCategorias[key] }))
+            .sort((a, b) => b.cantidad - a.cantidad)
+            .slice(0, 3); 
+
+        this.detectorCambios.detectChanges(); 
         this.generarGraficaGeneral(); 
         this.procesarEvolucionMensual(historialTickets); 
       },
@@ -141,6 +172,7 @@ export class PersonalProfileComponent implements OnInit {
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false, 
                 cutout: '75%',
                 plugins: {
                     legend: {
@@ -180,7 +212,7 @@ export class PersonalProfileComponent implements OnInit {
               },
               options: {
                   responsive: true,
-                  maintainAspectRatio: false,
+                  maintainAspectRatio: false, 
                   scales: {
                       y: {
                           beginAtZero: true,
@@ -210,7 +242,12 @@ export class PersonalProfileComponent implements OnInit {
 
   guardarCambiosPerfil() { 
     if (!this.usuarioActual.nombre || !this.usuarioActual.email) {
-        Swal.fire('Campos requeridos', 'Asegúrate de llenar tu nombre y correo', 'warning'); 
+        Swal.fire({
+            title: 'Campos requeridos', 
+            text: 'Asegúrate de llenar tu nombre y correo', 
+            icon: 'warning',
+            customClass: { popup: 'swal-mobile-adjust' }
+        }); 
         return;
     }
 
@@ -221,7 +258,7 @@ export class PersonalProfileComponent implements OnInit {
         password: this.nuevaContrasena 
     };
 
-    this.http.post(this.apiUrl, datosFormulario).subscribe({
+    this.apiService.updateProfile(datosFormulario).subscribe({
         next: (respuestaServidor: any) => {
             if (respuestaServidor.status) {
                 const sesionActual = localStorage.getItem('usuario_actual');
@@ -237,17 +274,86 @@ export class PersonalProfileComponent implements OnInit {
                     icon: 'success',
                     title: 'Perfil actualizado', 
                     text: 'Tus datos se guardaron exitosamente',
-                    confirmButtonColor: '#56212f'
+                    confirmButtonColor: '#56212f',
+                    customClass: { popup: 'swal-mobile-adjust' } 
                 }).then(() => {
                     window.location.reload(); 
                 });
             } else { 
-                Swal.fire('No se pudo actualizar', respuestaServidor.message, 'error'); 
+                Swal.fire({
+                    title: 'No se pudo actualizar', 
+                    text: respuestaServidor.message, 
+                    icon: 'error',
+                    customClass: { popup: 'swal-mobile-adjust' } 
+                }); 
             }
         },
         error: () => {
-            Swal.fire('Error de conexión', 'No se pudo contactar con el servidor', 'error');
+            Swal.fire({
+                title: 'Error de conexión', 
+                text: 'No se pudo contactar con el servidor', 
+                icon: 'error',
+                customClass: { popup: 'swal-mobile-adjust' } 
+            });
         }
+    });
+  }
+
+  cambiarMiEstado() {
+    if (!this.usuarioActual.estado_disponibilidad) {
+      this.usuarioActual.estado_disponibilidad = 'disponible';
+    }
+
+    const datosEstado = {
+      id: this.usuarioActual.id,
+      estado: this.usuarioActual.estado_disponibilidad
+    };
+
+    this.apiService.actualizarEstadoDisponibilidad(datosEstado).subscribe({
+      next: (respuesta: any) => {
+        if (respuesta.status) {
+          localStorage.setItem('usuario_actual', JSON.stringify(this.usuarioActual));
+          
+          const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+          });
+          
+          let mensaje = 'Estatus: cambiado a: ' + this.usuarioActual.estado_disponibilidad;
+          Toast.fire({ icon: 'success', title: mensaje });
+        } else {
+             Swal.fire('Error', respuesta.message || 'No se pudo cambiar el estado', 'error');
+        }
+      },
+      error: () => {
+        Swal.fire('Error', 'No se pudo conectar con el servidor', 'error');
+      }
+    });
+  }
+
+  obtenerEstadoRealDesdeBD() {
+    this.apiService.getUsers().subscribe({
+      next: (usuariosRegistrados: any[]) => {
+        const miUsuarioEnBD = usuariosRegistrados.find(u => u.id === this.usuarioActual.id);
+        
+        if (miUsuarioEnBD) {
+          if (miUsuarioEnBD.estado_disponibilidad) {
+            this.usuarioActual.estado_disponibilidad = miUsuarioEnBD.estado_disponibilidad;
+          } else {
+            this.usuarioActual.estado_disponibilidad = 'disponible';
+            this.cambiarMiEstado(); 
+          }
+          
+          localStorage.setItem('usuario_actual', JSON.stringify(this.usuarioActual));
+          this.detectorCambios.detectChanges();
+        }
+      },
+      error: () => {
+        console.error('No se pudo verificar el estado en la base de datos');
+      }
     });
   }
 }

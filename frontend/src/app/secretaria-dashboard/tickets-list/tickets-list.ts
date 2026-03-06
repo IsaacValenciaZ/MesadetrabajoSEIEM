@@ -271,7 +271,7 @@ export class TicketsListComponent implements OnInit {
                   labels: ['Alta', 'Media', 'Baja'], 
                   datasets: [{ 
                       data: [metricasAnalizadas.alta, metricasAnalizadas.media, metricasAnalizadas.baja], 
-                      backgroundColor: ['#28f328', '#f3f028', '#f32828'], 
+                      backgroundColor: ['#28f328', '#f39c12', '#f32828'], 
                       hoverOffset: 4 
                   }] 
               }, 

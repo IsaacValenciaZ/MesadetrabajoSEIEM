@@ -247,7 +247,7 @@ export class PersonalHistoryComponent implements OnInit {
     return '#dcfce7'; 
   }
 
-  abrirModalTicket(ticketSeleccionado: any) {
+abrirModalTicket(ticketSeleccionado: any) {
     let detallesExtraHtml = '';
     let colorFondoCategoria = '#64748b'; 
 
@@ -285,30 +285,31 @@ export class PersonalHistoryComponent implements OnInit {
     let metricaHtml = '';
     if (ticketSeleccionado.estado !== 'Incompleto') {
         if (ticketSeleccionado.fecha_fin <= ticketSeleccionado.fecha_limite) {
-            metricaHtml = `<span style="background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; font-weight: 700; white-space: nowrap;">A Tiempo</span>`;
+            metricaHtml = `<span style="background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 700;">A Tiempo</span>`;
         } else {
-             metricaHtml = `<span style="background-color: #fefae2; color: #e09a31; border: 1px solid #fee7ca; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; font-weight: 700; white-space: nowrap; animation: pulse 2s infinite;">Atrasado</span>`;
+             metricaHtml = `<span style="background-color: #fefae2; color: #e09a31; border: 1px solid #fee7ca; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 700; animation: pulse 2s infinite;">Atrasado</span>`;
         }
     } else {
-         metricaHtml = `<span style="background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; font-weight: 700; white-space: nowrap; animation: pulse 2s infinite;">Caducado</span>`;
+         metricaHtml = `<span style="background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 700; animation: pulse 2s infinite;">Caducado</span>`;
     }
 
     const colorFondoEstado = this.obtenerColorEstado(ticketSeleccionado.estado);
+    const colorTextoEstado = ticketSeleccionado.estado === 'Incompleto' ? '#ffffff' : '#166534';
 
     const htmlModal = `
       <div style="text-align: left; font-family: 'Segoe UI', sans-serif; color: #1e293b;">
         
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; margin-bottom: 15px; gap: 10px;">
           <h2 style="margin: 0; color: #1e293b; font-size: 1.8rem; font-weight: 800; letter-spacing: -0.5px;">Ticket:  #${ticketSeleccionado.id} </h2>
-          <div style="display: flex; gap: 10px;">
+          <div style="display: flex; flex-wrap: wrap; gap: 8px;">
               ${metricaHtml}
-              <span style="background-color: ${colorFondoEstado}; padding: 6px 16px; border-radius: 4px; font-size: 0.85rem; font-weight: 700; color: #166534;">
+              <span style="background-color: ${colorFondoEstado}; padding: 6px 12px; border-radius: 4px; font-size: 0.8rem; font-weight: 700; color: ${colorTextoEstado}; display: inline-block;">
                 ${ticketSeleccionado.estado === 'Completo' ? 'Completado' : 'Incumplido'} 
               </span>
           </div>
         </div>
 
-        <div style="display: flex; gap: 30px; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #e2e8f0;">
+        <div style="display: flex; gap: 30px; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #e2e8f0; flex-wrap: wrap;">
           <div>
             <p style="margin: 0; font-size: 0.75rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Hora Asignación</p>
             <p style="margin: 2px 0 0 0; font-size: 0.95rem; font-weight: 600; color: #475569;">${fechaFormat}</p>
@@ -322,31 +323,31 @@ export class PersonalHistoryComponent implements OnInit {
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px;">
           <div>
             <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Solicitante</p>
-            <p style="margin: 4px 0 0 0; font-weight: 800; font-size: 1.1rem; color: #0f172a;">${ticketSeleccionado.nombre_usuarios || ticketSeleccionado.nombre_usuario}</p>
+            <p style="margin: 4px 0 0 0; font-weight: 800; font-size: 1.1rem; color: #0f172a; word-break: break-word;">${ticketSeleccionado.nombre_usuarios || ticketSeleccionado.nombre_usuario}</p>
           </div>
           <div>
             <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Ext / Teléfono</p>
-            <p style="margin: 4px 0 0 0; font-weight: 800; font-size: 1.1rem; color: #0f172a;">${ticketSeleccionado.extension_tel || '-'}</p>
+            <p style="margin: 4px 0 0 0; font-weight: 800; font-size: 1.1rem; color: #0f172a; word-break: break-word;">${ticketSeleccionado.extension_tel || '-'}</p>
           </div>
         </div>
 
         <div style="margin-bottom: 30px;">
           <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Departamento</p>
-          <p style="margin: 4px 0 0 0; font-weight: 500; font-size: 1.05rem; color: #334155;">${ticketSeleccionado.departamento}</p>
+          <p style="margin: 4px 0 0 0; font-weight: 500; font-size: 1.05rem; color: #334155; word-break: break-word;">${ticketSeleccionado.departamento}</p>
         </div>
 
         <p style="margin: 0 0 8px 0; font-size: 0.75rem; color: 64748b; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;  display: inline-block; padding: 4px 8px; border-radius: 4px;">Clasificación del Problema</p>
         
-        <div style="display: flex; align-items: center; justify-content: space-between; border: 1px solid #e2e8f0; border-left: 6px solid ${colorFondoCategoria}; border-radius: 8px; padding: 15px; margin-bottom: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; border: 1px solid #e2e8f0; border-left: 6px solid ${colorFondoCategoria}; border-radius: 8px; padding: 15px; margin-bottom: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); gap: 10px;">
           <div style="display: flex; align-items: center; flex-wrap: wrap;">
-            <span style="background-color: ${colorFondoCategoria}; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700;">
+            <span style="background-color: ${colorFondoCategoria}; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700; display: inline-block;">
               ${ticketSeleccionado.descripcion}
             </span>
             ${detallesExtraHtml}
           </div>
-          <div style="display: flex; align-items: center; gap: 10px;">
-             <p style="margin:0; color: #64748b; font-size: 0.85rem; font-weight: 700; white-space: nowrap;">Prio:</p>
-             <span style="background-color: ${colorPrioridad}; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700; white-space: nowrap;">
+          <div style="display: flex; align-items: center; gap: 5px; flex-wrap: wrap;">
+             <p style="margin:0; color: #64748b; font-size: 0.85rem; font-weight: 700;">Prio:</p>
+             <span style="background-color: ${colorPrioridad}; color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: 700; display: inline-block;">
                ${ticketSeleccionado.prioridad}
              </span>
           </div>
@@ -376,7 +377,7 @@ export class PersonalHistoryComponent implements OnInit {
       cancelButtonText: 'Cerrar',
       cancelButtonColor: '#000000', 
       padding: '2em',
-      showConfirmButton: !!(ticketSeleccionado.descripcion_resolucion || ticketSeleccionado.evidencia_archivo) 
+      showConfirmButton: !!(ticketSeleccionado.descripcion_resolucion || ticketSeleccionado.evidencia_archivo || ticketSeleccionado.firma_base64) 
     }).then((result) => {
       if (result.isConfirmed) {
         this.verEvidenciaFinal(ticketSeleccionado);
@@ -386,46 +387,70 @@ export class PersonalHistoryComponent implements OnInit {
     });
   }
 
-  verEvidenciaFinal(ticket: any) {
-      const imagenData = ticket.evidencia_archivo; 
-
+verEvidenciaFinal(ticket: any) {
       Swal.fire({
-        title: `Resolución del Ticket #${ticket.id}`,
-        html: `
-          <div style="text-align: left; padding: 5px;">
-            <p style="font-weight: bold; color: #56212f; margin-bottom: 5px;">Descripción de la solución:</p>
-            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 5px solid #27ae60; margin-bottom: 15px; max-height: 150px; overflow-y: auto;">
-              ${ticket.descripcion_resolucion || 'El técnico no proporcionó una descripción de las tareas realizadas.'}
-            </div>
-            
-            ${imagenData ? `
-              <p style="font-weight: bold; color: #56212f; margin-bottom: 5px;">Evidencia fotográfica:</p>
-              <div style="text-align: center; border: 1px solid #ddd; padding: 10px; border-radius: 8px; background: #1a1a1a;">
-                <img id="img-evidencia-${ticket.id}" src="${imagenData}" 
-                     style="width: 100%; max-height: 400px; object-fit: contain; border-radius: 4px; cursor: zoom-in; transition: transform 0.2s;"
-                     onmouseover="this.style.transform='scale(1.02)'"
-                     onmouseout="this.style.transform='scale(1)'">
-                <small style="display:block; color: #aaa; margin-top: 8px; font-weight: bold;">
-                  <span class="material-symbols-outlined" style="font-size: 14px; vertical-align: middle;">zoom_in</span> 
-                  Haz clic en la imagen para ampliarla
-                </small>
-              </div>
-            ` : '<p style="color: #999; font-style: italic; text-align: center;">Sin evidencia fotográfica adjunta.</p>'}
-          </div>
-        `,
-        confirmButtonText: 'Cerrar',
-        confirmButtonColor: '#56212f',
-        width: '650px',
-        didOpen: () => {
-          if (imagenData) {
-            const visorImagen = document.getElementById(`img-evidencia-${ticket.id}`);
-            if (visorImagen) {
-                visorImagen.addEventListener('click', () => {
-                this.abrirImagenCompleta(imagenData, ticket.id, ticket);
-              });
-            }
+          title: 'Cargando evidencia...',
+          text: 'Descargando imágenes de la base de datos',
+          allowOutsideClick: false,
+          didOpen: () => {
+              Swal.showLoading();
           }
-        }
+      });
+
+      this.apiService.getEvidenciaTicket(ticket.id).subscribe({
+          next: (evidencia) => {
+              const imagenData = evidencia.evidencia_archivo; 
+              const firmaData = evidencia.firma_base64;
+
+              Swal.fire({
+                title: `Resolución del Ticket #${ticket.id}`,
+                html: `
+                  <div style="text-align: left; padding: 5px;">
+                    <p style="font-weight: bold; color: #56212f; margin-bottom: 5px;">Descripción de la solución:</p>
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 5px solid #27ae60; margin-bottom: 15px; max-height: 150px; overflow-y: auto;">
+                      ${ticket.descripcion_resolucion || 'El técnico no proporcionó una descripción de las tareas realizadas.'}
+                    </div>
+
+                    ${firmaData ? `
+                      <p style="font-weight: bold; color: #56212f; margin-bottom: 5px;">Firma de <span style="color: #000000;">${ticket.nombre_usuario}</span>:</p>
+                      <div style="text-align: center; border: 1px solid #e2e8f0; padding: 10px; border-radius: 8px; background: #ffffff; margin-bottom: 15px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
+                        <img src="${firmaData}" style="width: 100%; max-height: 120px; object-fit: contain;">
+                      </div>
+                    ` : ''}
+                    
+                    ${imagenData ? `
+                      <p style="font-weight: bold; color: #56212f; margin-bottom: 5px;">Evidencia fotográfica:</p>
+                      <div style="text-align: center; border: 1px solid #ddd; padding: 10px; border-radius: 8px; background: #1a1a1a;">
+                        <img id="img-evidencia-${ticket.id}" src="${imagenData}" 
+                             style="width: 100%; max-height: 400px; object-fit: contain; border-radius: 4px; cursor: zoom-in; transition: transform 0.2s;"
+                             onmouseover="this.style.transform='scale(1.02)'"
+                             onmouseout="this.style.transform='scale(1)'">
+                        <small style="display:block; color: #aaa; margin-top: 8px; font-weight: bold;">
+                          <span class="material-symbols-outlined" style="font-size: 14px; vertical-align: middle;">zoom_in</span> 
+                          Haz clic en la imagen para ampliarla
+                        </small>
+                      </div>
+                    ` : '<p style="color: #999; font-style: italic; text-align: center;">Sin evidencia fotográfica adjunta.</p>'}
+                  </div>
+                `,
+                confirmButtonText: 'Cerrar',
+                confirmButtonColor: '#56212f',
+                width: '650px',
+                didOpen: () => {
+                  if (imagenData) {
+                    const visorImagen = document.getElementById(`img-evidencia-${ticket.id}`);
+                    if (visorImagen) {
+                        visorImagen.addEventListener('click', () => {
+                        this.abrirImagenCompleta(imagenData, ticket.id, ticket);
+                      });
+                    }
+                  }
+                }
+              });
+          },
+          error: () => {
+              Swal.fire('Error', 'No se pudo cargar la evidencia fotográfica.', 'error');
+          }
       });
   }
 
@@ -467,21 +492,38 @@ abrirImagenCompleta(imagenBase64: string, idTicket: number, ticket: any) {
       });
   }
 
-  cambiarEstado(ticket: any) {
-    Swal.fire({
-      title: '¿Reabrir reporte?',
-      text: `El ticket #${ticket.id} volverá a la lista de pendientes y se vera reflejado en tus estadisticas. ¿Deseas continuar?`,
-      icon: 'question', 
-      showCancelButton: true, 
-      confirmButtonText: 'Sí, reabrir', 
-      confirmButtonColor: '#b45309', 
-      cancelButtonText: 'Cancelar'
-    }).then((resultado) => {
-      if (resultado.isConfirmed) {
-          this.guardarNuevoEstado(ticket.id, 'En espera');
-      }
-    });
-  }
+ cambiarEstado(ticket: any) {
+  Swal.fire({
+    title: `¿Reabrir reporte del ticket #${ticket.id}?`,
+    html: `
+      <p style="color:red; font-weight:bold;">
+        Antes de reabrir el ticket necesitas saber:
+      </p>
+
+      <ul style="text-align:left; margin-top:10px;">
+        <li>- Tu estado se mantendrá como <b style="color:green; font-weight:bold;"> "Disponible" </b>y te podran asignar nuevos tickets.</li>
+        <li>- Si el ticket caducó afectará tus estadísticas al reabrir.</li>
+        <li>- Si el ticket se abre dentro del tiempo estimado no afecta tus estadísticas.</li>
+      </ul>
+
+      <p style="margin-top:15px;">
+        ¿Deseas continuar?
+      </p>
+    `,
+    icon: 'question',
+    iconColor: '#56212f',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, reabrir',
+    confirmButtonColor: '#56212f',
+    cancelButtonText: 'Cancelar',
+    cancelButtonColor: '#000000'
+  }).then((resultado) => {
+    if (resultado.isConfirmed) {
+      this.guardarNuevoEstado(ticket.id, 'En espera');
+    }
+  });
+}
+
 
   guardarNuevoEstado(idTicket: number, estadoActualizado: string) {
     this.apiService.actualizarEstadoTicket(idTicket, estadoActualizado).subscribe({
@@ -676,7 +718,7 @@ abrirImagenCompleta(imagenBase64: string, idTicket: number, ticket: any) {
           new Chart(contextoPuntualidad, { 
               type: 'pie', 
               data: { 
-                  labels: ['A tiempo', 'Con retraso', 'Vencido'], 
+                  labels: ['A tiempo', 'Con retraso', 'Caducado'], 
                   datasets: [{ 
                       data: [metricas.aTiempo, metricas.tarde, metricas.vencidos], 
                       backgroundColor: ['#28f328', '#f3f028', '#f32828'], 

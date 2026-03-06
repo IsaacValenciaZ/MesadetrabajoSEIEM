@@ -9,64 +9,76 @@ export class ApiService {
   
   private http = inject(HttpClient);
   
-  private baseUrl = 'http://10.15.10.46/soporteSEIEM/MesadetrabajoSEIEM/backend'; 
+ private baseUrl = 'http://10.15.10.46/soporteSEIEM/MesadetrabajoSEIEM/backend'; 
+//private baseUrl = 'http://localhost/mesatrabajoBACKEND/backend/'; 
 
   constructor() { }
 
-  login(email: string, password: string): Observable<any> {
-    const body = { email: email, password: password };
-    return this.http.post(`${this.baseUrl}/login.php`, body);
-  }
-
-  register(usuario: any): Observable<any> {
-    return this.http.post(`${this.baseUrl}/register.php`, usuario);
-  }
   deleteUser(id: number): Observable<any> {
   return this.http.post(`${this.baseUrl}/delete_user.php`, { id });
 }
-
-updateUser(user: any): Observable<any> {
-  return this.http.post(`${this.baseUrl}/update_user.php`, user);
-}
-
-  getUsers(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/get_users.php`);
-  }
-
+  
   createTicket(ticketData: any): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/create_tickets.php`, ticketData);
   }
-
-  getTicketsHoy(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/get_tickets.php`);
-  }
-
  
   getMisTickets(nombreUsuario: string): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/get_tickets_personal.php?personal=${nombreUsuario}`);
   }
 
-actualizarEstadoTicketConEvidencia(formData: FormData): Observable<any> {
-    return this.http.post(`${this.baseUrl}/update_tickets_personal.php`, formData);
-}
-
   actualizarEstadoTicket(id: number, nuevoEstado: string): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/update_tickets_personal.php`, { id, estado: nuevoEstado });
   }
 
-getTicketsCreadosPorSecretaria(idSecretaria: number): Observable<any[]> {
+  getEvidenciaTicket(id: number): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/get_evidencia_personal.php?id=${id}`);
+  }
+
+  getTicketsCreadosPorSecretaria(idSecretaria: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/get_secretaria_tickets.php?id=${idSecretaria}`);
   }
 
-enviarTokenRecuperacion(email: string): Observable<any> {
-    return this.http.post(`${this.baseUrl}/recover_password.php`, { email });
+  getTicketsHoy(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/get_secretaria_h_tickets.php`);
+  }
+  getUsers(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/get_secretaria_users.php`);
   }
 
-  verificarToken(email: string, token: string): Observable<any> {
-    return this.http.post(`${this.baseUrl}/verify_token.php`, { email, token });
+  login(email: string, password: string): Observable<any> {
+  const body = { email: email, password: password };
+  return this.http.post(`${this.baseUrl}/login.php`, body);
+  }
+
+  enviarTokenRecuperacion(email: string): Observable<any> {
+  return this.http.post(`${this.baseUrl}/recover_password.php`, { email });
+  }
+
+  register(usuario: any): Observable<any> {
+  return this.http.post(`${this.baseUrl}/register.php`, usuario);
   }
 
   cambiarPassword(email: string, newPass: string): Observable<any> {
-    return this.http.post(`${this.baseUrl}/reset_password.php`, { email, newPass });
+  return this.http.post(`${this.baseUrl}/reset_password.php`, { email, newPass });
   }
+
+  updateProfile(datosPerfil: any): Observable<any> {
+  return this.http.post<any>(`${this.baseUrl}/update_profile.php`, datosPerfil);
+  }
+
+  actualizarEstadoDisponibilidad(datos: { id: number, estado: string }): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/update_status.php`, datos);
+  }
+
+  actualizarEstadoTicketConEvidencia(formData: FormData): Observable<any> {
+  return this.http.post(`${this.baseUrl}/update_tickets_personal.php`, formData);
+  } 
+
+updateUser(user: any): Observable<any> {
+  return this.http.post(`${this.baseUrl}/update_user.php`, user);
+ } 
+
+verificarToken(email: string, token: string): Observable<any> {
+  return this.http.post(`${this.baseUrl}/verify_token.php`, { email, token });
+}
 }
