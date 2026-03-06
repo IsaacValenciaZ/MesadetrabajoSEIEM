@@ -1,8 +1,7 @@
 <?php
 
-define('MAIL_HOST', getenv('MAIL_HOST'));
-define('MAIL_USER', getenv('MAIL_USER'));
-define('MAIL_PASS', getenv('MAIL_PASS'));
-define('MAIL_PORT', getenv('MAIL_PORT'));
-
+define('MAIL_HOST', 'smtp.gmail.com');      
+define('MAIL_USER', 'depto.tecnico@seiem.gob.mx');
+define('MAIL_PASS', 'gfdc aplx tesy hwqn'); 
+define('MAIL_PORT', 587);
 ?>
