@@ -11,13 +11,10 @@ if (isset($_GET['id'])) {
         $query = "SELECT t.*, u.nombre as nombre_creador 
                   FROM tickets t
                   LEFT JOIN usuarios u ON t.secretaria_id = u.id
-                  WHERE t.secretaria_id = :id
                   ORDER BY t.fecha DESC"; 
         
         $stmt = $conn->prepare($query);
-        
-        $stmt->execute([':id' => $secretaria_id]);
-        
+        $stmt->execute();
         $tickets = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         echo json_encode($tickets);

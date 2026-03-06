@@ -78,7 +78,8 @@ if(isset($data->nombre_usuario) && isset($data->personal) && isset($data->descri
                                     
                                     <div style='padding: 30px; color: #333333; line-height: 1.6;'>
                                         <p style='font-size: 18px;'>Hola, <strong>{$data->personal}</strong>,</p>
-                                        <p>Se te ha asignado un nuevo ticket en la Mesa de Trabajo. Por favor, revisa los detalles de la solicitud a continuación:</p>
+                                        <p>Se te ha 
+                                         un nuevo ticket en la Mesa de Trabajo. Por favor, revisa los detalles de la solicitud a continuación:</p>
                                         
                                         <div style='background-color: #fdfdfd; border: 1px solid #e0e0e0; padding: 20px; border-radius: 8px; margin: 25px 0;'>
                                             <table style='width: 100%; border-collapse: collapse; font-size: 15px;'>

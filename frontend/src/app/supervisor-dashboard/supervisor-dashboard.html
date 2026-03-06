@@ -1,4 +1,4 @@
-<div class="gob-bar">
+                                                                                                                                                            <div class="gob-bar">
   <div class="logos-container">
     <img src="icons/seiem_blanco.svg" class="SEIEM" alt="Logo SEIEM">
   </div>
@@ -108,13 +108,24 @@
             </td>
 
             <td class="actions-cell">
-              <div class="actions-buttons">
-                <button class="btn-action view" (click)="openViewModal(user)">Ver</button>
-                <button class="btn-action edit" (click)="openEditModal(user)">Editar</button>
-                <button class="btn-action delete" (click)="openDeleteModal(user)">Eliminar</button>
-                <button class="btn-action performance" (click)="verDesempeno(user)">Rendimiento de Personal</button>
-              </div>
-            </td>
+  <div class="actions-buttons">
+    <button class="btn-action view" (click)="openViewModal(user)">Ver</button>
+    <button class="btn-action edit" (click)="openEditModal(user)">Editar</button>
+    <button class="btn-action delete" (click)="openDeleteModal(user)">Eliminar</button>
+
+    <button *ngIf="user.rol.toLowerCase() === 'personal'" 
+            class="btn-action performance"
+            (click)="openPerformanceModal(user)">
+        Rendimiento
+    </button>
+
+    <button *ngIf="user.rol.toLowerCase() === 'secretaria'" 
+            class="btn-action performance"
+            (click)="verDesempeno(user)">
+        Rendimiento
+    </button>
+  </div>
+</td>
           </tr>
           }
           @if (filteredList.length === 0) {
@@ -154,11 +165,14 @@
     <app-delete-user [user]="selectedUser" (close)="closeModals()"></app-delete-user>
   </div>
 }
-
 @if (showPerformance && selectedUser) {
-  <app-performance-user 
-    [user]="selectedUser" 
-    (close)="closeModals()">
-  </app-performance-user>
+  <div class="modal-overlay">
+    <app-performance-user [user]="selectedUser" (close)="closeModals()"></app-performance-user>
+  </div>
 }
 
+@if (showPerformanceSecretaria && selectedUser) {
+  <div class="modal-overlay">
+    <app-performance-secretaria [user]="selectedUser" (close)="closeModals()"></app-performance-secretaria>
+  </div>
+}

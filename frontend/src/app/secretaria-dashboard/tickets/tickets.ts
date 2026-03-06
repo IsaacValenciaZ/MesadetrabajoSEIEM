@@ -1,8 +1,9 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core'; // IMPORTAMOS OnDestroy
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api'; 
 import Swal from 'sweetalert2';
+import { Subscription, interval } from 'rxjs'; // IMPORTAMOS RXJS PARA EL TEMPORIZADOR
 
 @Component({
   selector: 'app-tickets',
@@ -11,7 +12,7 @@ import Swal from 'sweetalert2';
   templateUrl: './tickets.html', 
   styleUrl: './tickets.css' 
 })
-export class TicketsComponent implements OnInit {
+export class TicketsComponent implements OnInit, OnDestroy { 
   private apiService = inject(ApiService);
   private cdr = inject(ChangeDetectorRef);
 
@@ -19,6 +20,8 @@ export class TicketsComponent implements OnInit {
   reportesDelDia: any[] = []; 
   fechaSistema = new Date();
   mostrarSugerencias = false;
+  
+  private pollingTecnicos: Subscription | undefined;
   
   listaDepartamentosBase: string[] = [
   "Consejo Directivo",
@@ -73,8 +76,8 @@ export class TicketsComponent implements OnInit {
     "Depto. de Educación Secundaria Técnica Valle de Toluca",
     "Depto. de Telesecundaria Valle de Toluca",
     "Depto. de Educación Secundaria General Valle de México",
-    "Depto. de Educación Secundaria Técnica Valle de México",
-    "Depto. de Telesecundaria Valle de México",
+    "Depto. de Educación Secundaria Técnica Vallea México",
+    "Depto. de Telesecundaria Valle México",
 
     "Depto. de Extensión y Vinculación Educativa Valle de Toluca",
     "Depto. de Computación Electronica en la Educación Secundaria",
@@ -167,6 +170,16 @@ export class TicketsComponent implements OnInit {
   ngOnInit() {
     this.obtenerTecnicos();
     this.obtenerReportesDelDia();
+
+    this.pollingTecnicos = interval(15000).subscribe(() => {
+        this.obtenerTecnicos();
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.pollingTecnicos) {
+        this.pollingTecnicos.unsubscribe();
+    }
   }
 
   validarSoloNumeros(evento: KeyboardEvent): boolean {
@@ -209,7 +222,7 @@ export class TicketsComponent implements OnInit {
         this.listaTecnicos = usuariosRegistrados.filter((usuario: any) => usuario.rol === 'personal');
         this.cdr.detectChanges();
       },
-      error: (errorRespuesta) => console.error(errorRespuesta)
+      error: (errorRespuesta) => console.error('Error al actualizar técnicos', errorRespuesta)
     });
   }
 
@@ -237,6 +250,7 @@ export class TicketsComponent implements OnInit {
       iconColor: '#977e5b'
     });
   }
+  
   procesarRegistroTicket() {
     const camposVacios: string[] = [];
 
