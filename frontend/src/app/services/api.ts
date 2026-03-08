@@ -41,6 +41,8 @@ export class ApiService {
   getTicketsHoy(): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/get_secretaria_h_tickets.php`);
   }
+
+  
   getUsers(): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/get_secretaria_users.php`);
   }

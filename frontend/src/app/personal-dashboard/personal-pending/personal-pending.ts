@@ -65,7 +65,7 @@ export class PersonalPendingComponent implements OnInit {
              const Toast = Swal.mixin({
                 toast: true, position: 'top-end', showConfirmButton: false, timer: 3000
              });
-             Toast.fire({ icon: 'info', title: '¡Tienes nuevos reportes asignados!' });
+             Toast.fire({ icon: 'info', iconColor: '#56212f', title: '¡Tienes nuevos reportes asignados!' });
         }
 
       },

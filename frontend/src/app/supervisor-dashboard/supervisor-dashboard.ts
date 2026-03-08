@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ChangeDetectorRef, HostListener } from '@angular/core';
+                                                                                                                                                                       import { Component, inject, OnInit, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router, RouterModule } from '@angular/router';
@@ -8,6 +8,7 @@ import { EditUserComponent } from './edit-user/edit-user.component';
 import { DeleteUserComponent } from './delete-user/delete-user.component';
 import { CreateUserComponent } from './create-user/create-user.component';
 import { PerformanceUserComponent } from './performance-user/performance-user.component';
+import { PerformanceSecretariaComponent } from './performance-secretaria/performance-secretaria.component';
 
 
 
@@ -24,8 +25,7 @@ import { PerformanceUserComponent } from './performance-user/performance-user.co
     PerformanceUserComponent,
     CommonModule,
     PerformanceUserComponent,
-   
-
+    PerformanceSecretariaComponent,
   
   ],
   templateUrl: './supervisor-dashboard.html',
@@ -54,6 +54,7 @@ export class SupervisorDashboardComponent implements OnInit {
   showDelete: boolean = false;
   showCreate: boolean = false;
   showPerformance: boolean = false;
+  showPerformanceSecretaria: boolean = false;
   selectedUser: any = false;
   isControlPersonalOpen: boolean = false;
   usuarioSeleccionado: any = false;
@@ -132,17 +133,18 @@ alternarMenuLateral() {
   openEditModal(user: any) { this.selectedUser = { ...user }; this.showEdit = true; }
   openDeleteModal(user: any) { this.selectedUser = { ...user }; this.showDelete = true; }
   openCreateModal() { this.showCreate = true; }
-
   openPerformanceModal(user: any) {
     console.log("Abriendo desempeño para:", user.nombre);
     this.selectedUser = user;
     this.showPerformance = true;
+    this.showPerformanceSecretaria = false;
   }
 
-  verDesempeno(user: any) {
-    this.selectedUser = user;
-    this.showPerformance = true;
-  }
+verDesempeno(user: any) {
+  this.selectedUser = user;
+  this.showPerformance = false; 
+  this.showPerformanceSecretaria = true;
+}
 
   closeModals() {
     this.showView = false;
@@ -150,8 +152,10 @@ alternarMenuLateral() {
     this.showDelete = false;
     this.showCreate = false;
     this.showPerformance = false;
+    this.showPerformanceSecretaria = false;
     this.selectedUser = false;
     this.usuarioSeleccionado = null;
+   
   }
 
   handleCreateUser(newUser: any) {
