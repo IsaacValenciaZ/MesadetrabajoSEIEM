@@ -443,3 +443,79 @@ table tbody tr:hover {
     gap: 5px;
     justify-content: center;
 }
+
+.empty-state {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 80px 20px;
+    background: #ffffff;
+    border-radius: 16px;
+    border: 2px dashed #e2e8f0; 
+    margin: 40px 0;
+    text-align: center;
+}
+
+.empty-content {
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.empty-content .material-symbols-outlined {
+    background: #f8fafc;
+    padding: 20px;
+    border-radius: 50%;
+    color: #94a3b8;
+    margin-bottom: 10px;
+}
+
+.empty-content h3 {
+    color: #56212f;
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin: 0;
+}
+
+.empty-content p {
+    color: #64748b;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 10px;
+}
+
+.btn-text {
+    background-color: #f1f5f9;
+    color: #56212f;
+    border: 1px solid #e2e8f0;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-text:hover {
+    background-color: #56212f;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(86, 33, 47, 0.2);
+}
+
+.fade-in {
+    animation: fadeInContainer 0.5s ease-in-out;
+}
+
+@keyframes fadeInContainer {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
