@@ -25,9 +25,10 @@
           <div class="calendar-header"><span>Dom</span><span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span></div>
           <div class="calendar-grid">
             <div *ngFor="let dia of diasCalendario" class="calendar-day" 
-                 [ngClass]="{'has-tickets': dia.tieneTickets, 'selected': dia.dia === diaSeleccionado}"
+                 [ngClass]="{'has-tickets': dia.tieneTickets, 'selected': dia.dia === diaSeleccionado, 'empty': !dia.dia}"
                  (click)="seleccionarDia(dia)">
               {{ dia.dia }}
+              <div *ngIf="dia.tieneTickets && dia.dia !== diaSeleccionado" class="dot-indicator"></div>
             </div>
           </div>
         </div>
@@ -35,7 +36,14 @@
     </div>
   </div>
 
-  <div *ngIf="gruposPorDia.length === 0 && !cargando" class="empty-state">No se encontraron reportes.</div>
+  <div *ngIf="gruposPorDia.length === 0 && !cargando" class="empty-state fade-in">
+    <div class="empty-content">
+      <span class="material-symbols-outlined" style="font-size: 4rem; color: #cbd5e1;">Inbox</span>
+      <h3>Por el momento no hay tickets</h3>
+      <p>No se encontraron reportes para los filtros seleccionados en este periodo.</p>
+      <button class="btn-text" (click)="textoBusqueda = ''; diaSeleccionado = null; aplicarFiltros(false)">Ver todo el mes</button>
+    </div>
+  </div>
 
   <div *ngFor="let grupo of gruposPorDia" class="day-group">
     <div class="date-divider">
@@ -86,3 +94,4 @@
       </div>
     </div>
   </div>
+</div>
