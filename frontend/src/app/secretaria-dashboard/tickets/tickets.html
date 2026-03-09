@@ -44,9 +44,9 @@
           <option *ngFor="let tecnico of listaTecnicos" 
                   [value]="tecnico.id" 
                   [disabled]="tecnico.estado_disponibilidad === 'ocupado' || tecnico.estado_disponibilidad === 'ausente'">
-            {{ tecnico.estado_disponibilidad === 'ocupado' ? '🟠' : (tecnico.estado_disponibilidad === 'ausente' ? '🔴' : '🟢') }} 
-            {{ tecnico.nombre }} 
-            ({{ tecnico.estado_disponibilidad || 'disponible' }})
+            
+            {{ tecnico.nombre }} {{ tecnico.estado_disponibilidad === 'ocupado' ? '🟠' : (tecnico.estado_disponibilidad === 'ausente' ? '🔴' : '🟢') }} ({{ tecnico.estado_disponibilidad || 'disponible' }})
+            
           </option>
         </select>
       </div>
@@ -144,7 +144,8 @@
             <th>CATEGORÍA</th>
             <th>PRIORIDAD</th>
             <th>TÉCNICO</th>
-            <th>NOTAS</th>
+           <th style="text-align: center;">NOTAS</th>
+            <th>ASIGNADORA</th>
           </tr>
         </thead>
         <tbody>
@@ -196,11 +197,16 @@
               </div>
               <span *ngIf="!reporte.notas" style="color: #ccc;">-</span>
             </td>
+
+            <td style="font-weight: 600; color: #56212f;">{{ reporte.nombre_creador || 'Desconocido' }}</td>
           </tr>
           
           <tr *ngIf="!reportesDelDia || reportesDelDia.length === 0">
             <td colspan="9" class="empty-row">No hay reportes registrados hoy.</td>
           </tr>
+
+      
+          
         </tbody>
       </table>
     </div>

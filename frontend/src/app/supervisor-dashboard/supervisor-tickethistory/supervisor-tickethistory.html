@@ -1,0 +1,88 @@
+<div class="view-section fade-in">
+  <div class="section-header">
+    <div>
+      <h1>Historial Global</h1>
+      <p>Reportes registrados por el personal técnico.</p>
+    </div>
+
+    <div class="filters-container" style="position: relative;">
+      <select class="month-select" [(ngModel)]="tipoBusqueda" (change)="aplicarFiltros()">
+        <option value="tecnico">Técnico</option>
+        <option value="asignadora">Asignadora</option>
+        <option value="id">ID Ticket</option>
+      </select>
+      <input type="text" class="month-select" placeholder="Escribe para buscar..." [(ngModel)]="textoBusqueda" (input)="aplicarFiltros()" style="min-width: 220px;">
+
+      <select class="month-select" [(ngModel)]="mesSeleccionado" (change)="aplicarFiltros()">
+        <option *ngFor="let mes of mesesDisponibles" [value]="mes">{{ obtenerNombreMes(mes) }}</option>
+      </select>
+
+      <button class="btn-summary" (click)="toggleCalendario()"><span class="material-symbols-outlined">calendar_month</span></button>
+      <button class="btn-summary" (click)="verResumenMensual()"><span class="material-symbols-outlined">bar_chart</span></button>
+
+      <div class="calendar-popup fade-in" *ngIf="mostrarCalendario">
+        <div class="calendar-wrapper">
+          <div class="calendar-header"><span>Dom</span><span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span></div>
+          <div class="calendar-grid">
+            <div *ngFor="let dia of diasCalendario" class="calendar-day" 
+                 [ngClass]="{'has-tickets': dia.tieneTickets, 'selected': dia.dia === diaSeleccionado}"
+                 (click)="seleccionarDia(dia)">
+              {{ dia.dia }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="gruposPorDia.length === 0 && !cargando" class="empty-state">No se encontraron reportes.</div>
+
+  <div *ngFor="let grupo of gruposPorDia" class="day-group">
+    <div class="date-divider">
+      <div class="left-info">
+        <span class="date-text">{{ grupo.fecha | date:'fullDate' | titlecase }}</span>
+        <span class="count-badge">{{ grupo.tickets.length }} reportes</span>
+      </div>
+      <button class="btn-stats" (click)="verEstadisticasDia(grupo)"><span class="material-symbols-outlined">donut_large</span></button>
+    </div>
+
+    <div class="table-card">
+      <div class="table-responsive">
+        <table class="simple-table history-table">
+          <thead>
+            <tr>
+              <th>ID</th><th>Hora</th><th>Solicitante</th><th>Depto</th><th>Técnico</th><th>Clasificación</th><th>Estatus</th><th>Métrica</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let t of grupo.tickets" class="row-clickable" (click)="abrirModalTicket(t)">
+              <td><strong>#{{ t.id }}</strong></td>
+              <td>{{ t.fecha | date:'HH:mm' }}</td>
+              <td>{{ t.nombre_usuario }}</td>
+              <td>{{ t.departamento }}</td>
+              <td><strong>{{ t.personal || 'N/A' }}</strong></td>
+              <td><span class="badge" [ngClass]="'cat-' + t.descripcion.toLowerCase().split('/')[0]">{{ t.descripcion }}</span></td>
+              <td class="text-center">
+                <span [ngClass]="{
+                    'badge-completed': t.estado === 'Completo' || t.estado === 'Completado',
+                    'badge-waiting': t.estado === 'En espera' || !t.estado || t.estado === '',
+                    'badge-incomplete': t.estado === 'Incompleto'
+                }">
+                  {{ t.estado || 'En espera' }}
+                </span>
+              </td>
+              <td class="text-center">
+                <div *ngIf="t.estado === 'Completo' || t.estado === 'Completado'">
+                  <span [class]="t.fecha_fin <= t.fecha_limite ? 'badge-status success' : 'badge-status lateT'">
+                    {{ t.fecha_fin <= t.fecha_limite ? 'A Tiempo' : 'Atrasado' }}
+                  </span>
+                </div>
+                <span *ngIf="t.estado === 'Incompleto'" class="badge-status late">Caducado</span>
+                <span *ngIf="t.estado === 'En espera' || !t.estado" class="badge-status pending">Pendiente</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>

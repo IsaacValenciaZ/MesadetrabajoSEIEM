@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-$host = "db-lab-01.cluster-cthpdfxrdfan.us-east-1.rds.amazonaws.com";//endpoint de la base de datos  db-lab-01.cluster-cthpdfxrdfan.us-east-1.rds.amazonaws.com
+$host = "endpoint de la base de datos  db-lab-01.cluster-cthpdfxrdfan.us-east-1.rds.amazonaws.com";//endpoint de la base de datos  db-lab-01.cluster-cthpdfxrdfan.us-east-1.rds.amazonaws.com
 $user = "usutec1"; // usutec1
 $pass = "T3c410&%"; //T3c410&%
 $db   = "tec1mesa"; //tec1mesa

@@ -10,7 +10,7 @@ export class ApiService {
   private http = inject(HttpClient);
   
  private baseUrl = 'http://10.15.10.46/soporteSEIEM/MesadetrabajoSEIEM/backend'; 
-//private baseUrl = 'http://localhost/mesatrabajoBACKEND/backend/'; 
+  //private baseUrl = 'http://localhost/mesatrabajoBACKEND/backend/'; 
 
   constructor() { }
 
@@ -38,6 +38,10 @@ export class ApiService {
     return this.http.get<any[]>(`${this.baseUrl}/get_secretaria_tickets.php?id=${idSecretaria}`);
   }
 
+    getDatosDeSecretaria(idSecretaria: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/get_secretaria_profile_tickets.php?id=${idSecretaria}`);
+  }
+
   getTicketsHoy(): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/get_secretaria_h_tickets.php`);
   }
@@ -46,6 +50,18 @@ export class ApiService {
   getUsers(): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/get_secretaria_users.php`);
   }
+
+getSupervisorDataTickets(): Observable<any[]> {
+  return this.http.get<any[]>(`${this.baseUrl}/get_supervisor_data_tickets.php`);
+}
+
+getSupervisorEvidencia(id: number): Observable<any> {
+  return this.http.get<any>(`${this.baseUrl}/get_supervisor_evidencia.php?id=${id}`);
+}
+
+getSupervisorUsers(): Observable<any[]> {
+  return this.http.get<any[]>(`${this.baseUrl}/get_supervisor_users.php`);
+}
 
   login(email: string, password: string): Observable<any> {
   const body = { email: email, password: password };

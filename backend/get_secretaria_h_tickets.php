@@ -7,10 +7,11 @@ include_once("db_connect.php");
 date_default_timezone_set('America/Mexico_City'); 
 
 try {
-
-    $sql = "SELECT * FROM tickets 
-            WHERE DATE(fecha) = CURDATE() 
-            ORDER BY id DESC"; 
+    $sql = "SELECT t.*, u.nombre as nombre_creador 
+            FROM tickets t
+            LEFT JOIN usuarios u ON t.secretaria_id = u.id
+            WHERE DATE(t.fecha) = CURDATE() 
+            ORDER BY t.id DESC"; 
     
     $stmt = $conn->prepare($sql);
     $stmt->execute();
@@ -19,6 +20,6 @@ try {
     echo json_encode($resultado ? $resultado : []);
 
 } catch (PDOException $e) {
-    echo json_encode([]);
+    echo json_encode(["error" => "Error SQL: " . $e->getMessage()]);
 }
 ?>

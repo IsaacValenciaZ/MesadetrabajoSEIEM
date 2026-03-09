@@ -6,7 +6,7 @@ import { Chart, registerables } from 'chart.js';
 Chart.register(...registerables);
 
 @Component({
-  selector: 'app-performance-secretaria',
+ selector: 'app-performance-secretaria',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './performance-secretaria.component.html',
@@ -46,35 +46,33 @@ export class PerformanceSecretariaComponent implements OnInit {
   }
 
   obtenerRendimientoHistorico(idUsuario: number) {
-      this.apiService.getTicketsCreadosPorSecretaria(idUsuario).subscribe({
-          next: (respuestaServidor: any[]) => {
-              this.historialTicketsCreados = respuestaServidor || [];
-              
-              const fechaReferencia = new Date();
-              const mesFiltro = fechaReferencia.getMonth(); 
-              const añoFiltro = fechaReferencia.getFullYear();
-              
-              const filtradoMesActual = this.historialTicketsCreados.filter(ticket => {
-                  if (!ticket.fecha) return false;
-                  const objetoFechaTicket = new Date(ticket.fecha.replace(' ', 'T'));
-                  return objetoFechaTicket.getMonth() === mesFiltro && 
-                         objetoFechaTicket.getFullYear() === añoFiltro;
-              });
+    this.apiService.getTicketsCreadosPorSecretaria(idUsuario).subscribe({
+        next: (respuestaServidor: any[]) => {
+            this.historialTicketsCreados = respuestaServidor || [];
+            
+            const hoy = new Date();
+            const mesActual = hoy.getMonth();
+            const añoActual = hoy.getFullYear();
 
-              this.cantidadTicketsMesActual = filtradoMesActual.length;
-              this.calcularDistribucionAnual();
-              this.indicadorGraficasCargadas = true; 
-              this.detectorCambios.detectChanges(); 
+            const filtrado = this.historialTicketsCreados.filter(t => {
+                if (!t.fecha) return false;
+                const d = new Date(t.fecha.includes('T') ? t.fecha : t.fecha.replace(' ', 'T'));
+                return d.getMonth() === mesActual && d.getFullYear() === añoActual;
+            });
 
-              setTimeout(() => {
-                  this.dibujarGraficaDona(); 
-                  this.dibujarGraficaLineas(this.etiquetasEvolucionAnual, this.valoresEvolucionAnual);
-                  this.dibujarGraficaBarras();
-              }, 100);
-          },
-          error: (errorPeticion) => console.error("Error cargando stats:", errorPeticion)
-      });
-  }
+            this.cantidadTicketsMesActual = filtrado.length;
+            this.calcularDistribucionAnual();
+            this.indicadorGraficasCargadas = true;
+            this.detectorCambios.detectChanges();
+
+            setTimeout(() => {
+                this.dibujarGraficaDona();
+                this.dibujarGraficaLineas(this.etiquetasEvolucionAnual, this.valoresEvolucionAnual);
+                this.dibujarGraficaBarras();
+            }, 50);
+        }
+    });
+}
 
 
   dibujarGraficaLineas(etiquetasGrafica: string[], datosGrafica: number[]) {

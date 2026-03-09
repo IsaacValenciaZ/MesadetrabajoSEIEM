@@ -1,0 +1,372 @@
+/* --- Estructura Principal --- */
+.view-section {
+    max-width: 1600px;
+    width: 96%;
+    margin: 0 auto;
+    padding: 50px 0;
+}
+
+.fade-in {
+    animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Encabezado y Filtros --- */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.section-header h1 {
+    font-size: 1.8rem;
+    color: #56212f;
+    margin: 0 0 5px 0;
+    font-weight: 700;
+}
+
+.section-header p {
+    color: #64748b;
+    margin: 0;
+}
+
+.filters-container {
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    padding: 5px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    position: relative;
+}
+
+.month-select {
+    height: 40px;
+    padding: 0 15px;
+    border: none;
+    border-right: 1px solid #f1f5f9;
+    background-color: transparent;
+    color: #334155;
+    font-size: 0.9rem;
+    font-weight: 600;
+    outline: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.month-select:focus {
+    color: #56212f;
+}
+
+input[type="text"].month-select {
+    min-width: 250px;
+    font-weight: 400;
+    cursor: text;
+}
+
+/* --- Botones de Acción --- */
+.btn-summary, .btn-stats {
+    background-color: transparent;
+    color: #56212f;
+    border: none;
+    border-left: 1px solid #f1f5f9;
+    width: 45px;
+    height: 40px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.btn-summary:last-child {
+    border-radius: 0 8px 8px 0;
+}
+
+.btn-stats {
+    background-color: #56212f;
+    color: white;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.btn-summary:hover {
+    background-color: #f8fafc;
+    color: #96241c;
+}
+
+.btn-stats:hover {
+    background-color: #3d1721;
+    transform: scale(1.05);
+}
+
+/* --- Calendario Popup --- */
+.calendar-popup {
+    position: absolute;
+    top: 55px;
+    right: 0;
+    z-index: 1000;
+}
+
+.calendar-wrapper {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    padding: 15px;
+    width: 300px;
+    border: 1px solid #e2e8f0;
+}
+
+.calendar-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-weight: 700;
+    color: #94a3b8;
+    font-size: 0.75rem;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: #94a3b8;
+    cursor: default;
+    transition: all 0.2s;
+}
+
+.calendar-day.has-tickets {
+    background-color: #f8fafc;
+    color: #1e293b;
+    cursor: pointer;
+    font-weight: 700;
+    border: 1px solid #f1f5f9;
+}
+
+.calendar-day.has-tickets:hover, .calendar-day.selected {
+    background-color: #56212f;
+    color: white;
+}
+
+.dot-indicator {
+    width: 4px;
+    height: 4px;
+    background-color: #56212f;
+    border-radius: 50%;
+    position: absolute;
+    bottom: 4px;
+}
+
+/* --- Tablas y Grupos por Día --- */
+.day-group { margin-bottom: 40px; }
+
+.date-divider {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    padding-left: 10px;
+    border-left: 4px solid #56212f;
+}
+
+.date-text {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #56212f;
+    text-transform: capitalize;
+}
+
+.table-card {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.03);
+    overflow: hidden;
+}
+
+.simple-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.simple-table th {
+    text-align: left;
+    padding: 15px 10px;
+    color: #977e5b;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    border-bottom: 2px solid #d6d1ca;
+}
+
+.simple-table td {
+    padding: 15px 10px;
+    border-bottom: 1px solid #f1f1f1;
+    color: #333;
+    vertical-align: middle;
+}
+
+.simple-table tr:hover {
+    background-color: #faf9f6;
+}
+
+/* --- Etiquetas (Badges) Suaves --- */
+.badge {
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: inline-block;
+    min-width: 80px;
+    text-align: center;
+}
+
+.cat-internet { background-color: rgba(37, 99, 235, 0.1); color: #2563eb; }
+.cat-office { background-color: rgba(217, 119, 6, 0.1); color: #d97706; }
+.cat-telefonia, .cat-extension { background-color: rgba(30, 41, 59, 0.1); color: #1e293b; }
+.cat-tecnico { background-color: rgba(5, 150, 105, 0.1); color: #059669; }
+.cat-dictaminar { background-color: rgba(109, 40, 217, 0.1); color: #6d28d9; }
+.cat-correo { background-color: rgba(150, 36, 28, 0.1); color: #96241c; }
+
+.prio-alta { background-color: rgba(239, 68, 68, 0.1); color: #ef4444; }
+.prio-media { background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+.prio-baja { background-color: rgba(16, 185, 129, 0.1); color: #10b981; }
+
+/* --- Estatus de Resolución --- */
+.badge-completed {
+    background-color: #dcfce7;
+    color: #166534;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.75rem;
+    border: 1px solid #bbf7d0;
+}
+
+.badge-incomplete {
+    background-color: #fee2e2;
+    color: #991b1b;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.75rem;
+    border: 1px solid #fecaca;
+}
+
+.badge-status.success { background-color: #dcfce7; color: #166534; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
+.badge-status.lateT { background-color: #fefae2; color: #e09a31; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
+.badge-status.late { background-color: #fee2e2; color: #991b1b; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; animation: pulse 2s infinite; }
+
+@keyframes pulse { 
+    0% { opacity: 1; } 
+    50% { opacity: 0.6; } 
+    100% { opacity: 1; } 
+}
+
+@media (max-width: 992px) {
+    .section-header { flex-direction: column; align-items: flex-start; gap: 15px; }
+    .filters-container { flex-direction: column; width: 100%; align-items: stretch; }
+    .month-select { border-right: none; border-bottom: 1px solid #f1f5f9; }
+    .btn-summary { border-left: none; width: 100%; }
+}
+
+/* --- Estatus de Resolución (Actualizado) --- */
+.badge-completed {
+    background-color: #dcfce7;
+    color: #166534;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.75rem;
+    border: 1px solid #bbf7d0;
+    display: inline-block;
+}
+
+/* Etiqueta de En Espera (Basada en .status-espera) */
+.badge-waiting {
+    background-color: #8a772d;
+    color: white;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.75rem;
+    display: inline-block;
+}
+
+.badge-incomplete {
+    background-color: #fee2e2;
+    color: #991b1b;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.75rem;
+    border: 1px solid #fecaca;
+    display: inline-block;
+}
+
+.badge-status.success { 
+    background-color: #dcfce7; 
+    color: #166534; 
+    padding: 4px 8px; 
+    border-radius: 4px; 
+    font-size: 0.75rem; 
+    font-weight: 700; 
+    border: 1px solid #bbf7d0;
+    display: inline-block;
+}
+
+.badge-status.pending { 
+    background-color: #f1f5f9; 
+    color: #64748b; 
+    border: 1px solid #e2e8f0; 
+    padding: 3px 6px; 
+    border-radius: 4px; 
+    font-size: 0.7rem; 
+    font-weight: 700; 
+    display: inline-block; 
+    white-space: nowrap;
+}
+
+.badge-status.late { 
+    background-color: #fee2e2; 
+    color: #991b1b; 
+    padding: 4px 8px; 
+    border-radius: 4px; 
+    font-size: 0.75rem; 
+    font-weight: 700; 
+    border: 1px solid #fecaca;
+    animation: pulse 2s infinite; 
+    display: inline-block;
+}
+
+.badge-status.lateT { 
+    background-color: #fefae2; 
+    color: #e09a31; 
+    padding: 4px 8px; 
+    border-radius: 4px; 
+    font-size: 0.75rem; 
+    font-weight: 700; 
+    border: 1px solid #fee7ca;
+    display: inline-block;
+}

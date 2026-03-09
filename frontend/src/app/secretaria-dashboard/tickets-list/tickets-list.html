@@ -5,10 +5,29 @@
       <h1>Historial de Reportes</h1>
       <p>Consulta tus tickets organizados por mes.</p>
     </div>
-    
-    <div class="filters-container" style="position: relative;"> 
-        <select class="month-select" [(ngModel)]="mesFiltroSeleccionado" (change)="aplicarFiltroMensual()">
-            <option *ngFor="let mes of opcionesMesesDisponibles" [value]="mes">{{ obtenerNombreMesFormateado(mes) }}</option>
+
+    <div class="filters-container" style="position: relative; display: flex; flex-wrap: wrap; gap: 15px; align-items: center;"> 
+        
+        <select class="month-select" [(ngModel)]="tipoBusqueda" (change)="aplicarFiltros()" style="min-width: 150px;">
+                <option value="">Sin filtro (Buscador)</option>
+                <option value="secretaria">Asignadora</option>
+                <option value="id">ID de Ticket</option>
+        </select>
+
+        <input 
+            type="text" 
+            class="month-select" 
+            placeholder="Escribe para buscar..." 
+            [(ngModel)]="textoBusqueda"
+            (input)="aplicarFiltros()"
+            style="min-width: 220px; cursor: text;"
+        >
+
+        <select class="month-select" [(ngModel)]="mesFiltroSeleccionado" (change)="aplicarFiltros()">
+            <option value="">Todos los meses</option> 
+            <option *ngFor="let mes of opcionesMesesDisponibles" [value]="mes">
+                {{ obtenerNombreMesFormateado(mes) }}
+            </option>
             <option *ngIf="opcionesMesesDisponibles.length === 0" value="" disabled>Sin registros</option>
         </select>
 
@@ -19,7 +38,7 @@
         <button class="btn-summary" (click)="mostrarGraficasMensuales()" title="Ver Gráficas del Mes">
              <span class="material-symbols-outlined">bar_chart</span>
         </button>
-
+    
         <div class="calendar-popup fade-in" *ngIf="calendarioVisible && diasDelCalendario.length > 0">
             <div class="calendar-wrapper">
                 <div class="calendar-header">
@@ -63,6 +82,7 @@
           <table class="simple-table">
             <thead>
               <tr>
+                <th>ID</th>
                 <th>Hora</th>
                 <th>Solicitante</th>
                 <th>Depto</th>
@@ -70,11 +90,13 @@
                 <th>Ext / Tel</th>
                 <th>Categoría</th>
                 <th>Prioridad</th>
-                <th>Notas</th>
+                <th style="text-align: center;">NOTAS</th>
+                 <th>Asignadora</th>
               </tr>
             </thead>
             <tbody>
               <tr *ngFor="let ticket of grupo.tickets">
+                <td class="id-col">#{{ ticket.id }}</td>
                 <td class="time-col">{{ ticket.fecha | date:'hh:mm a' }}</td>
                 <td><strong>{{ ticket.nombre_usuario }}</strong></td>
                 <td class="depto-col">{{ ticket.departamento }}</td>
@@ -118,10 +140,12 @@
                     <div *ngIf="ticket.notas.length > 30">
                         <span class="texto-truncado">{{ ticket.notas | slice:0:30 }}...</span>
                         <div class="ver-mas-container">
-                            <a class="link-ver-mas" (click)="abrirDetalleNotaCompleta(ticket.notas)">Ver más</a>
+                            <a class="link-ver-mas" (click)="mostrarDetalleNota(ticket.notas)">Ver más</a>
                         </div>
                     </div>
                 </td>
+
+                <td class="tech-col">{{ ticket.nombre_creador || 'Desconocido' }}</td>
               </tr>
             </tbody>
           </table>

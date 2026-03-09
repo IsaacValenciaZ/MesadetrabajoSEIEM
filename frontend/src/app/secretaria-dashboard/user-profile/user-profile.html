@@ -51,13 +51,115 @@
       </div>
   </div>
 
-  <h3 class="section-divider">Mis Asignaciones</h3>
+  <div style="display: flex; justify-content: space-between; align-items: baseline;">
+    <h3 class="section-divider">Resumen del Turno (Hoy)</h3>
+    <span style="color: #64748b; font-weight: 600; font-size: 0.95rem;">
+        <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 1.1rem; margin-right: 4px;">today</span>
+        {{ fechaHoy }}
+    </span>
+</div>
+
+  <div class="kpi-grid fade-in">
+      
+      <div class="kpi-card">
+          <div class="kpi-icon icon-blue">
+              <span class="material-symbols-outlined">assignment</span>
+          </div>
+          <div class="kpi-data">
+              <h4>Total de Capturas Hoy</h4>
+              <h2>{{ datosUsuario.hoyTotal || 0 }}</h2>
+          </div>
+      </div>
+
+      <div class="kpi-card">
+          <div class="kpi-icon icon-purple"> <span class="material-symbols-outlined">support_agent</span>
+          </div>
+          <div class="kpi-data">
+              <h4>Técnico más solicitado</h4>
+              <h2 class="tecnico-nombre" style="font-size: 1.4rem;">{{ datosUsuario.hoyTecnicoFav || 'Nadie aún' }}</h2>
+          </div>
+      </div>
+
+      <div class="kpi-card">
+          <div class="kpi-data" style="width: 100%;">
+              <h4>Estatus en Tiempo Real</h4>
+              
+              <div class="status-blocks">
+                  <div class="status-item">
+                      <span class="status-label">Total</span>
+                      <span class="status-value">{{ datosUsuario.hoyTotal || 0 }}</span>
+                  </div>
+                  
+                  <div class="status-divider"></div>
+                  
+                  <div class="status-item complete">
+                      <span class="status-label"><span class="status-dot green"></span> Completos</span>
+                      <span class="status-value">{{ datosUsuario.hoyCompletos || 0 }}</span>
+                  </div>
+                  
+                  <div class="status-divider"></div>
+                  
+                  <div class="status-item pending">
+                      <span class="status-label"><span class="status-dot orange"></span> En espera</span>
+                      <span class="status-value">{{ datosUsuario.hoyEspera || 0 }}</span>
+                  </div>
+              </div>
+              
+              <div class="progress-wrapper">
+                  <div class="progress-bar-container">
+                      <div class="progress-bar-fill" [style.width]="(datosUsuario.hoyPorcentaje || 0) + '%'"></div>
+                  </div>
+                  <span class="progress-percent">{{ datosUsuario.hoyPorcentaje || 0 }}%</span>
+              </div>
+
+          </div>
+      </div>
+
+  </div>
+
+
+  <div style="display: flex; justify-content: space-between; align-items: baseline;">
+    <h3 class="section-divider">Balance de tu Mes </h3>
+    <span style="color: #64748b; font-weight: 600; font-size: 0.95rem;">
+        <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 1.1rem; margin-right: 4px;">today</span>
+        {{ nombreMesActual }}
+    </span>
+</div>
+  
+  <div class="stats-grid">
+      <div class="stats-card">
+          <div class="stats-header">
+              <h3>Tipos de Fallas Reportadas</h3>
+              <p>¿Qué problemas capturaste más? (Histórico)</p>
+          </div>
+          <div class="stats-content">
+              <div class="chart-wrapper" *ngIf="indicadorGraficasCargadas" style="width: 100%; height: 280px; margin-top: 10px;">
+                  <canvas id="createdTotalChart"></canvas> 
+              </div>
+              <div *ngIf="!indicadorGraficasCargadas" style="color: #888;">Cargando...</div>
+          </div>
+      </div>
+
+      <div class="stats-card">
+                <div class="stats-header">
+                    <h3>Carga de Trabajo por Técnico</h3>
+                    <p>¿A quién le asignaste más reportes este mes?</p>
+                </div>
+          <div class="evolution-chart-wrapper" *ngIf="indicadorGraficasCargadas">
+              <canvas id="createdHistoryChart"></canvas> 
+          </div>
+          <div *ngIf="!indicadorGraficasCargadas" style="text-align: center; padding: 20px; color: #888;">Cargando datos...</div>
+      </div>
+  </div>
+
+
+  <h3 class="section-divider">Estadisticas Anuales</h3>
   
   <div class="stats-grid">
       <div class="stats-card evolution-card" style="grid-column: span 2;">
           <div class="stats-header">
-              <h3>Evolución de Eficiencia</h3>
-              <p>Tu desempeño resolviendo tickets</p>
+              <h3>Tickets Creados (Anualmente)</h3>
+              <p>Tu desempeño asignando tickets</p>
           </div>
           <div class="evolution-chart-wrapper">
               <canvas id="monthlyChart"></canvas>
@@ -65,35 +167,4 @@
       </div>
   </div>
 
-  <h3 class="section-divider" style="margin-top: 40px;">Gestión Administrativa</h3>
-  
-  <div class="stats-grid">
-      <div class="stats-card">
-          <div class="stats-header">
-              <h3>Tickets Creados</h3>
-              <p>Solamente Mes Actual ({{ nombreMesActual }})</p>
-          </div>
-          <div class="stats-content">
-              <div class="chart-wrapper" *ngIf="indicadorGraficasCargadas">
-                  <canvas id="createdTotalChart"></canvas> 
-                  <div class="chart-center-text">
-                      <span class="big-number" style="color: #3b82f6;">{{ cantidadTicketsMesActual }}</span>
-                      <span class="label">Este Mes</span>
-                  </div>
-              </div>
-              <div *ngIf="!indicadorGraficasCargadas" style="color: #888;">Cargando...</div>
-          </div>
-      </div>
-
-      <div class="stats-card">
-          <div class="stats-header">
-              <h3>Ritmo de Asignaciones</h3>
-              <p>Tickets asignados por personal (Anual)</p>
-          </div>
-          <div class="evolution-chart-wrapper" *ngIf="indicadorGraficasCargadas">
-              <canvas id="createdHistoryChart"></canvas> 
-          </div>
-          <div *ngIf="!indicadorGraficasCargadas" style="text-align: center; padding: 20px; color: #888;">Cargando datos...</div>
-      </div>
-  </div>
 </div>

@@ -14,6 +14,7 @@ Chart.register(...registerables);
   templateUrl: './tickets-list.html',
   styleUrl: './tickets-list.css'
 })
+
 export class TicketsListComponent implements OnInit {
   private apiService = inject(ApiService);
   private cdr = inject(ChangeDetectorRef); 
@@ -21,7 +22,8 @@ export class TicketsListComponent implements OnInit {
   listaHistorialCompleto: any[] = [];
   listaTicketsFiltrados: any[] = [];
   reportesAgrupadosPorDia: { fecha: string, tickets: any[] }[] = [];
-
+  tipoBusqueda: string = 'secretaria';
+  textoBusqueda: string = '';
   opcionesMesesDisponibles: string[] = [];
   mesFiltroSeleccionado: string = '';
   calendarioVisible: boolean = false;
@@ -100,6 +102,39 @@ export class TicketsListComponent implements OnInit {
         );
     }
 
+    this.construirEstructuraCalendario(this.listaTicketsFiltrados); 
+    
+    if (this.diaFiltroSeleccionado === null) {
+        this.agruparTicketsPorDia(this.listaTicketsFiltrados);
+    }
+    
+    this.cdr.detectChanges();
+  }
+
+  aplicarFiltros(reiniciarFiltroDia: boolean = true) {
+    if (reiniciarFiltroDia) {
+        this.diaFiltroSeleccionado = null; 
+    }
+    
+    let ticketsProcesados = this.mesFiltroSeleccionado 
+        ? this.listaHistorialCompleto.filter(ticket => ticket.fecha && ticket.fecha.startsWith(this.mesFiltroSeleccionado))
+        : this.listaHistorialCompleto;
+
+    if (this.textoBusqueda && this.textoBusqueda.trim() !== '') {
+        const texto = this.textoBusqueda.toLowerCase().trim();
+        
+        ticketsProcesados = ticketsProcesados.filter(ticket => {
+            if (this.tipoBusqueda === 'id') {
+                return ticket.id && ticket.id.toString().includes(texto);
+            } else if (this.tipoBusqueda === 'asignadora') {
+                const creador = ticket.nombre_creador ? ticket.nombre_creador.toLowerCase() : 'desconocido';
+                return creador.includes(texto);
+            }
+            return true;
+        });
+    }
+
+    this.listaTicketsFiltrados = ticketsProcesados;
     this.construirEstructuraCalendario(this.listaTicketsFiltrados); 
     
     if (this.diaFiltroSeleccionado === null) {
@@ -271,7 +306,7 @@ export class TicketsListComponent implements OnInit {
                   labels: ['Alta', 'Media', 'Baja'], 
                   datasets: [{ 
                       data: [metricasAnalizadas.alta, metricasAnalizadas.media, metricasAnalizadas.baja], 
-                      backgroundColor: ['#28f328', '#f39c12', '#f32828'], 
+                      backgroundColor: ['#f32828', '#f39c12', '#27ae60'], 
                       hoverOffset: 4 
                   }] 
               }, 
@@ -315,14 +350,38 @@ export class TicketsListComponent implements OnInit {
       }
   }
 
-  abrirDetalleNotaCompleta(textoNotaCompleto: string) {
+  mostrarDetalleNota(textoNota: string) {
+    const contenido = textoNota ? textoNota : '<span style="color: #94a3b8; font-style: italic;">Sin información adicional.</span>';
+
     Swal.fire({
-      title: 'Detalle de la Nota', 
-      text: textoNotaCompleto, 
-      icon: 'info', 
-      iconColor: '#56212f',
-      confirmButtonText: 'Cerrar', 
-      confirmButtonColor: '#000000'
+      title: '<h3 style="color: #56212f; margin: 0; font-weight: 700;">Detalle de la Nota</h3>',
+      html: `
+        <div style="
+          background-color: #f8fafc; 
+          border: 1px solid #e2e8f0; 
+          border-left: 5px solid #977e5b; 
+          border-radius: 8px; 
+          padding: 20px; 
+          margin-top: 15px;
+          text-align: left;
+          font-size: 0.95rem;
+          color: #334155;
+          line-height: 1.6;
+          max-height: 350px;
+          overflow-y: auto;
+          white-space: pre-wrap;
+          word-wrap: break-word;
+          box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        ">
+          ${contenido}
+        </div>
+      `,
+      icon: 'info',
+      iconColor: '#977e5b',
+      confirmButtonText: 'Cerrar',
+      confirmButtonColor: '#000000',
+      background: '#fff',
+      width: '500px' 
     });
   }
 }

@@ -1,0 +1,141 @@
+<div class="fade-in">
+  <header class="header">
+    <div class="header-content">
+      <h1>PANEL DE GESTIÓN</h1>
+      <p class="fecha-global">{{ fechaVisual | titlecase }}</p>
+    </div>
+  </header>
+
+  <div class="kpi-grid">
+    <div class="kpi-card card-total">
+      <div class="kpi-icon"><span class="material-symbols-outlined">receipt_long</span></div>
+      <div class="kpi-data">
+        <h4>Tickets Creados</h4>
+        <h2 class="text-create">{{ totalTickets }}</h2>
+      </div>
+    </div>
+
+    <div class="kpi-card card-pending">
+      <div class="kpi-icon"><span class="material-symbols-outlined">pending_actions</span></div>
+      <div class="kpi-data">
+        <h4>Pendientes</h4>
+        <h2 class="text-warning">{{ ticketsPendientes }}</h2>
+      </div>
+    </div>
+
+    <div class="kpi-card card-completed">
+      <div class="kpi-icon"><span class="material-symbols-outlined">task_alt</span></div>
+      <div class="kpi-data">
+        <h4>Completados</h4>
+        <h2 class="text-success">{{ ticketsCompletados }}</h2>
+      </div>
+    </div>
+
+    <div class="kpi-card card-danger">
+      <div class="kpi-icon"><span class="material-symbols-outlined">warning</span></div>
+      <div class="kpi-data">
+        <h4>Prioridad Alta</h4>
+        <h2 class="text-danger">{{ ticketsAltaPrioridad }}</h2>
+      </div>
+    </div>
+  </div>
+
+  <div class="charts-grid mt-4 fade-in">
+    <div class="chart-card">
+      <h3 class="section-title">Evolución de Actividad</h3>
+      <div class="chart-container">
+        <canvas #ticketsChartCanvas></canvas>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3 class="section-title">Distribución de Fallas</h3>
+      <div class="chart-container">
+        <canvas #donaChartCanvas></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="tables-section mt-4 fade-in">
+    <div class="tables-grid">
+      
+      <div class="table-card card-border-warning">
+        <h3 class="section-title" style="color: #f59e0b;">Listado de Pendientes</h3>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>HORA</th>
+                <th>PROBLEMA</th>
+                <th>PERSONAL</th>
+                <th>PRIORIDAD</th>
+                <th>ESTADO</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let t of listaPendientesHoy" (click)="abrirModalTicket(t)" style="cursor: pointer;">
+                <td class="fw-bold">#{{ t.id }}</td>
+                <td>{{ getHora(t.fecha) }}</td>
+                <td>
+                    <span class="badge" [ngClass]="getProblemaClass(t.descripcion)">
+                        {{ t.descripcion }}
+                    </span>
+                </td>
+                <td>{{ t.personal || 'Sin asignar' }}</td>
+                <td>
+                  <span class="badge" [ngClass]="'prio-' + (t.prioridad ? t.prioridad.toLowerCase() : 'media')">
+                    {{ t.prioridad }}
+                  </span>
+                </td>
+                <td><span class="badge state-pending">{{ t.estado || 'En espera' }}</span></td>
+              </tr>
+              <tr *ngIf="listaPendientesHoy.length === 0">
+                <td colspan="6" class="text-center empty-msg">Sin pendientes registrados hoy.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="table-card card-border-success">
+        <h3 class="section-title" style="color: #10b981;">Listado de Completados</h3>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>HORA FIN</th> 
+                <th>PROBLEMA</th>
+                <th>PERSONAL</th>
+                <th>PRIORIDAD</th>
+                <th>ESTADO</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let t of listaCompletadosHoy" (click)="abrirModalTicket(t)" style="cursor: pointer;">
+                <td class="fw-bold">#{{ t.id }}</td>
+                <td>{{ getHora(t.fecha_fin) }}</td>
+                <td>
+                    <span class="badge" [ngClass]="getProblemaClass(t.descripcion)">
+                        {{ t.descripcion }}
+                    </span>
+                </td>
+                <td>{{ t.personal || 'Sin asignar' }}</td>
+                <td>
+                  <span class="badge" [ngClass]="'prio-' + (t.prioridad ? t.prioridad.toLowerCase() : 'media')">
+                    {{ t.prioridad }}
+                  </span>
+                </td>
+                <td><span class="badge state-success">{{ t.estado }}</span></td>
+              </tr>
+              <tr *ngIf="listaCompletadosHoy.length === 0">
+                <td colspan="6" class="text-center empty-msg">Sin tickets completados hoy.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

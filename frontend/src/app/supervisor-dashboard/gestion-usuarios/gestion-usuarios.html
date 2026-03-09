@@ -1,0 +1,163 @@
+<div class="fade-in">
+  <header class="header">
+    <div class="header-content">
+      <h1>PANEL DE ADMINISTRACIÓN</h1>
+      <p>Resumen de usuarios registrados en el sistema.</p>
+    </div>
+    <button class="btn-create-main" (click)="openCreateModal()">
+      <span class="material-symbols-outlined">person_add</span>
+      Nuevo Usuario
+    </button>
+  </header>
+
+  <div class="stats-grid">
+    <div class="card stat-card personal" (click)="applyFilter('personal')" [class.active-card]="currentFilter === 'personal'">
+      <span class="stat-label">PERSONAL</span>
+      <span class="stat-number">{{ countPersonal }}</span>
+      <div class="indicator"></div>
+    </div>
+    <div class="card stat-card secretaria" (click)="applyFilter('secretaria')" [class.active-card]="currentFilter === 'secretaria'">
+      <span class="stat-label">SECRETARIAS</span>
+      <span class="stat-number">{{ countSecretaria }}</span>
+      <div class="indicator"></div>
+    </div>
+    <div class="card stat-card total" (click)="applyFilter('all')" [class.active-card]="currentFilter === 'all'">
+      <span class="stat-label">USUARIOS TOTALES</span>
+      <span class="stat-number">{{ totalUsers }}</span>
+    </div>
+  </div>
+
+  <div class="card table-card">
+    <div class="card-header">
+      <h2>{{ filterTitle }}</h2>
+    </div>
+
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>NOMBRE</th>
+            <th>CORREO ELECTRÓNICO</th>
+            <th>ROL</th>
+            <th style="text-align: center;">RENDIMIENTO</th> 
+            <th style="text-align: center;">ACCIONES</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of filteredList">
+            <td class="name-cell">
+              <div class="avatar-circle">{{ user.nombre.charAt(0) }}</div>
+              {{ user.nombre }}
+            </td>
+            <td class="email-cell">{{ user.email }}</td>
+            <td>
+              <span class="badge" 
+                    [class.badge-personal]="user.rol.toLowerCase() === 'personal'"
+                    [class.badge-secretaria]="user.rol.toLowerCase() === 'secretaria'"
+                    [class.badge-supervisor]="user.rol.toLowerCase() === 'admin' || user.rol.toLowerCase() === 'supervisor'">
+                {{ user.rol }}
+              </span>
+            </td>
+            
+            <td style="text-align: center;">
+              <button *ngIf="user.rol.toLowerCase() === 'personal'" 
+                      class="btn-perf tecnico" 
+                      (click)="openPerformance(user)">
+                <span class="material-symbols-outlined">analytics</span> Técnico
+              </button>
+              
+              <button *ngIf="user.rol.toLowerCase() === 'secretaria' || user.rol.toLowerCase() === 'secretario'" 
+                      class="btn-perf secretaria" 
+                      (click)="openPerformance(user)">
+                <span class="material-symbols-outlined">monitoring</span> Administrativo
+              </button>
+              
+              <span *ngIf="user.rol.toLowerCase() === 'supervisor' || user.rol.toLowerCase() === 'admin'" class="text-muted small">N/A</span>
+            </td>
+
+            <td class="actions-cell">
+              <div class="actions-buttons">
+                <button class="btn-action view" (click)="openViewModal(user)">Ver</button>
+                <button class="btn-action edit" (click)="openEditModal(user)">Editar</button>
+                <button class="btn-action delete" (click)="openDeleteModal(user)">Eliminar</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showCreate">
+  <app-create-user 
+    (close)="closeModals()" 
+    (create)="onUserCreated($event)">
+  </app-create-user>
+</div>
+
+<div class="modal-overlay" *ngIf="showView">
+  <div class="modal-card fade-in">
+    <div class="edit-header">
+      <h3>Detalles del Usuario</h3>
+      <button class="btn-x" (click)="closeModals()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="info-group">
+        <label>NOMBRE:</label>
+        <p>{{ selectedUser?.nombre }}</p>
+      </div>
+      <div class="info-group">
+        <label>CORREO ELECTRÓNICO:</label>
+        <p>{{ selectedUser?.email }}</p>
+      </div>
+      <div class="info-group">
+        <label>ROL:</label>
+        <p><span class="badge">{{ selectedUser?.rol }}</span></p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="closeModals()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showEdit">
+  <div class="edit-container fade-in">
+    <div class="edit-header">
+      <span>Editar Usuario #{{selectedUser.id}}</span>
+      <button class="btn-close-x" (click)="closeModals()">×</button>
+    </div>
+    <div class="edit-body">
+      <div class="input-group">
+        <label>NOMBRE COMPLETO:</label>
+        <input type="text" [(ngModel)]="selectedUser.nombre">
+      </div>
+      <div class="input-group">
+        <label>CORREO ELECTRÓNICO:</label>
+        <input type="email" [(ngModel)]="selectedUser.email">
+      </div>
+      <div class="input-group">
+        <label>ROL DEL USUARIO:</label>
+        <select [(ngModel)]="selectedUser.rol">
+          <option value="Personal">Personal</option>
+          <option value="Secretaria">Secretaria</option>
+          <option value="Supervisor">Supervisor</option>
+        </select>
+      </div>
+    </div>
+    <div class="edit-footer">
+      <button class="btn-cancel" (click)="closeModals()">Cancelar</button>
+      <button class="btn-save" (click)="guardarEdicion()">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<app-performance-user *ngIf="showPerformance" [user]="selectedUser" (close)="closeModals()"></app-performance-user>
+<app-performance-secretaria *ngIf="showSecretariaPerf" [user]="selectedUser" (close)="closeModals()"></app-performance-secretaria>
+<app-delete-user 
+  *ngIf="showDelete" 
+  [user]="selectedUser" 
+  (close)="closeModals()" 
+  (delete)="onUserDeleted()">
+</app-delete-user>

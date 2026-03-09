@@ -215,32 +215,33 @@ export class PersonalPendingComponent implements OnInit {
     });
   }
 
-  abrirModalFinalizacion(ticketSeleccionado: any) {
-
+ abrirModalFinalizacion(ticketSeleccionado: any) {
     let canvas: HTMLCanvasElement;
     let ctx: CanvasRenderingContext2D | null;
     let isDrawing = false;
     let isEmpty = true;
 
-Swal.fire({
+    Swal.fire({
       title: `Finalizar Ticket #${ticketSeleccionado.id}`,
+      grow: window.innerWidth < 600 ? 'column' : false,
       html: `
         <div style="text-align: left;">
-          <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 10px;">Documenta la solución y solicita la firma de conformidad.</p>
+          <p style="color: #64748b; font-size: 0.85rem; margin-bottom: 8px;">Documenta la solución y solicita la firma.</p>
           
-          <label style="font-weight: 800; color: #56212f; font-size: 0.95rem;">Resolución del problema:</label>
-          <textarea id="solucion-text" class="swal2-textarea" style="margin: 5px 0 15px 0; width: 100%; height: 80px; box-sizing: border-box; font-family: inherit; font-size: 0.95rem; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1;" placeholder="Ej. Se reemplazó el cable de red..."></textarea>
+          <label style="font-weight: 800; color: #56212f; font-size: 0.9rem;">Resolución:</label>
+          <textarea id="solucion-text" class="swal2-textarea" style="margin: 5px 0 10px 0; width: 100%; height: 60px; box-sizing: border-box; font-size: 0.9rem; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1;" placeholder="Descripción..."></textarea>
           
-          <label style="font-weight: 800; color: #56212f; font-size: 0.95rem; display: block;">Firma del Solicitante:</label>
-          <div style="border: 1px solid #cbd5e1; border-radius: 8px; background: #f8fafc; margin-top: 5px; touch-action: none;">
-             <canvas id="firma-canvas" style="width: 100%; height: 180px; cursor: crosshair;"></canvas>
-          </div>
-          <div style="text-align: right; margin-top: 5px; margin-bottom: 15px;">
-             <button type="button" id="btn-limpiar-firma" style="background: none; border: none; color: #b45309; text-decoration: underline; cursor: pointer; font-size: 0.85rem; font-weight: bold;">Limpiar Firma</button>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <label style="font-weight: 800; color: #56212f; font-size: 0.9rem;">Firma del Solicitante:</label>
+            <button type="button" id="btn-limpiar-firma" style="background: none; border: none; color: #b45309; text-decoration: underline; cursor: pointer; font-size: 0.8rem; font-weight: bold;">Limpiar</button>
           </div>
 
-          <label style="font-weight: 800; color: #56212f; font-size: 0.95rem; display: block;">Evidencia Fotográfica:</label>
-          <input type="file" id="evidencia-file" class="swal2-file" accept="image/*" style="width: 100%; margin: 5px 0 0 0; box-sizing: border-box; padding: 10px; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px;">
+          <div id="contenedor-firma" style="border: 2px dashed #cbd5e1; border-radius: 8px; background: #fff; margin-top: 5px; touch-action: none; position: relative;">
+             <canvas id="firma-canvas" style="width: 100%; height: 220px; cursor: crosshair; display: block;"></canvas>
+          </div>
+
+          <label style="font-weight: 800; color: #56212f; font-size: 0.9rem; display: block; margin-top: 15px;">Evidencia:</label>
+          <input type="file" id="evidencia-file" class="swal2-file" accept="image/*" style="width: 100%; margin: 5px 0 0 0; font-size: 0.8rem; padding: 5px; border-radius: 8px;">
         </div>
       `,
       showCancelButton: true,
@@ -248,93 +249,102 @@ Swal.fire({
       confirmButtonColor: '#56212f',
       cancelButtonText: 'Cancelar',
       cancelButtonColor: '#000000',
-     width: '600px',
+      width: '650px',
       didOpen: () => {
         canvas = document.getElementById('firma-canvas') as HTMLCanvasElement;
         ctx = canvas.getContext('2d');
-        const btnLimpiar = document.getElementById('btn-limpiar-firma');
+        const contenedor = document.getElementById('contenedor-firma');
 
-        const rect = canvas.getBoundingClientRect();
-        canvas.width = rect.width;
-        canvas.height = rect.height;
+        const resizeCanvas = () => {
+          const rect = contenedor!.getBoundingClientRect();
+          const tempImg = canvas.toDataURL();
+          canvas.width = rect.width;
+          canvas.height = rect.height;
+          if (!isEmpty) {
+            const img = new Image();
+            img.onload = () => ctx?.drawImage(img, 0, 0);
+            img.src = tempImg;
+          }
+        };
+
+        resizeCanvas();
+
+        window.addEventListener('resize', resizeCanvas);
 
         const getPos = (evt: MouseEvent | TouchEvent) => {
-            const rectInfo = canvas.getBoundingClientRect();
-            let clientX, clientY;
-            if (evt instanceof MouseEvent) {
-                clientX = evt.clientX;
-                clientY = evt.clientY;
-            } else {
-                clientX = evt.touches[0].clientX;
-                clientY = evt.touches[0].clientY;
-            }
-            return { x: clientX - rectInfo.left, y: clientY - rectInfo.top };
+          const rectInfo = canvas.getBoundingClientRect();
+          let clientX, clientY;
+          if (evt instanceof MouseEvent) {
+            clientX = evt.clientX;
+            clientY = evt.clientY;
+          } else {
+            clientX = evt.touches[0].clientX;
+            clientY = evt.touches[0].clientY;
+          }
+          return { x: clientX - rectInfo.left, y: clientY - rectInfo.top };
         };
 
         const startDrawing = (e: MouseEvent | TouchEvent) => {
-            e.preventDefault();
-            isDrawing = true;
-            isEmpty = false;
-            const pos = getPos(e);
-            ctx?.beginPath();
-            ctx?.moveTo(pos.x, pos.y);
+          e.preventDefault();
+          isDrawing = true;
+          isEmpty = false;
+          const pos = getPos(e);
+          ctx?.beginPath();
+          ctx?.moveTo(pos.x, pos.y);
         };
 
         const draw = (e: MouseEvent | TouchEvent) => {
-            e.preventDefault();
-            if (!isDrawing || !ctx) return;
-            const pos = getPos(e);
-            ctx.lineTo(pos.x, pos.y);
-            ctx.strokeStyle = '#0f172a'; 
-            ctx.lineWidth = 2.5; 
-            ctx.lineCap = 'round';
-            ctx.stroke();
+          e.preventDefault();
+          if (!isDrawing || !ctx) return;
+          const pos = getPos(e);
+          ctx.lineTo(pos.x, pos.y);
+          ctx.strokeStyle = '#000'; 
+          ctx.lineWidth = 3; 
+          ctx.lineCap = 'round';
+          ctx.stroke();
         };
 
         const stopDrawing = () => {
-            isDrawing = false;
-            ctx?.closePath();
+          isDrawing = false;
+          ctx?.closePath();
         };
 
         canvas.addEventListener('mousedown', startDrawing);
         canvas.addEventListener('mousemove', draw);
         canvas.addEventListener('mouseup', stopDrawing);
-        canvas.addEventListener('mouseout', stopDrawing);
-
         canvas.addEventListener('touchstart', startDrawing, { passive: false });
         canvas.addEventListener('touchmove', draw, { passive: false });
         canvas.addEventListener('touchend', stopDrawing);
 
-        btnLimpiar?.addEventListener('click', () => {
-            ctx?.clearRect(0, 0, canvas.width, canvas.height);
-            isEmpty = true;
+        document.getElementById('btn-limpiar-firma')?.addEventListener('click', () => {
+          ctx?.clearRect(0, 0, canvas.width, canvas.height);
+          isEmpty = true;
         });
+      },
+      willClose: () => {
+        window.removeEventListener('resize', () => {});
       },
       preConfirm: () => {
         const descripcionResolucion = (document.getElementById('solucion-text') as HTMLTextAreaElement).value;
         const archivoEvidencia = (document.getElementById('evidencia-file') as HTMLInputElement).files?.[0];
 
         if (!descripcionResolucion || descripcionResolucion.trim() === '') {
-          Swal.showValidationMessage('La descripción de la solución es obligatoria');
+          Swal.showValidationMessage('La resolución es obligatoria');
           return false;
         }
-
         if (isEmpty) {
-          Swal.showValidationMessage('La firma de conformidad es obligatoria');
+          Swal.showValidationMessage('La firma es obligatoria');
           return false;
         }
-        
-        const firmaBase64 = canvas.toDataURL('image/png');
-
-        return { resolucion: descripcionResolucion, archivo: archivoEvidencia, firma: firmaBase64 };
+        return { resolucion: descripcionResolucion, archivo: archivoEvidencia, firma: canvas.toDataURL('image/png') };
       }
     }).then((resultadoModal) => {
       if (resultadoModal.isConfirmed) {
         this.procesarCierreDeTicket(
-            ticketSeleccionado.id, 
-            resultadoModal.value.resolucion,
-            resultadoModal.value.firma,
-            resultadoModal.value.archivo
+          ticketSeleccionado.id, 
+          resultadoModal.value.resolucion,
+          resultadoModal.value.firma,
+          resultadoModal.value.archivo
         );
       }
     });

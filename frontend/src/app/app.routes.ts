@@ -4,16 +4,15 @@ import { LoginComponent } from './login/login';
 //secretaria
 import { SecretariaDashboardComponent } from './secretaria-dashboard/secretaria-dashboard';
 import { UsersListComponent } from './secretaria-dashboard/users-list/users-list';
-//import { UserRegisterComponent } from './secretaria-dashboard/user-register/user-register';
 import { TicketsComponent } from './secretaria-dashboard/tickets/tickets';
 import { TicketsListComponent } from './secretaria-dashboard/tickets-list/tickets-list';
 import { UserProfileComponent } from './secretaria-dashboard/user-profile/user-profile';
 
 //Supervisor
 import { SupervisorDashboardComponent } from './supervisor-dashboard/supervisor-dashboard';
-import { PersonalActivoComponent } from './supervisor-dashboard/personal-activo/personal-activo.component';
-import { HistorialEntradasComponent } from './supervisor-dashboard/historial-tickets/historial-tickets.component';
-
+import { GestionUsuariosComponent } from './supervisor-dashboard/gestion-usuarios/gestion-usuarios';
+import { SupervisorStartComponent } from './supervisor-dashboard/supervisor-start/supervisor-start';
+import { SupervisorTickethistoryComponent } from './supervisor-dashboard/supervisor-tickethistory/supervisor-tickethistory';
 
 //personal
 import { PersonalDashboardComponent } from './personal-dashboard/personal-dashboard';
@@ -46,8 +45,11 @@ export const routes: Routes = [
         path: 'supervisor',
         component: SupervisorDashboardComponent,
         children: [
-            { path: 'personal-activo', component: PersonalActivoComponent },
-            { path: 'historial-entradas', component: HistorialEntradasComponent },
+             { path: '', redirectTo: 'inicio', pathMatch: 'full' }, 
+             { path: 'inicio', component: SupervisorStartComponent },
+            { path: 'gestion-usuarios', component: GestionUsuariosComponent },
+            { path: 'historial-tickets', component: SupervisorTickethistoryComponent },
+
         ]
     },
 

@@ -62,32 +62,39 @@
     font-size: 0.9rem;
 }
 
-input,
-select,
-textarea {
+.simple-input {
     width: 100%;
     padding: 12px 15px;
-    border: 1px solid #dfe6e9;
-    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background-color: #ffffff;
+    color: #334155;
     font-size: 0.95rem;
-    color: #2d3436;
-    background-color: #fcfcfc;
-    transition: all 0.2s;
-    box-sizing: border-box;
     font-family: inherit;
-}
-
-input:focus,
-select:focus,
-textarea:focus {
-    border-color: #e0b472;
-    background-color: #fff;
+    box-sizing: border-box; 
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
     outline: none;
-    box-shadow: 0 0 0 3px rgba(224, 180, 114, 0.15);
 }
 
-textarea {
-    resize: vertical;
+.simple-input:hover {
+    border-color: #cbd5e1;
+}
+
+.simple-input:focus {
+    border-color: #56212f;
+    box-shadow: 0 0 0 3px rgba(86, 33, 47, 0.1);
+    background-color: #fff;
+}
+
+.simple-input:disabled {
+    background-color: #f8fafc;
+    color: #94a3b8;
+    cursor: not-allowed;
+}
+
+textarea.simple-input {
+    resize: vertical; 
+    min-height: 100px;
 }
 
 .btn-gold {
@@ -252,40 +259,26 @@ textarea {
     text-transform: capitalize;
 }
 
-.bg-office {
-    background-color: #d97706;
-}
+.bg-internet { background-color: #2563eb; }
+.bg-office { background-color: #d97706; }
+.bg-telefonia { background-color: #1e293b; }
+.bg-tecnico { background-color: #059669; }
+.bg-dictaminar { background-color: #6d28d9; }
+.bg-correo { background-color: #96241c; }
 
-.bg-telefonia {
-    background-color: #1e293b;
-}
+.bg-alta { background-color: #dc2626; }
+.bg-media { background-color: #f59e0b; }
+.bg-baja { background-color: #10b981; }
 
-.bg-internet {
-    background-color: #2563eb;
-}
-
-.bg-tecnico {
-    background-color: #059669;
-}
-
-.bg-dictaminar {
-    background-color: #6d28d9;
-}
-
-.bg-correo {
-    background-color: #96241c;
-}
-
-.bg-alta {
-    background-color: #dc2626;
-}
-
-.bg-media {
-    background-color: #f59e0b;
-}
-
-.bg-baja {
-    background-color: #10b981;
+.qty-badge {
+    background-color: #f1f5f9;
+    color: #64748b;
+    border: 1px solid #e2e8f0;
+    padding: 3px 6px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    display: inline-block;
 }
 
 .notes-col {
@@ -311,17 +304,6 @@ textarea {
     padding: 40px;
     color: #94a3b8;
     font-style: italic;
-}
-
-.qty-badge {
-    background-color: #f1f5f9;
-    color: #64748b;
-    border: 1px solid #e2e8f0;
-    padding: 3px 6px;
-    border-radius: 4px;
-    font-size: 0.7rem;
-    font-weight: 700;
-    display: inline-block;
 }
 
 @media (max-width: 768px) {

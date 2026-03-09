@@ -6,6 +6,37 @@
     overflow: hidden; 
 }
 
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.3); 
+    z-index: 15;
+    cursor: pointer;
+    animation: fadeInOverlay 0.3s ease-out;
+}
+
+@keyframes fadeInOverlay {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed; 
+        top: 0; 
+        left: 0;
+        height: 100vh;
+        z-index: 20; 
+    }
+    
+    .sidebar-overlay {
+        z-index: 15;
+    }
+}
+
 .sidebar {
     width: 260px;
     background-color: #56212f; 

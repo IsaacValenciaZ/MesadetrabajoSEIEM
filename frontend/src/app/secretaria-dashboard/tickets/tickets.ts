@@ -1,9 +1,9 @@
-import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core'; // IMPORTAMOS OnDestroy
+import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api'; 
 import Swal from 'sweetalert2';
-import { Subscription, interval } from 'rxjs'; // IMPORTAMOS RXJS PARA EL TEMPORIZADOR
+import { Subscription, interval } from 'rxjs'; 
 
 @Component({
   selector: 'app-tickets',
@@ -50,7 +50,7 @@ export class TicketsComponent implements OnInit, OnDestroy {
     "Depto. de Reconocimiento", 
     "Depto. de Promoción en el Servicio",
 
-    "Direc. de Educación Elemental", 
+    "Direcc. de Educación Elemental", 
     "Subdirec de Educación Elemental", 
     "Depto. de Computación Electrónica en la Educación Elemental",
     
@@ -70,7 +70,7 @@ export class TicketsComponent implements OnInit, OnDestroy {
     "Depto. de Educación Preescolar del Valle de México",
 
     "Coordinación Académica y de Operación Educativa",
-    "Direc. de Educación Secundaria y Servicios de Apoyo",
+    "Direcc. de Educación Secundaria y Servicios de Apoyo",
     "Subdirec. de Educación Secundaria ",
     "Depto. de Educación Secundaria General Valle de Toluca", 
     "Depto. de Educación Secundaria Técnica Valle de Toluca",
@@ -85,16 +85,16 @@ export class TicketsComponent implements OnInit, OnDestroy {
     "Depto. de Educación Física del Valle de Toluca",
     "Depto. de Educación Física del Valle de México", 
 
-    "Direc. de Preparatoria Abierta", 
+    "Direcc. de Preparatoria Abierta", 
     "Depto. de Preparatoria Abierta Valle de Toluca",
     "Depto. de Preparatoria Abierta Valle de México",
 
-    "Direc. de Educación Superior",
+    "Direcc. de Educación Superior",
     "Depto. de Formación Profesional",
     "Depto. de Posgrado e Investigación",
     "Depto. de Actualización",
 
-    "Direc. de  Servicios Regionalizados",
+    "Direcc. de  Servicios Regionalizados",
     "Depto. de Apoyo Técnico", 
     "Depto. de Administración de Personal", 
     "Depto. de Recursos Materiales y Financieros",
@@ -103,7 +103,7 @@ export class TicketsComponent implements OnInit, OnDestroy {
     "Subdirec. de Servicios Regionales Nezahualcóyotl",
 
   "Coordinación de Administración y Finanzas",
-  "Direc. de Administración y Desarrollo de Personal",
+  "Direcc. de Administración y Desarrollo de Personal",
   "Subdirec. de Desarrollo de Personal", 
   "Depto. de Capacitación y Desarrollo",
    "Depto. de Prestaciones", 
@@ -114,7 +114,7 @@ export class TicketsComponent implements OnInit, OnDestroy {
     "Depto. de Control y Calidad de Pago", 
     "Depto. de Registro y Archivo",
    
-  "Direc. de Recursos Materiales y Financieros", 
+  "Direcc. de Recursos Materiales y Financieros", 
   "Subdirec. de Recursos Materiales y Servicios", 
   "Depto. de Adquisiciones", 
   "Depto. de Servicios Generales",
@@ -130,18 +130,18 @@ export class TicketsComponent implements OnInit, OnDestroy {
     "Pagaduría Valle de Toluca", 
     "Pagaduría Valle de México",
 
-    "Dirección de Planeación y Evaluación",
+    "Direcc. de Planeación y Evaluación",
     "Depto. de Planeación y Programación",
     "Depto. de Estadística", 
     "Depto. de Control Escolar",
     "Depto. de Evaluación Institucional", 
 
-    "Direc. de Instalaciones Educativas",
+    "Direcc. de Instalaciones Educativas",
     "Depto. de Espacios Escolares", 
     "Depto. de Equipamiento Escolar", 
     "Depto. de Preservación de Instalaciones",
 
-    "Direc. de Informática y Telecomunicaciones",
+    "Direcc. de Informática y Telecomunicaciones",
     "Depto. Técnico",
     "Depto. de Desarrollo de Sistemas",
     "Depto. de Producción",
@@ -226,7 +226,7 @@ export class TicketsComponent implements OnInit, OnDestroy {
     });
   }
 
-  obtenerReportesDelDia() {
+obtenerReportesDelDia() {
     this.apiService.getTicketsHoy().subscribe({
       next: (datosServidor: any[]) => {
         this.reportesDelDia = Array.isArray(datosServidor) ? datosServidor : [];
@@ -239,15 +239,38 @@ export class TicketsComponent implements OnInit, OnDestroy {
     });
   }
 
-  mostrarDetalleNota(textoNota: string) {
+ mostrarDetalleNota(textoNota: string) {
+    const contenido = textoNota ? textoNota : '<span style="color: #94a3b8; font-style: italic;">Sin información adicional.</span>';
+
     Swal.fire({
-      title: 'Detalle de la Nota',
-      text: textoNota ? textoNota : 'Sin información adicional.',
+      title: '<h3 style="color: #56212f; margin: 0; font-weight: 700;">Detalle de la Nota</h3>',
+      html: `
+        <div style="
+          background-color: #f8fafc; 
+          border: 1px solid #e2e8f0; 
+          border-left: 5px solid #977e5b; 
+          border-radius: 8px; 
+          padding: 20px; 
+          margin-top: 15px;
+          text-align: left;
+          font-size: 0.95rem;
+          color: #334155;
+          line-height: 1.6;
+          max-height: 350px;
+          overflow-y: auto;
+          white-space: pre-wrap;
+          word-wrap: break-word;
+          box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        ">
+          ${contenido}
+        </div>
+      `,
       icon: 'info',
+      iconColor: '#977e5b',
       confirmButtonText: 'Cerrar',
       confirmButtonColor: '#000000',
       background: '#fff',
-      iconColor: '#977e5b'
+      width: '500px' 
     });
   }
   

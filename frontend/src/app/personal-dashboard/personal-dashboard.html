@@ -1,4 +1,11 @@
 <div class="dashboard-layout">
+
+<div 
+    class="sidebar-overlay" 
+    *ngIf="menuLateralAbierto" 
+    (click)="menuLateralAbierto = false">
+  </div>
+  
   <aside class="sidebar" [class.closed]="!menuLateralAbierto">
     <div class="sidebar-header">
       <div class="brand">
