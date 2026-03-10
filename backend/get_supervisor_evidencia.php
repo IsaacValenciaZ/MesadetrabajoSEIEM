@@ -8,7 +8,7 @@ if (isset($_GET['id'])) {
     $ticket_id = $_GET['id'];
     
     try {
-        $query = "SELECT e.evidencia_archivo, e.firma_base64, t.descripcion_resolucion 
+        $query = "SELECT e.evidencia_archivo, e.firma_base64, e.descripcion_resolucion 
                   FROM evidencias_tickets e
                   INNER JOIN tickets t ON e.ticket_id = t.id
                   WHERE e.ticket_id = ?";
