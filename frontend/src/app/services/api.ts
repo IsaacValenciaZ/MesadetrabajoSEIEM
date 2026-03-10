@@ -92,9 +92,9 @@ getSupervisorUsers(): Observable<any[]> {
     return this.http.post<any>(`${this.baseUrl}/update_status.php`, datos);
   }
 
-actualizarEstadoTicketConEvidencia(formData: FormData): Observable<any> {
-    return this.http.post(`${this.baseUrl}/update_tickets_personal.php`, formData);
-  }
+  actualizarEstadoTicketConEvidencia(datos: any): Observable<any> {
+  return this.http.post(`${this.baseUrl}/update_tickets_personal.php`, datos);
+}
 
 updateUser(user: any): Observable<any> {
   return this.http.post(`${this.baseUrl}/update_user.php`, user);

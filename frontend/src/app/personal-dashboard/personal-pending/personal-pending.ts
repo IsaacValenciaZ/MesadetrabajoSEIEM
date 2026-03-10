@@ -53,14 +53,11 @@ export class PersonalPendingComponent implements OnInit, OnDestroy {
         this.fechaReferenciaActual = new Date();
       
         const idsAntiguos = this.listaTicketsPendientes.map(t => t.id);
-
         const nuevaListaTickets = todosLosTickets.filter((ticket: any) => 
             ticket.estado === 'En espera' || ticket.estado === 'Asignado' || !ticket.estado
         );
     
-        nuevaListaTickets.sort((a, b) => {
-             return new Date(a.fecha_limite).getTime() - new Date(b.fecha_limite).getTime();
-        });
+        nuevaListaTickets.sort((a, b) => new Date(a.fecha_limite).getTime() - new Date(b.fecha_limite).getTime());
         
         const idsNuevos = nuevaListaTickets.map(t => t.id);
         const hayTicketsNuevos = idsNuevos.some(id => !idsAntiguos.includes(id));
@@ -70,13 +67,11 @@ export class PersonalPendingComponent implements OnInit, OnDestroy {
         this.cdr.detectChanges(); 
         
         if(hayTicketsNuevos && idsAntiguos.length > 0) {
-             const Toast = Swal.mixin({
-                toast: true, position: 'top-end', showConfirmButton: false, timer: 3000
-             });
+             const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 });
              Toast.fire({ icon: 'info', iconColor: '#56212f', title: '¡Tienes nuevos reportes asignados!' });
         }
       },
-      error: (err) => {
+      error: () => {
         this.cargandoDatos = false;
         this.cdr.detectChanges();
       }
@@ -98,21 +93,15 @@ export class PersonalPendingComponent implements OnInit, OnDestroy {
     else if (ticketSeleccionado.descripcion === 'Extension/Telefono') colorFondoCategoria = '#94961c';
     else if (ticketSeleccionado.descripcion === 'Dictaminar') {
         colorFondoCategoria = '#6c5ce7';
-        if (ticketSeleccionado.cantidad_dicta) {
-          detallesExtraHtml = `<span style="color: #cbd5e1; margin: 0 10px;">|</span> <span style="font-size: 0.95rem; font-weight: 800; color: ${colorFondoCategoria};">Equipos: ${ticketSeleccionado.cantidad_dicta}</span>`;
-        }
+        if (ticketSeleccionado.cantidad_dicta) detallesExtraHtml = `<span style="color: #cbd5e1; margin: 0 10px;">|</span> <span style="font-size: 0.95rem; font-weight: 800; color: ${colorFondoCategoria};">Equipos: ${ticketSeleccionado.cantidad_dicta}</span>`;
     } 
     else if (ticketSeleccionado.descripcion === 'Correo') {
         colorFondoCategoria = '#96241c';
-        if (ticketSeleccionado.correo_tipo) {
-          detallesExtraHtml = `<span style="color: #cbd5e1; margin: 0 10px;">|</span> <span style="font-size: 0.95rem; font-weight: 800; color: ${colorFondoCategoria};">Dominio: ${ticketSeleccionado.correo_tipo}</span>`;
-        }
+        if (ticketSeleccionado.correo_tipo) detallesExtraHtml = `<span style="color: #cbd5e1; margin: 0 10px;">|</span> <span style="font-size: 0.95rem; font-weight: 800; color: ${colorFondoCategoria};">Dominio: ${ticketSeleccionado.correo_tipo}</span>`;
     } 
     else if (ticketSeleccionado.descripcion === 'Tecnico') {
         colorFondoCategoria = '#16a085';
-        if (ticketSeleccionado.soporte_tipo) {
-          detallesExtraHtml = `<span style="color: #cbd5e1; margin: 0 10px;">|</span> <span style="font-size: 0.95rem; font-weight: 800; color: ${colorFondoCategoria};">Soporte: ${ticketSeleccionado.soporte_tipo}</span>`;
-        }
+        if (ticketSeleccionado.soporte_tipo) detallesExtraHtml = `<span style="color: #cbd5e1; margin: 0 10px;">|</span> <span style="font-size: 0.95rem; font-weight: 800; color: ${colorFondoCategoria};">Soporte: ${ticketSeleccionado.soporte_tipo}</span>`;
     }
 
     let colorPrioridad = '#64748b';
@@ -148,7 +137,7 @@ export class PersonalPendingComponent implements OnInit, OnDestroy {
           <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Departamento</p>
           <p style="margin: 4px 0 0 0; font-weight: 500; font-size: 1.05rem; color: #334155;">${ticketSeleccionado.departamento}</p>
         </div>
-        <div style="display: flex; align-items: center; justify-content: space-between; border: 1px solid #e2e8f0; border-left: 6px solid ${colorFondoCategoria}; border-radius: 8px; padding: 15px; margin-bottom: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+        <div style="display: flex; align-items: center; justify-content: space-between; border: 1px solid #e2e8f0; border-left: 6px solid ${colorFondoCategoria}; border-radius: 8px; padding: 15px; margin-bottom: 30px;">
           <div style="display: flex; align-items: center; flex-wrap: wrap;">
             <span style="background-color: ${colorFondoCategoria}; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700;">
               ${ticketSeleccionado.descripcion}
@@ -159,14 +148,6 @@ export class PersonalPendingComponent implements OnInit, OnDestroy {
             ${ticketSeleccionado.prioridad}
           </span>
         </div>
-        <div>
-          <p style="margin: 0 0 8px 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Notas Adicionales</p>
-          <div style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 8px; padding: 15px;">
-            <p style="margin: 0; font-size: 0.95rem; color: #475569; line-height: 1.5;">
-              ${ticketSeleccionado.notas ? ticketSeleccionado.notas : '<em style="color: #cbd5e1;">Sin notas adicionales.</em>'}
-            </p>
-          </div>
-        </div>
       </div>
     `;
 
@@ -174,7 +155,7 @@ export class PersonalPendingComponent implements OnInit, OnDestroy {
       html: htmlModal,
       width: '600px',
       showCancelButton: true,
-      confirmButtonText: '<span class="material-symbols-outlined" style="vertical-align: middle; font-size: 1.2rem; margin-right: 5px;">check_circle</span> Completar Ticket',
+      confirmButtonText: 'Completar Ticket',
       confirmButtonColor: '#56212f',
       cancelButtonText: 'Cerrar',
       cancelButtonColor: '#000000'
@@ -196,8 +177,6 @@ export class PersonalPendingComponent implements OnInit, OnDestroy {
       grow: window.innerWidth < 600 ? 'column' : false,
       html: `
         <div style="text-align: left;">
-          <p style="color: #64748b; font-size: 0.85rem; margin-bottom: 8px;">Documenta la solución y solicita la firma.</p>
-          
           <label style="font-weight: 800; color: #56212f; font-size: 0.9rem;">Resolución (Obligatorio):</label>
           <textarea id="solucion-text" class="swal2-textarea" style="margin: 5px 0 10px 0; width: 100%; height: 60px; box-sizing: border-box; font-size: 0.9rem; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1;" placeholder="Descripción..."></textarea>
           
@@ -294,7 +273,7 @@ export class PersonalPendingComponent implements OnInit, OnDestroy {
           let archivoFisico = null;
           if (archivoEvidenciaOriginal) {
             Swal.showLoading();
-            const opciones: any = { maxSizeMB: 8, maxWidthOrHeight: 1920, useWebWorker: false, initialQuality: 0.85 };
+            const opciones: any = { maxSizeMB: 5, maxWidthOrHeight: 1920, useWebWorker: false, initialQuality: 0.8 };
             const blob = await imageCompression(archivoEvidenciaOriginal, opciones);
             archivoFisico = new File([blob], `foto_${ticketSeleccionado.id}.jpg`, { type: 'image/jpeg' });
           }
@@ -322,8 +301,9 @@ export class PersonalPendingComponent implements OnInit, OnDestroy {
   }
 
   procesarCierreDeTicket(idTicket: number, resolucionTexto: string, firmaBase64: string, archivoAdjunto?: File) {
-    Swal.fire({ title: 'Subiendo datos...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } }); 
+    Swal.fire({ title: 'Guardando y subiendo foto...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } }); 
     
+    // ENVIAMOS UN FORMDATA FÍSICO
     const formData = new FormData();
     formData.append('id', idTicket.toString());
     formData.append('estado', 'Completo');
@@ -346,11 +326,11 @@ export class PersonalPendingComponent implements OnInit, OnDestroy {
           Swal.fire({ icon: 'success', title: 'Ticket cerrado correctamente', timer: 2000, showConfirmButton: false });
           this.obtenerTicketsPendientes(); 
         } else {
-          Swal.fire('Error', res.message || 'Error al actualizar el ticket', 'error');
+          Swal.fire('Error', res.message || 'Error al actualizar', 'error');
         }
       },
       error: (err) => {
-        console.error("Error completo del servidor:", err);
+        console.error("Error servidor:", err);
         Swal.fire('Error de conexión', 'No se pudo conectar con el servidor', 'error');
       }
     });

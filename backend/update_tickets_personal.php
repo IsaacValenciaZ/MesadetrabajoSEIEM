@@ -12,12 +12,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
+// 1. LEER VARIABLES DEL FORMDATA (Ya no es JSON, es POST normal)
 $id = isset($_POST['id']) ? $_POST['id'] : null;
 $estado = isset($_POST['estado']) ? $_POST['estado'] : null;
 $resolucion = isset($_POST['descripcion_resolucion']) ? trim($_POST['descripcion_resolucion']) : '';
 $usuario_id = isset($_POST['usuario_id']) ? $_POST['usuario_id'] : null; 
 $firma = isset($_POST['firma']) ? $_POST['firma'] : null;
 
+// 2. VALIDACIONES BÁSICAS
 if (!$id || !$estado) {
     echo json_encode(["status" => false, "message" => "Faltan datos básicos (ID o Estado)."]);
     exit();
