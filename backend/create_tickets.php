@@ -48,8 +48,8 @@ if(isset($data->nombre_usuario) && isset($data->personal) && isset($data->descri
         $ticket_id = $conn->lastInsertId(); 
 
         if(isset($data->personal_email) && isset($data->personal_id)) {
-              //$enlace_aceptar = "http://10.15.10.46/soporteSEIEM/MesadetrabajoSEIEM/backend/accept_ticket.php?ticket_id={$ticket_id}&tech_id={$data->personal_id}";
-              $enlace_aceptar = "http://localhost/mesatrabajoBACKEND/backend/accept_ticket.php?ticket_id={$ticket_id}&tech_id={$data->personal_id}";
+              $enlace_aceptar = "http://10.15.10.46/soporteSEIEM/MesadetrabajoSEIEM/backend/accept_ticket.php?ticket_id={$ticket_id}&tech_id={$data->personal_id}";
+              //$enlace_aceptar = "http://localhost/mesatrabajoBACKEND/backend/accept_ticket.php?ticket_id={$ticket_id}&tech_id={$data->personal_id}";
                                             
             $mail = new PHPMailer(true);
             try {

@@ -98,9 +98,9 @@
 
 <div class="modal-overlay" *ngIf="showView">
   <div class="modal-card fade-in">
-    <div class="edit-header">
+    <div class="modal-header">
       <h3>Detalles del Usuario</h3>
-      <button class="btn-x" (click)="closeModals()">×</button>
+      <button class="btn-close-x" (click)="closeModals()">×</button>
     </div>
     <div class="modal-body">
       <div class="info-group">
@@ -113,7 +113,14 @@
       </div>
       <div class="info-group">
         <label>ROL:</label>
-        <p><span class="badge">{{ selectedUser?.rol }}</span></p>
+        <p>
+          <span class="badge" 
+                [class.badge-personal]="selectedUser?.rol?.toLowerCase() === 'personal'"
+                [class.badge-secretaria]="selectedUser?.rol?.toLowerCase() === 'secretaria'"
+                [class.badge-supervisor]="selectedUser?.rol?.toLowerCase() === 'admin' || selectedUser?.rol?.toLowerCase() === 'supervisor'">
+            {{ selectedUser?.rol }}
+          </span>
+        </p>
       </div>
     </div>
     <div class="modal-footer">
@@ -123,12 +130,12 @@
 </div>
 
 <div class="modal-overlay" *ngIf="showEdit">
-  <div class="edit-container fade-in">
-    <div class="edit-header">
-      <span>Editar Usuario #{{selectedUser.id}}</span>
+  <div class="modal-card fade-in">
+    <div class="modal-header">
+      <h3>Editar Usuario #{{selectedUser.id}}</h3>
       <button class="btn-close-x" (click)="closeModals()">×</button>
     </div>
-    <div class="edit-body">
+    <div class="modal-body">
       <div class="input-group">
         <label>NOMBRE COMPLETO:</label>
         <input type="text" [(ngModel)]="selectedUser.nombre">
@@ -146,7 +153,7 @@
         </select>
       </div>
     </div>
-    <div class="edit-footer">
+    <div class="modal-footer">
       <button class="btn-cancel" (click)="closeModals()">Cancelar</button>
       <button class="btn-save" (click)="guardarEdicion()">Guardar cambios</button>
     </div>
@@ -155,9 +162,4 @@
 
 <app-performance-user *ngIf="showPerformance" [user]="selectedUser" (close)="closeModals()"></app-performance-user>
 <app-performance-secretaria *ngIf="showSecretariaPerf" [user]="selectedUser" (close)="closeModals()"></app-performance-secretaria>
-<app-delete-user 
-  *ngIf="showDelete" 
-  [user]="selectedUser" 
-  (close)="closeModals()" 
-  (delete)="onUserDeleted()">
-</app-delete-user>
+<app-delete-user *ngIf="showDelete" [user]="selectedUser" (close)="closeModals()" (delete)="onUserDeleted()"></app-delete-user>
