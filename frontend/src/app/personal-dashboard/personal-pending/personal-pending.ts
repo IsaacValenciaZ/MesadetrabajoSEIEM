@@ -29,7 +29,6 @@ export class PersonalPendingComponent implements OnInit, OnDestroy {
       this.usuarioActual = JSON.parse(usuarioGuardado);
       this.obtenerTicketsPendientes();
 
-      // Polling cada 15 segundos para nuevos reportes
       this.pollingSubscription = interval(15000).subscribe(() => {
           this.ejecutarLlamadaApi(true);
       });
@@ -76,7 +75,6 @@ export class PersonalPendingComponent implements OnInit, OnDestroy {
              });
              Toast.fire({ icon: 'info', iconColor: '#56212f', title: '¡Tienes nuevos reportes asignados!' });
         }
-
       },
       error: (err) => {
         this.cargandoDatos = false;
@@ -124,7 +122,7 @@ export class PersonalPendingComponent implements OnInit, OnDestroy {
 
     const htmlModal = `
       <div style="text-align: left; font-family: 'Segoe UI', sans-serif; color: #1e293b;">
-        <h1 style="font-size: 2.2rem; font-weight: 900; margin: 0 0 20px 0; color: #0f172a; font-style: italic;">Ticket:  #${ticketSeleccionado.id}</h1>
+        <h1 style="font-size: 2.2rem; font-weight: 900; margin: 0 0 20px 0; color: #0f172a; font-style: italic;">Ticket: #${ticketSeleccionado.id}</h1>
         <div style="display: flex; gap: 40px; margin-bottom: 25px;">
           <div>
             <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Fecha de Solicitud</p>
@@ -165,7 +163,7 @@ export class PersonalPendingComponent implements OnInit, OnDestroy {
           <p style="margin: 0 0 8px 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Notas Adicionales</p>
           <div style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 8px; padding: 15px;">
             <p style="margin: 0; font-size: 0.95rem; color: #475569; line-height: 1.5;">
-              ${ticketSeleccionado.notes ? ticketSeleccionado.notes : '<em style="color: #cbd5e1;">Sin notas adicionales.</em>'}
+              ${ticketSeleccionado.notas ? ticketSeleccionado.notas : '<em style="color: #cbd5e1;">Sin notas adicionales.</em>'}
             </p>
           </div>
         </div>
@@ -293,17 +291,17 @@ export class PersonalPendingComponent implements OnInit, OnDestroy {
         }
 
         try {
-          let base64Evidencia = null;
+          let archivoFisico = null;
           if (archivoEvidenciaOriginal) {
             Swal.showLoading();
-            const opciones: any = { maxSizeMB: 0.5, maxWidthOrHeight: 1024, useWebWorker: false, initialQuality: 0.7 };
-            const compressed = await imageCompression(archivoEvidenciaOriginal, opciones);
-            base64Evidencia = await imageCompression.getDataUrlFromFile(compressed);
+            const opciones: any = { maxSizeMB: 8, maxWidthOrHeight: 1920, useWebWorker: false, initialQuality: 0.85 };
+            const blob = await imageCompression(archivoEvidenciaOriginal, opciones);
+            archivoFisico = new File([blob], `foto_${ticketSeleccionado.id}.jpg`, { type: 'image/jpeg' });
           }
 
           return { 
              resolucion: descripcionResolucion, 
-             archivo: base64Evidencia, 
+             archivo: archivoFisico, 
              firma: canvas.toDataURL('image/png') 
           };
         } catch (error) {
@@ -323,20 +321,24 @@ export class PersonalPendingComponent implements OnInit, OnDestroy {
     });
   }
 
-  procesarCierreDeTicket(idTicket: number, resolucionTexto: string, firmaBase64: string, archivoAdjuntoBase64?: string) {
-    Swal.fire({ title: 'Guardando datos...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } }); 
+  procesarCierreDeTicket(idTicket: number, resolucionTexto: string, firmaBase64: string, archivoAdjunto?: File) {
+    Swal.fire({ title: 'Subiendo datos...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } }); 
     
-    // Objeto JSON plano para enviar a la API
-    const payloadEnvio = {
-        id: idTicket,
-        estado: 'Completo',
-        descripcion_resolucion: resolucionTexto,
-        firma: firmaBase64,
-        usuario_id: this.usuarioActual?.id || null,
-        evidencia: archivoAdjuntoBase64 || null
-    };
+    const formData = new FormData();
+    formData.append('id', idTicket.toString());
+    formData.append('estado', 'Completo');
+    formData.append('descripcion_resolucion', resolucionTexto);
+    formData.append('firma', firmaBase64);
+    
+    if (this.usuarioActual?.id) {
+        formData.append('usuario_id', this.usuarioActual.id.toString());
+    }
+    
+    if (archivoAdjunto) {
+        formData.append('evidencia', archivoAdjunto);
+    }
 
-    this.apiService.actualizarEstadoTicketConEvidencia(payloadEnvio).subscribe({
+    this.apiService.actualizarEstadoTicketConEvidencia(formData).subscribe({
       next: (res: any) => {
         if (res.status === true) {
           this.usuarioActual.estado_disponibilidad = 'disponible';
@@ -344,12 +346,11 @@ export class PersonalPendingComponent implements OnInit, OnDestroy {
           Swal.fire({ icon: 'success', title: 'Ticket cerrado correctamente', timer: 2000, showConfirmButton: false });
           this.obtenerTicketsPendientes(); 
         } else {
-          // Si el servidor envía el error, mostramos el mensaje exacto
-          Swal.fire('Error', res.message || 'Error al actualizar', 'error');
+          Swal.fire('Error', res.message || 'Error al actualizar el ticket', 'error');
         }
       },
       error: (err) => {
-        console.error("Error servidor:", err);
+        console.error("Error completo del servidor:", err);
         Swal.fire('Error de conexión', 'No se pudo conectar con el servidor', 'error');
       }
     });
