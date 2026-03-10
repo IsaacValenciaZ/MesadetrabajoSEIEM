@@ -29,8 +29,9 @@ export class PersonalPendingComponent implements OnInit, OnDestroy {
       this.usuarioActual = JSON.parse(usuarioGuardado);
       this.obtenerTicketsPendientes();
 
+      // Polling cada 15 segundos para detectar nuevos tickets asignados
       this.pollingSubscription = interval(15000).subscribe(() => {
-          this.obtenerTicketsPendientesSilenicoso();
+          this.ejecutarLlamadaApi(true);
       });
     }
   }
@@ -41,51 +42,29 @@ export class PersonalPendingComponent implements OnInit, OnDestroy {
       }
   }
 
-  obtenerTicketsPendientesSilenicoso() {
-      this.ejecutarLlamadaApi();
+  obtenerTicketsPendientes() {
+    this.cargandoDatos = true;
+    this.ejecutarLlamadaApi(false);
   }
 
-  private ejecutarLlamadaApi() {
+  private ejecutarLlamadaApi(esSilencioso: boolean) {
     this.apiService.getMisTickets(this.usuarioActual.nombre).subscribe({
       next: (datosDelServidor) => {
         const todosLosTickets = datosDelServidor || [];
         this.fechaReferenciaActual = new Date();
-      
-        const idsAntiguos = this.listaTicketsPendientes.map(t => t.id);
-
         const nuevaListaTickets = todosLosTickets.filter((ticket: any) => 
             ticket.estado === 'En espera' || ticket.estado === 'Asignado' || !ticket.estado
         );
-    
-        nuevaListaTickets.sort((a, b) => {
-             return new Date(a.fecha_limite).getTime() - new Date(b.fecha_limite).getTime();
-        });
-        
-        const idsNuevos = nuevaListaTickets.map(t => t.id);
-        const hayTicketsNuevos = idsNuevos.some(id => !idsAntiguos.includes(id));
-        
+        nuevaListaTickets.sort((a, b) => new Date(a.fecha_limite).getTime() - new Date(b.fecha_limite).getTime());
         this.listaTicketsPendientes = nuevaListaTickets;
         this.cargandoDatos = false;
         this.cdr.detectChanges(); 
-        
-        if(hayTicketsNuevos && idsAntiguos.length > 0) {
-             const Toast = Swal.mixin({
-                toast: true, position: 'top-end', showConfirmButton: false, timer: 3000
-             });
-             Toast.fire({ icon: 'info', iconColor: '#56212f', title: '¡Tienes nuevos reportes asignados!' });
-        }
-
       },
-      error: (err) => {
+      error: () => {
         this.cargandoDatos = false;
         this.cdr.detectChanges();
       }
     });
-  }
-
-  obtenerTicketsPendientes() {
-    this.cargandoDatos = true;
-    this.ejecutarLlamadaApi();
   }
 
   verificarVencimiento(fechaLimite: string): boolean {
@@ -127,7 +106,7 @@ export class PersonalPendingComponent implements OnInit, OnDestroy {
 
     const htmlModal = `
       <div style="text-align: left; font-family: 'Segoe UI', sans-serif; color: #1e293b;">
-        <h1 style="font-size: 2.2rem; font-weight: 900; margin: 0 0 20px 0; color: #0f172a; font-style: italic;">Ticket:  #${ticketSeleccionado.id}</h1>
+        <h1 style="font-size: 2.2rem; font-weight: 900; margin: 0 0 20px 0; color: #0f172a; font-style: italic;">Ticket: #${ticketSeleccionado.id}</h1>
         <div style="display: flex; gap: 40px; margin-bottom: 25px;">
           <div>
             <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Fecha de Solicitud</p>
@@ -153,16 +132,14 @@ export class PersonalPendingComponent implements OnInit, OnDestroy {
           <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Departamento</p>
           <p style="margin: 4px 0 0 0; font-weight: 500; font-size: 1.05rem; color: #334155;">${ticketSeleccionado.departamento}</p>
         </div>
-        <p style="margin: 0 0 8px 0; font-size: 0.75rem; color: 64748b; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;  display: inline-block; padding: 4px 8px; border-radius: 4px;">Clasificación del Problema</p>
-        <div style="display: flex; align-items: center; justify-content: space-between; border: 1px solid #e2e8f0; border-left: 6px solid ${colorFondoCategoria}; border-radius: 8px; padding: 15px; margin-bottom: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+        <div style="display: flex; align-items: center; justify-content: space-between; border: 1px solid #e2e8f0; border-left: 6px solid ${colorFondoCategoria}; border-radius: 8px; padding: 15px; margin-bottom: 30px;">
           <div style="display: flex; align-items: center; flex-wrap: wrap;">
             <span style="background-color: ${colorFondoCategoria}; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700;">
               ${ticketSeleccionado.descripcion}
             </span>
             ${detallesExtraHtml}
           </div>
-          <p style="color: #64748b; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700; white-space: nowrap;">Prio:</p>
-          <span style="background-color: ${colorPrioridad}; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700; white-space: nowrap;">
+          <span style="background-color: ${colorPrioridad}; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700;">
             ${ticketSeleccionado.prioridad}
           </span>
         </div>
@@ -191,7 +168,8 @@ export class PersonalPendingComponent implements OnInit, OnDestroy {
       }
     });
   }
-abrirModalFinalizacion(ticketSeleccionado: any) {
+
+  abrirModalFinalizacion(ticketSeleccionado: any) {
     let canvas: HTMLCanvasElement;
     let ctx: CanvasRenderingContext2D | null;
     let isDrawing = false;
@@ -213,11 +191,11 @@ abrirModalFinalizacion(ticketSeleccionado: any) {
           </div>
 
           <div id="contenedor-firma" style="border: 2px dashed #cbd5e1; border-radius: 8px; background: #fff; margin-top: 5px; touch-action: none; position: relative;">
-             <canvas id="firma-canvas" style="width: 100%; height: 220px; cursor: crosshair; display: block;"></canvas>
+             <canvas id="firma-canvas" style="width: 100%; height: 200px; cursor: crosshair; display: block;"></canvas>
           </div>
 
-          <label style="font-weight: 800; color: #56212f; font-size: 0.9rem; display: block; margin-top: 15px;">Evidencia Fotográfica (Obligatorio):</label>
-          <input type="file" id="evidencia-file" class="swal2-file" accept="image/jpeg, image/png, image/jpg" style="width: 100%; margin: 5px 0 0 0; font-size: 0.8rem; padding: 5px; border-radius: 8px;">
+          <label style="font-weight: 800; color: #56212f; font-size: 0.9rem; display: block; margin-top: 15px;">Evidencia Fotográfica (Opcional):</label>
+          <input type="file" id="evidencia-file" class="swal2-file" accept="image/jpeg, image/png, image/jpg" capture="environment" style="width: 100%; margin: 5px 0 0 0; font-size: 0.8rem; padding: 5px; border-radius: 8px;">
         </div>
       `,
       showCancelButton: true,
@@ -236,7 +214,7 @@ abrirModalFinalizacion(ticketSeleccionado: any) {
           const tempImg = canvas.toDataURL();
           canvas.width = rect.width;
           canvas.height = rect.height;
-          if (!isEmpty) {
+          if (!isEmpty && ctx) {
             const img = new Image();
             img.onload = () => ctx?.drawImage(img, 0, 0);
             img.src = tempImg;
@@ -246,43 +224,30 @@ abrirModalFinalizacion(ticketSeleccionado: any) {
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
 
-        const getPos = (evt: MouseEvent | TouchEvent) => {
+        const getPos = (evt: any) => {
           const rectInfo = canvas.getBoundingClientRect();
-          let clientX, clientY;
-          if (evt instanceof MouseEvent) {
-            clientX = evt.clientX;
-            clientY = evt.clientY;
-          } else {
-            clientX = evt.touches[0].clientX;
-            clientY = evt.touches[0].clientY;
-          }
+          const clientX = evt.clientX || evt.touches[0].clientX;
+          const clientY = evt.clientY || evt.touches[0].clientY;
           return { x: clientX - rectInfo.left, y: clientY - rectInfo.top };
         };
 
-        const startDrawing = (e: MouseEvent | TouchEvent) => {
-          e.preventDefault();
+        const startDrawing = (e: any) => {
+          if (e.type === 'touchstart') e.preventDefault();
           isDrawing = true;
           isEmpty = false;
           const pos = getPos(e);
-          ctx?.beginPath();
-          ctx?.moveTo(pos.x, pos.y);
+          ctx?.beginPath(); ctx?.moveTo(pos.x, pos.y);
         };
 
-        const draw = (e: MouseEvent | TouchEvent) => {
-          e.preventDefault();
+        const draw = (e: any) => {
+          if (e.type === 'touchmove') e.preventDefault();
           if (!isDrawing || !ctx) return;
           const pos = getPos(e);
           ctx.lineTo(pos.x, pos.y);
-          ctx.strokeStyle = '#000'; 
-          ctx.lineWidth = 3; 
-          ctx.lineCap = 'round';
-          ctx.stroke();
+          ctx.strokeStyle = '#000'; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.stroke();
         };
 
-        const stopDrawing = () => {
-          isDrawing = false;
-          ctx?.closePath();
-        };
+        const stopDrawing = () => { isDrawing = false; ctx?.closePath(); };
 
         canvas.addEventListener('mousedown', startDrawing);
         canvas.addEventListener('mousemove', draw);
@@ -296,46 +261,28 @@ abrirModalFinalizacion(ticketSeleccionado: any) {
           isEmpty = true;
         });
       },
-      willClose: () => {
-        window.removeEventListener('resize', () => {});
-      },
       preConfirm: async () => {
         const descripcionResolucion = (document.getElementById('solucion-text') as HTMLTextAreaElement).value;
         const archivoEvidenciaOriginal = (document.getElementById('evidencia-file') as HTMLInputElement).files?.[0];
 
         if (!descripcionResolucion || descripcionResolucion.trim() === '') {
-          Swal.showValidationMessage('⚠️ Debes escribir qué le hiciste al equipo.');
+          Swal.showValidationMessage('⚠️ Debes escribir la resolución.');
           return false;
         }
         if (isEmpty) {
-          Swal.showValidationMessage('⚠️ El usuario debe firmar de enterado.');
+          Swal.showValidationMessage('⚠️ La firma es obligatoria.');
           return false;
         }
-        if (!archivoEvidenciaOriginal) {
-          Swal.showValidationMessage('⚠️ Debes adjuntar una foto de evidencia.');
-          return false;
-        }
-
-        const opcionesCompresion: any = {
-          maxSizeMB: 0.5, 
-          maxWidthOrHeight: 1024, 
-          useWebWorker: false,   
-          exifOrientation: true,  
-          initialQuality: 0.7     
-        };
 
         try {
-          Swal.showLoading(); 
-          await new Promise(resolve => setTimeout(resolve, 100));
-
-          const archivoComprimidoBlob = await imageCompression(archivoEvidenciaOriginal, opcionesCompresion);
-          
-          const base64Evidencia = await new Promise<string>((resolve, reject) => {
-             const reader = new FileReader();
-             reader.readAsDataURL(archivoComprimidoBlob);
-             reader.onloadend = () => resolve(reader.result as string);
-             reader.onerror = error => reject(error);
-          });
+          let base64Evidencia = null;
+          if (archivoEvidenciaOriginal) {
+            Swal.showLoading();
+            // Compresión optimizada (sin exifOrientation para evitar errores de versión)
+            const opciones: any = { maxSizeMB: 0.5, maxWidthOrHeight: 1024, useWebWorker: false, initialQuality: 0.7 };
+            const compressed = await imageCompression(archivoEvidenciaOriginal, opciones);
+            base64Evidencia = await imageCompression.getDataUrlFromFile(compressed);
+          }
 
           return { 
              resolucion: descripcionResolucion, 
@@ -343,8 +290,7 @@ abrirModalFinalizacion(ticketSeleccionado: any) {
              firma: canvas.toDataURL('image/png') 
           };
         } catch (error) {
-          console.error("Error al procesar la imagen:", error);
-          Swal.showValidationMessage('⚠️ Error al procesar la foto. Intenta tomarla de nuevo.');
+          Swal.showValidationMessage('⚠️ Error al procesar la foto.');
           return false;
         }
       }
@@ -359,42 +305,31 @@ abrirModalFinalizacion(ticketSeleccionado: any) {
       }
     });
   }
-procesarCierreDeTicket(idTicket: number, resolucionTexto: string, firmaBase64: string, archivoAdjunto?: string) {
-    Swal.fire({ title: 'Guardando datos...', didOpen: () => { Swal.showLoading(); } }); 
-    
-    const formularioDatos = new FormData();
-    formularioDatos.append('id', idTicket.toString());
-    formularioDatos.append('estado', 'Completo');
-    formularioDatos.append('descripcion_resolucion', resolucionTexto);
-    formularioDatos.append('firma', firmaBase64); 
-    
-    if (this.usuarioActual && this.usuarioActual.id) {
-        formularioDatos.append('usuario_id', this.usuarioActual.id.toString());
-    }
-    
-    if (archivoAdjunto) {
-      formularioDatos.append('evidencia_base64_texto', archivoAdjunto);
-    }
 
-    this.apiService.actualizarEstadoTicketConEvidencia(formularioDatos).subscribe({
-      next: (respuestaServidor: any) => {
-        if (respuestaServidor.status === true) {
+  procesarCierreDeTicket(idTicket: number, resolucionTexto: string, firmaBase64: string, archivoAdjuntoBase64?: string) {
+    Swal.fire({ title: 'Guardando datos...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } }); 
+    
+    const payloadEnvio = {
+        id: idTicket,
+        estado: 'Completo',
+        descripcion_resolucion: resolucionTexto,
+        firma: firmaBase64,
+        usuario_id: this.usuarioActual?.id || null,
+        evidencia: archivoAdjuntoBase64 || null
+    };
+
+    this.apiService.actualizarEstadoTicketConEvidencia(payloadEnvio).subscribe({
+      next: (res: any) => {
+        if (res.status === true) {
           this.usuarioActual.estado_disponibilidad = 'disponible';
           localStorage.setItem('usuario_actual', JSON.stringify(this.usuarioActual));
-
-          Swal.fire({ 
-              icon: 'success', 
-              title: 'Ticket cerrado correctamente', 
-              text: 'Tu estado ha cambiado a Disponible 🟢',
-              timer: 2000, 
-              showConfirmButton: false 
-          });
+          Swal.fire({ icon: 'success', title: 'Ticket cerrado correctamente', timer: 2000, showConfirmButton: false });
           this.obtenerTicketsPendientes(); 
         } else {
-          Swal.fire('Error', respuestaServidor.message || 'No se pudo actualizar el estado del ticket', 'error');
+          Swal.fire('Error', res.message || 'Error al actualizar', 'error');
         }
       },
-      error: (err) => Swal.fire('Error de conexión', 'No se pudo conectar con el servidor', 'error')
+      error: () => Swal.fire('Error', 'No se pudo conectar con el servidor', 'error')
     });
   }
 }
