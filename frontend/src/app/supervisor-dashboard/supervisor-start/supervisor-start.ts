@@ -1,9 +1,10 @@
-import { Component, inject, OnInit, ChangeDetectorRef, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ChangeDetectorRef, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Chart, registerables } from 'chart.js';
 import { ApiService } from '../../services/api'; 
 import Swal from 'sweetalert2';
+import { Subscription, interval } from 'rxjs';
 
 Chart.register(...registerables);
 
@@ -14,9 +15,11 @@ Chart.register(...registerables);
   templateUrl: './supervisor-start.html',
   styleUrls: ['./supervisor-start.css']
 })
-export class SupervisorStartComponent implements OnInit, AfterViewInit {
+export class SupervisorStartComponent implements OnInit, AfterViewInit, OnDestroy {
   private apiService = inject(ApiService);
   private cdr = inject(ChangeDetectorRef);
+  
+  private pollingSubscription: Subscription | undefined;
 
   usuarioActual: any = {};
   totalTickets: number = 0;
@@ -45,7 +48,18 @@ export class SupervisorStartComponent implements OnInit, AfterViewInit {
     if (sesion) {
       this.usuarioActual = JSON.parse(sesion);
     }
+    
     this.cargarEstadisticas();
+
+    this.pollingSubscription = interval(15000).subscribe(() => {
+        this.cargarEstadisticas(true); 
+    });
+  }
+
+  ngOnDestroy() {
+      if (this.pollingSubscription) {
+          this.pollingSubscription.unsubscribe();
+      }
   }
 
   ngAfterViewInit() {
@@ -54,7 +68,8 @@ export class SupervisorStartComponent implements OnInit, AfterViewInit {
       this.generarGraficaDona(this.ticketsParaGrafica);
     }
   }
-cargarEstadisticas() {
+
+  cargarEstadisticas(esSilencioso: boolean = false) {
     this.apiService.getSupervisorDataTickets().subscribe({
       next: (tickets) => {
         if (tickets && Array.isArray(tickets)) {
@@ -65,6 +80,10 @@ cargarEstadisticas() {
           const fechaHoyStr = `${yyyy}-${mm}-${dd}`;
 
           const ticketsDeHoy = tickets.filter(t => t.fecha && t.fecha.startsWith(fechaHoyStr));
+
+          const cantidadAnterior = this.ticketsParaGrafica.length;
+          const completadosAnterior = this.ticketsCompletados;
+          
           this.ticketsParaGrafica = ticketsDeHoy; 
 
           this.totalTickets = ticketsDeHoy.length;
@@ -77,7 +96,9 @@ cargarEstadisticas() {
 
           this.cdr.detectChanges();
 
-          if (this.chartCanvas && this.donaCanvas) {
+          const huboCambios = (cantidadAnterior !== this.totalTickets) || (completadosAnterior !== this.ticketsCompletados);
+          
+          if (this.chartCanvas && this.donaCanvas && (!esSilencioso || huboCambios)) {
             this.generarGraficaLinea(ticketsDeHoy);
             this.generarGraficaDona(ticketsDeHoy); 
           }
@@ -161,6 +182,7 @@ cargarEstadisticas() {
         ]
       },
       options: {
+        animation: { duration: 500 },
         responsive: true,
         maintainAspectRatio: false,
         plugins: { legend: { position: 'bottom' } },
@@ -202,6 +224,7 @@ cargarEstadisticas() {
             }]
         },
         options: { 
+          animation: { duration: 500 },
           responsive: true, maintainAspectRatio: false, cutout: '65%',
           plugins: { legend: { position: 'bottom', labels: { usePointStyle: true } } }
         }
@@ -281,7 +304,7 @@ abrirModalTicket(ticketSeleccionado: any) {
     Swal.fire({
       html: htmlModal,
       width: '600px',
-      showConfirmButton: ticketSeleccionado.estado === 'Completo',
+      showConfirmButton: ticketSeleccionado.estado === 'Completo' || ticketSeleccionado.estado === 'Completado',
       confirmButtonText: '<span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 5px;">visibility</span> Ver Evidencias de Resolución',
       confirmButtonColor: '#56212f',
       showCancelButton: true,
@@ -383,5 +406,3 @@ abrirImagenCompleta(imagenBase64: string, idTicket: number, ticket: any) {
     });
 }
 }
-
-

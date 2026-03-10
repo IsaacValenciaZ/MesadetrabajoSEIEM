@@ -1,8 +1,9 @@
-import { Component, OnInit, OnDestroy ,inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../services/api'; 
 import Swal from 'sweetalert2'; 
 import { Subscription, interval } from 'rxjs';
+import imageCompression from 'browser-image-compression';
 
 @Component({
   selector: 'app-personal-pending',
@@ -11,7 +12,7 @@ import { Subscription, interval } from 'rxjs';
   templateUrl: './personal-pending.html',
   styleUrls: ['./personal-pending.css'] 
 })
-export class PersonalPendingComponent implements OnInit {
+export class PersonalPendingComponent implements OnInit, OnDestroy {
 
   private apiService = inject(ApiService);
   private cdr = inject(ChangeDetectorRef);
@@ -32,6 +33,12 @@ export class PersonalPendingComponent implements OnInit {
           this.obtenerTicketsPendientesSilenicoso();
       });
     }
+  }
+
+  ngOnDestroy() {
+      if (this.pollingSubscription) {
+          this.pollingSubscription.unsubscribe();
+      }
   }
 
   obtenerTicketsPendientesSilenicoso() {
@@ -75,31 +82,10 @@ export class PersonalPendingComponent implements OnInit {
       }
     });
   }
+
   obtenerTicketsPendientes() {
     this.cargandoDatos = true;
     this.ejecutarLlamadaApi();
-    
-    this.apiService.getMisTickets(this.usuarioActual.nombre).subscribe({
-      next: (datosDelServidor) => {
-        const todosLosTickets = datosDelServidor || [];
-        this.fechaReferenciaActual = new Date();
-      
-        this.listaTicketsPendientes = todosLosTickets.filter((ticket: any) => 
-            ticket.estado === 'En espera' || ticket.estado === 'Asignado' || !ticket.estado
-        );
-    
-        this.listaTicketsPendientes.sort((a, b) => {
-             return new Date(a.fecha_limite).getTime() - new Date(b.fecha_limite).getTime();
-        });
-        
-        this.cargandoDatos = false;
-        this.cdr.detectChanges(); 
-      },
-      error: (err) => {
-        this.cargandoDatos = false;
-        this.cdr.detectChanges();
-      }
-    });
   }
 
   verificarVencimiento(fechaLimite: string): boolean {
@@ -141,9 +127,7 @@ export class PersonalPendingComponent implements OnInit {
 
     const htmlModal = `
       <div style="text-align: left; font-family: 'Segoe UI', sans-serif; color: #1e293b;">
-        
         <h1 style="font-size: 2.2rem; font-weight: 900; margin: 0 0 20px 0; color: #0f172a; font-style: italic;">Ticket:  #${ticketSeleccionado.id}</h1>
-
         <div style="display: flex; gap: 40px; margin-bottom: 25px;">
           <div>
             <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Fecha de Solicitud</p>
@@ -154,9 +138,7 @@ export class PersonalPendingComponent implements OnInit {
             <p style="margin: 4px 0 0 0; font-size: 0.95rem; font-weight: 600; color: #d97706;">${ticketSeleccionado.fecha_limite || 'N/A'}</p>
           </div>
         </div>
-
         <hr style="border: 0; border-top: 1px solid #f1f5f9; margin: 20px 0;">
-
         <div style="display: flex; gap: 40px; margin-bottom: 25px;">
           <div>
             <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Solicitante</p>
@@ -167,14 +149,11 @@ export class PersonalPendingComponent implements OnInit {
             <p style="margin: 4px 0 0 0; font-weight: 800; font-size: 1.1rem; color: #0f172a;">${ticketSeleccionado.extension_tel || '-'}</p>
           </div>
         </div>
-
         <div style="margin-bottom: 30px;">
           <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Departamento</p>
           <p style="margin: 4px 0 0 0; font-weight: 500; font-size: 1.05rem; color: #334155;">${ticketSeleccionado.departamento}</p>
         </div>
-
         <p style="margin: 0 0 8px 0; font-size: 0.75rem; color: 64748b; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;  display: inline-block; padding: 4px 8px; border-radius: 4px;">Clasificación del Problema</p>
-        
         <div style="display: flex; align-items: center; justify-content: space-between; border: 1px solid #e2e8f0; border-left: 6px solid ${colorFondoCategoria}; border-radius: 8px; padding: 15px; margin-bottom: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
           <div style="display: flex; align-items: center; flex-wrap: wrap;">
             <span style="background-color: ${colorFondoCategoria}; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700;">
@@ -187,7 +166,6 @@ export class PersonalPendingComponent implements OnInit {
             ${ticketSeleccionado.prioridad}
           </span>
         </div>
-
         <div>
           <p style="margin: 0 0 8px 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Notas Adicionales</p>
           <div style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 8px; padding: 15px;">
@@ -196,7 +174,6 @@ export class PersonalPendingComponent implements OnInit {
             </p>
           </div>
         </div>
-
       </div>
     `;
 
@@ -214,8 +191,7 @@ export class PersonalPendingComponent implements OnInit {
       }
     });
   }
-
- abrirModalFinalizacion(ticketSeleccionado: any) {
+abrirModalFinalizacion(ticketSeleccionado: any) {
     let canvas: HTMLCanvasElement;
     let ctx: CanvasRenderingContext2D | null;
     let isDrawing = false;
@@ -228,11 +204,11 @@ export class PersonalPendingComponent implements OnInit {
         <div style="text-align: left;">
           <p style="color: #64748b; font-size: 0.85rem; margin-bottom: 8px;">Documenta la solución y solicita la firma.</p>
           
-          <label style="font-weight: 800; color: #56212f; font-size: 0.9rem;">Resolución:</label>
+          <label style="font-weight: 800; color: #56212f; font-size: 0.9rem;">Resolución (Obligatorio):</label>
           <textarea id="solucion-text" class="swal2-textarea" style="margin: 5px 0 10px 0; width: 100%; height: 60px; box-sizing: border-box; font-size: 0.9rem; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1;" placeholder="Descripción..."></textarea>
           
           <div style="display: flex; justify-content: space-between; align-items: center;">
-            <label style="font-weight: 800; color: #56212f; font-size: 0.9rem;">Firma del Solicitante:</label>
+            <label style="font-weight: 800; color: #56212f; font-size: 0.9rem;">Firma del Solicitante (Obligatorio):</label>
             <button type="button" id="btn-limpiar-firma" style="background: none; border: none; color: #b45309; text-decoration: underline; cursor: pointer; font-size: 0.8rem; font-weight: bold;">Limpiar</button>
           </div>
 
@@ -240,8 +216,8 @@ export class PersonalPendingComponent implements OnInit {
              <canvas id="firma-canvas" style="width: 100%; height: 220px; cursor: crosshair; display: block;"></canvas>
           </div>
 
-          <label style="font-weight: 800; color: #56212f; font-size: 0.9rem; display: block; margin-top: 15px;">Evidencia:</label>
-          <input type="file" id="evidencia-file" class="swal2-file" accept="image/*" style="width: 100%; margin: 5px 0 0 0; font-size: 0.8rem; padding: 5px; border-radius: 8px;">
+          <label style="font-weight: 800; color: #56212f; font-size: 0.9rem; display: block; margin-top: 15px;">Evidencia Fotográfica (Obligatorio):</label>
+          <input type="file" id="evidencia-file" class="swal2-file" accept="image/jpeg, image/png, image/jpg" style="width: 100%; margin: 5px 0 0 0; font-size: 0.8rem; padding: 5px; border-radius: 8px;">
         </div>
       `,
       showCancelButton: true,
@@ -268,7 +244,6 @@ export class PersonalPendingComponent implements OnInit {
         };
 
         resizeCanvas();
-
         window.addEventListener('resize', resizeCanvas);
 
         const getPos = (evt: MouseEvent | TouchEvent) => {
@@ -324,22 +299,58 @@ export class PersonalPendingComponent implements OnInit {
       willClose: () => {
         window.removeEventListener('resize', () => {});
       },
-      preConfirm: () => {
+      preConfirm: async () => {
+preConfirm: async () => {
         const descripcionResolucion = (document.getElementById('solucion-text') as HTMLTextAreaElement).value;
-        const archivoEvidencia = (document.getElementById('evidencia-file') as HTMLInputElement).files?.[0];
+        const archivoEvidenciaOriginal = (document.getElementById('evidencia-file') as HTMLInputElement).files?.[0];
 
         if (!descripcionResolucion || descripcionResolucion.trim() === '') {
-          Swal.showValidationMessage('La resolución es obligatoria');
+          Swal.showValidationMessage('⚠️ Debes escribir qué le hiciste al equipo.');
           return false;
         }
         if (isEmpty) {
-          Swal.showValidationMessage('La firma es obligatoria');
+          Swal.showValidationMessage('⚠️ El usuario debe firmar de enterado.');
           return false;
         }
-        return { resolucion: descripcionResolucion, archivo: archivoEvidencia, firma: canvas.toDataURL('image/png') };
+        if (!archivoEvidenciaOriginal) {
+          Swal.showValidationMessage('⚠️ Debes adjuntar una foto de evidencia.');
+          return false;
+        }
+
+        const opcionesCompresion: any = {
+          maxSizeMB: 0.3,
+          maxWidthOrHeight: 1024, 
+          useWebWorker: false,   
+          exifOrientation: true,  
+          initialQuality: 0.8     
+        };
+
+        try {
+          Swal.showLoading(); 
+          
+         
+          await new Promise(resolve => setTimeout(resolve, 100));
+
+          const archivoComprimidoBlob = await imageCompression(archivoEvidenciaOriginal, opcionesCompresion);
+          
+          const archivoEvidenciaFinal = new File([archivoComprimidoBlob], "evidencia_" + ticketSeleccionado.id + ".jpg", { 
+              type: archivoComprimidoBlob.type || 'image/jpeg' 
+          });
+          
+          return { 
+             resolucion: descripcionResolucion, 
+             archivo: archivoEvidenciaFinal, 
+             firma: canvas.toDataURL('image/png') 
+          };
+        } catch (error) {
+          console.error("Error al comprimir la imagen:", error);
+          Swal.showValidationMessage('⚠️ Error al procesar la foto. Intenta tomarla de nuevo.');
+          return false;
+        }
+      }
       }
     }).then((resultadoModal) => {
-      if (resultadoModal.isConfirmed) {
+      if (resultadoModal.isConfirmed && resultadoModal.value) {
         this.procesarCierreDeTicket(
           ticketSeleccionado.id, 
           resultadoModal.value.resolucion,
@@ -350,7 +361,9 @@ export class PersonalPendingComponent implements OnInit {
     });
   }
 
-procesarCierreDeTicket(idTicket: number, resolucionTexto: string, firmaBase64: string, archivoAdjunto?: File) {
+  procesarCierreDeTicket(idTicket: number, resolucionTexto: string, firmaBase64: string, archivoAdjunto?: File) {
+    Swal.fire({ title: 'Guardando datos...', didOpen: () => { Swal.showLoading(); } }); // Feedback al usuario
+    
     const formularioDatos = new FormData();
     formularioDatos.append('id', idTicket.toString());
     formularioDatos.append('estado', 'Completo');
