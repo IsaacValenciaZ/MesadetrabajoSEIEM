@@ -12,11 +12,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-// 1. LEER EL CUERPO DE LA PETICION (JSON)
-$json_data = file_get_contents("php://input");
-$data = json_decode($json_data, true);
+// --- MAGIA PARA CAPTURAR DATOS ---
+// 1. Intentamos leer como JSON
+$json_input = file_get_contents("php://input");
+$data = json_decode($json_input, true);
 
-// 2. EXTRAER VARIABLES DEL ARRAY $data
+// 2. Si el JSON falló, intentamos leer de $_POST (por si acaso)
+if (!$data) {
+    $data = $_POST;
+}
+
+// 3. EXTRAER VARIABLES (Usando el array unificado $data)
 $id = isset($data['id']) ? $data['id'] : null;
 $estado = isset($data['estado']) ? $data['estado'] : null;
 $resolucion = isset($data['descripcion_resolucion']) ? trim($data['descripcion_resolucion']) : '';
@@ -24,9 +30,13 @@ $usuario_id = isset($data['usuario_id']) ? $data['usuario_id'] : null;
 $firma = isset($data['firma']) ? $data['firma'] : null;
 $evidencia_base64 = isset($data['evidencia']) ? $data['evidencia'] : null;
 
-// 3. VALIDACION INICIAL
+// --- VALIDACION CRITICA ---
 if (!$id || !$estado) {
-    echo json_encode(["status" => false, "message" => "Faltan datos básicos (ID: $id o Estado: $estado)."]);
+    echo json_encode([
+        "status" => false, 
+        "message" => "Faltan datos básicos (ID: " . ($id ?? 'VACIO') . " o Estado: " . ($estado ?? 'VACIO') . ").",
+        "debug_received" => $data // Esto te dirá en consola qué llegó realmente
+    ]);
     exit();
 }
 
@@ -37,10 +47,6 @@ if ($estado === 'Completo' || $estado === 'Completado') {
     }
     if (!$firma) {
         echo json_encode(["status" => false, "message" => "La firma es obligatoria."]);
-        exit();
-    }
-    if (!$evidencia_base64) {
-        echo json_encode(["status" => false, "message" => "La imagen de evidencia es obligatoria."]);
         exit();
     }
 }
@@ -56,10 +62,9 @@ try {
         $stmtEv = $conn->prepare("DELETE FROM evidencias_tickets WHERE ticket_id = :tid");
         $stmtEv->execute([':tid' => $id]);
 
-        $mensaje = "Ticket reabierto correctamente. Evidencias borradas.";
+        $mensaje = "Ticket reabierto correctamente.";
     } 
     else {
-        // INSERTAR O ACTUALIZAR EVIDENCIA
         $sqlEv = "INSERT INTO evidencias_tickets (ticket_id, descripcion_resolucion, evidencia_archivo, firma_base64) 
                   VALUES (:tid, :res, :evidencia, :firma)
                   ON DUPLICATE KEY UPDATE 
@@ -75,7 +80,6 @@ try {
             ':firma' => $firma
         ]);
 
-        // ACTUALIZAR ESTADO DEL TICKET
         $fecha_fin = date('Y-m-d H:i:s');
         $query = "UPDATE tickets SET estado = :estado, fecha_fin = :fin WHERE id = :id";
         $stmt = $conn->prepare($query);
@@ -85,7 +89,6 @@ try {
             ':id' => $id
         ]);
 
-        // LIBERAR AL USUARIO
         if ($usuario_id) {
             $queryUser = "UPDATE usuarios SET estado_disponibilidad = 'disponible' WHERE id = :uid";
             $stmtUser = $conn->prepare($queryUser);
@@ -100,7 +103,7 @@ try {
 
 } catch (Exception $e) {
     if ($conn->inTransaction()) $conn->rollBack();
-    echo json_encode(["status" => false, "message" => "Error del servidor: " . $e->getMessage()]);
+    echo json_encode(["status" => false, "message" => "Error DB: " . $e->getMessage()]);
 }
 
 $conn = null;
