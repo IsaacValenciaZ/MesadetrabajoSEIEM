@@ -17,6 +17,8 @@ $resolucion = isset($_POST['descripcion_resolucion']) ? trim($_POST['descripcion
 $usuario_id = isset($_POST['usuario_id']) ? $_POST['usuario_id'] : null; 
 $firma = isset($_POST['firma']) ? $_POST['firma'] : null;
 
+$evidencia_base64 = isset($_POST['evidencia']) ? $_POST['evidencia'] : null;
+
 if (!$id || !$estado) {
     echo json_encode(["status" => false, "message" => "Faltan datos (ID o Estado)."]);
     exit();
@@ -31,13 +33,8 @@ if ($estado === 'Completo' || $estado === 'Completado') {
         echo json_encode(["status" => false, "message" => "La firma es obligatoria."]);
         exit();
     }
-    
-    if (!isset($_FILES['evidencia']) || $_FILES['evidencia']['error'] !== UPLOAD_ERR_OK) {
-        $errorMsg = "La imagen es obligatoria o excedió el tamaño permitido (max 2MB aprox).";
-        if(isset($_FILES['evidencia'])) {
-             $errorMsg .= " Código de error: " . $_FILES['evidencia']['error'];
-        }
-        echo json_encode(["status" => false, "message" => $errorMsg]);
+    if (!$evidencia_base64) {
+        echo json_encode(["status" => false, "message" => "La imagen de evidencia es obligatoria."]);
         exit();
     }
 }
@@ -56,10 +53,6 @@ try {
         $mensaje = "Ticket reabierto correctamente. Evidencias borradas.";
     } 
     else {
-        $tipo_archivo = $_FILES['evidencia']['type'];
-        $contenido_archivo = file_get_contents($_FILES['evidencia']['tmp_name']);
-        $evidencia_base64 = 'data:' . $tipo_archivo . ';base64,' . base64_encode($contenido_archivo);
-
         $sqlEv = "INSERT INTO evidencias_tickets (ticket_id, descripcion_resolucion, evidencia_archivo, firma_base64) 
                   VALUES (:tid, :res, :evidencia, :firma)
                   ON DUPLICATE KEY UPDATE 

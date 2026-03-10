@@ -300,7 +300,6 @@ abrirModalFinalizacion(ticketSeleccionado: any) {
         window.removeEventListener('resize', () => {});
       },
       preConfirm: async () => {
-preConfirm: async () => {
         const descripcionResolucion = (document.getElementById('solucion-text') as HTMLTextAreaElement).value;
         const archivoEvidenciaOriginal = (document.getElementById('evidencia-file') as HTMLInputElement).files?.[0];
 
@@ -318,36 +317,36 @@ preConfirm: async () => {
         }
 
         const opcionesCompresion: any = {
-          maxSizeMB: 0.3,
+          maxSizeMB: 0.5, 
           maxWidthOrHeight: 1024, 
           useWebWorker: false,   
           exifOrientation: true,  
-          initialQuality: 0.8     
+          initialQuality: 0.7     
         };
 
         try {
           Swal.showLoading(); 
-          
-         
           await new Promise(resolve => setTimeout(resolve, 100));
 
           const archivoComprimidoBlob = await imageCompression(archivoEvidenciaOriginal, opcionesCompresion);
           
-          const archivoEvidenciaFinal = new File([archivoComprimidoBlob], "evidencia_" + ticketSeleccionado.id + ".jpg", { 
-              type: archivoComprimidoBlob.type || 'image/jpeg' 
+          const base64Evidencia = await new Promise<string>((resolve, reject) => {
+             const reader = new FileReader();
+             reader.readAsDataURL(archivoComprimidoBlob);
+             reader.onloadend = () => resolve(reader.result as string);
+             reader.onerror = error => reject(error);
           });
-          
+
           return { 
              resolucion: descripcionResolucion, 
-             archivo: archivoEvidenciaFinal, 
+             archivo: base64Evidencia, 
              firma: canvas.toDataURL('image/png') 
           };
         } catch (error) {
-          console.error("Error al comprimir la imagen:", error);
+          console.error("Error al procesar la imagen:", error);
           Swal.showValidationMessage('⚠️ Error al procesar la foto. Intenta tomarla de nuevo.');
           return false;
         }
-      }
       }
     }).then((resultadoModal) => {
       if (resultadoModal.isConfirmed && resultadoModal.value) {
@@ -361,8 +360,8 @@ preConfirm: async () => {
     });
   }
 
-  procesarCierreDeTicket(idTicket: number, resolucionTexto: string, firmaBase64: string, archivoAdjunto?: File) {
-    Swal.fire({ title: 'Guardando datos...', didOpen: () => { Swal.showLoading(); } }); // Feedback al usuario
+  procesarCierreDeTicket(idTicket: number, resolucionTexto: string, firmaBase64: string, archivoAdjunto?: string) {
+    Swal.fire({ title: 'Guardando datos...', didOpen: () => { Swal.showLoading(); } }); 
     
     const formularioDatos = new FormData();
     formularioDatos.append('id', idTicket.toString());
