@@ -49,7 +49,7 @@ export class PerformanceSecretariaComponent implements OnInit {
   }
 
   obtenerRendimientoHistorico(idUsuario: number) {
-      this.apiService.getTicketsCreadosPorSecretaria(idUsuario).subscribe({
+      this.apiService.getMetricasPorSecretaria(idUsuario).subscribe({
           next: (respuestaServidor: any[]) => {
               this.historialTicketsCreados = respuestaServidor || [];
               

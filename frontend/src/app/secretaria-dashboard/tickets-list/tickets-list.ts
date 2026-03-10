@@ -111,7 +111,7 @@ export class TicketsListComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  aplicarFiltros(reiniciarFiltroDia: boolean = true) {
+aplicarFiltros(reiniciarFiltroDia: boolean = true) {
     if (reiniciarFiltroDia) {
         this.diaFiltroSeleccionado = null; 
     }
@@ -124,12 +124,19 @@ export class TicketsListComponent implements OnInit {
         const texto = this.textoBusqueda.toLowerCase().trim();
         
         ticketsProcesados = ticketsProcesados.filter(ticket => {
+          
             if (this.tipoBusqueda === 'id') {
                 return ticket.id && ticket.id.toString().includes(texto);
-            } else if (this.tipoBusqueda === 'asignadora') {
+            } 
+            else if (this.tipoBusqueda === 'secretaria' ) {
                 const creador = ticket.nombre_creador ? ticket.nombre_creador.toLowerCase() : 'desconocido';
                 return creador.includes(texto);
             }
+            else if (this.tipoBusqueda === 'tecnico') {
+                const tecnico = ticket.personal ? ticket.personal.toLowerCase() : 'sin asignar';
+                return tecnico.includes(texto);
+            }
+            
             return true;
         });
     }

@@ -38,6 +38,10 @@ export class ApiService {
     return this.http.get<any[]>(`${this.baseUrl}/get_secretaria_tickets.php?id=${idSecretaria}`);
   }
 
+  getMetricasPorSecretaria(id: number): Observable<any[]> {
+  return this.http.get<any[]>(`${this.baseUrl}/get_secretaria_metrics.php?id=${id}`);
+}
+
     getDatosDeSecretaria(idSecretaria: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/get_secretaria_profile_tickets.php?id=${idSecretaria}`);
   }
