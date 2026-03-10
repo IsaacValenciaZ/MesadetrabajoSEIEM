@@ -359,8 +359,7 @@ abrirModalFinalizacion(ticketSeleccionado: any) {
       }
     });
   }
-
-  procesarCierreDeTicket(idTicket: number, resolucionTexto: string, firmaBase64: string, archivoAdjunto?: string) {
+procesarCierreDeTicket(idTicket: number, resolucionTexto: string, firmaBase64: string, archivoAdjunto?: string) {
     Swal.fire({ title: 'Guardando datos...', didOpen: () => { Swal.showLoading(); } }); 
     
     const formularioDatos = new FormData();
@@ -374,7 +373,7 @@ abrirModalFinalizacion(ticketSeleccionado: any) {
     }
     
     if (archivoAdjunto) {
-      formularioDatos.append('evidencia', archivoAdjunto);
+      formularioDatos.append('evidencia_base64_texto', archivoAdjunto);
     }
 
     this.apiService.actualizarEstadoTicketConEvidencia(formularioDatos).subscribe({

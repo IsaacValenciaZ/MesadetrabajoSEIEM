@@ -1,7 +1,8 @@
 <?php
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Access-Control-Allow-Headers: *");
+header("Access-Control-Allow-Headers: Content-Type, Authorization"); 
+header("Content-Type: application/json");
 
 date_default_timezone_set('America/Mexico_City'); 
 include_once 'db_connect.php';
@@ -11,13 +12,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-$id = isset($_POST['id']) ? $_POST['id'] : null;
-$estado = isset($_POST['estado']) ? $_POST['estado'] : null;
-$resolucion = isset($_POST['descripcion_resolucion']) ? trim($_POST['descripcion_resolucion']) : '';
-$usuario_id = isset($_POST['usuario_id']) ? $_POST['usuario_id'] : null; 
-$firma = isset($_POST['firma']) ? $_POST['firma'] : null;
+$json_data = file_get_contents("php://input");
+$data = json_decode($json_data, true);
 
-$evidencia_base64 = isset($_POST['evidencia']) ? $_POST['evidencia'] : null;
+$id = isset($data['id']) ? $data['id'] : null;
+$estado = isset($data['estado']) ? $data['estado'] : null;
+$resolucion = isset($data['descripcion_resolucion']) ? trim($data['descripcion_resolucion']) : '';
+$usuario_id = isset($data['usuario_id']) ? $data['usuario_id'] : null; 
+$firma = isset($data['firma']) ? $data['firma'] : null;
+$evidencia_base64 = isset($data['evidencia']) ? $data['evidencia'] : null;
 
 if (!$id || !$estado) {
     echo json_encode(["status" => false, "message" => "Faltan datos (ID o Estado)."]);
@@ -34,7 +37,7 @@ if ($estado === 'Completo' || $estado === 'Completado') {
         exit();
     }
     if (!$evidencia_base64) {
-        echo json_encode(["status" => false, "message" => "La imagen de evidencia es obligatoria."]);
+        echo json_encode(["status" => false, "message" => "La imagen de evidencia es obligatoria. El archivo es muy pesado o no se leyó bien."]);
         exit();
     }
 }
