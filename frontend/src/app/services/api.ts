@@ -26,8 +26,11 @@ export class ApiService {
     return this.http.get<any[]>(`${this.baseUrl}/get_tickets_personal.php?personal=${nombreUsuario}`);
   }
 
-  actualizarEstadoTicket(id: number, nuevoEstado: string): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/update_tickets_personal.php`, { id, estado: nuevoEstado });
+ actualizarEstadoTicket(id: number, nuevoEstado: string): Observable<any> {
+    const formData = new FormData();
+    formData.append('id', id.toString());
+    formData.append('estado', nuevoEstado);
+    return this.http.post<any>(`${this.baseUrl}/update_tickets_personal.php`, formData);
   }
 
   getEvidenciaTicket(id: number): Observable<any> {
