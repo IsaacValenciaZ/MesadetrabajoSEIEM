@@ -365,11 +365,29 @@ preConfirm: async () => {
 
     }
 
-    return {
-      resolucion: descripcionResolucion,
-      archivo: base64Evidencia,
-      firma: sinFirma ? null : canvas.toDataURL('image/jpeg', 0.6)
-    };
+    let firmaFinal = null;
+
+if (!sinFirma) {
+  const tempCanvas = document.createElement("canvas");
+  tempCanvas.width = canvas.width;
+  tempCanvas.height = canvas.height;
+
+  const tempCtx = tempCanvas.getContext("2d");
+
+  if (tempCtx) {
+    tempCtx.fillStyle = "#ffffff";
+    tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+    tempCtx.drawImage(canvas, 0, 0);
+  }
+
+  firmaFinal = tempCanvas.toDataURL("image/jpeg", 0.7);
+}
+
+return {
+  resolucion: descripcionResolucion,
+  archivo: base64Evidencia,
+  firma: firmaFinal
+};
 
   } catch (error) {
 
