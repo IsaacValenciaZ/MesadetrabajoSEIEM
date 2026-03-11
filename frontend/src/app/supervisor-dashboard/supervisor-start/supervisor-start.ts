@@ -316,6 +316,7 @@ abrirModalTicket(ticketSeleccionado: any) {
       }
     });
 }
+
 verEvidenciaFinal(ticket: any) {
     Swal.fire({
       title: 'Procesando datos...',
@@ -336,12 +337,12 @@ verEvidenciaFinal(ticket: any) {
 
         Swal.fire({
           title: `Resolución del Ticket #${ticket.id}`,
-html: `
+          html: `
           <div style="text-align: left; padding: 5px;">
             
             <p style="font-weight: bold; color: #56212f; margin-bottom: 5px;">Descripción de la solución:</p>
             <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 5px solid #27ae60; margin-bottom: 15px; max-height: 150px; overflow-y: auto;">
-              ${ticket.descripcion_resolucion || 'El técnico no proporcionó una descripción de las tareas realizadas.'}
+              ${resolucion}
             </div>
 
             ${firmaData && firmaData.startsWith('data:image') ? `
@@ -376,7 +377,8 @@ html: `
           confirmButtonColor: '#56212f',
           width: '650px',
           didOpen: () => {
-            const img = document.getElementById('img-evidencia-sup');
+           
+            const img = document.getElementById(`img-evidencia-${ticket.id}`);
             if (img && imagenData) {
               img.onclick = () => this.abrirImagenCompleta(imagenData, ticket.id, { descripcion_resolucion: resolucion });
             }
@@ -393,7 +395,7 @@ html: `
         });
       }
     });
-  }
+}
 
 abrirImagenCompleta(imagenBase64: string, idTicket: number, ticket: any) {
     Swal.fire({

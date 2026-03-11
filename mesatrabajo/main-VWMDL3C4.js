@@ -161,7 +161,7 @@ ${e.map((i,r)=>`${r+1}) ${i.toString()}`).join(`
             
             <p style="font-weight: bold; color: #56212f; margin-bottom: 5px;">Descripci\xF3n de la soluci\xF3n:</p>
             <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 5px solid #27ae60; margin-bottom: 15px; max-height: 150px; overflow-y: auto;">
-              ${n.descripcion_resolucion||"El t\xE9cnico no proporcion\xF3 una descripci\xF3n de las tareas realizadas."}
+              ${o}
             </div>
 
             ${r&&r.startsWith("data:image")?`
@@ -191,7 +191,7 @@ ${e.map((i,r)=>`${r+1}) ${i.toString()}`).join(`
             `}
             
           </div>
-        `,confirmButtonText:"Cerrar",confirmButtonColor:"#56212f",width:"650px",didOpen:()=>{let s=document.getElementById("img-evidencia-sup");s&&i&&(s.onclick=()=>this.abrirImagenCompleta(i,n.id,{descripcion_resolucion:o}))}})},error:e=>{console.error("Error al recuperar evidencias:",e),$s.default.fire({icon:"error",title:"Error de conexi\xF3n",text:"No se pudieron recuperar los datos de la base de datos. Verifique su conexi\xF3n.",confirmButtonColor:"#56212f"})}})}abrirImagenCompleta(n,e,i){$s.default.fire({title:`<span style="color: #ffffff;">Evidencia - Ticket #${e}</span>`,html:`
+        `,confirmButtonText:"Cerrar",confirmButtonColor:"#56212f",width:"650px",didOpen:()=>{let s=document.getElementById(`img-evidencia-${n.id}`);s&&i&&(s.onclick=()=>this.abrirImagenCompleta(i,n.id,{descripcion_resolucion:o}))}})},error:e=>{console.error("Error al recuperar evidencias:",e),$s.default.fire({icon:"error",title:"Error de conexi\xF3n",text:"No se pudieron recuperar los datos de la base de datos. Verifique su conexi\xF3n.",confirmButtonColor:"#56212f"})}})}abrirImagenCompleta(n,e,i){$s.default.fire({title:`<span style="color: #ffffff;">Evidencia - Ticket #${e}</span>`,html:`
           <div style="display: flex; flex-direction: column; align-items: center; gap: 20px;">
             <img src="${n}" style="max-width: 100%; max-height: 70vh; object-fit: contain; border-radius: 8px;">
             <div style="background: rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 8px; width: 100%; text-align: left; border-left: 5px solid #c3b08f;">
