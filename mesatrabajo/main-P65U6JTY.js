@@ -275,7 +275,7 @@ self.addEventListener('message', async (e) => {
             </span>
             ${e}
           </div>
-          <span style="background-color: ${r}; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700;">
+          <span style="background-color: ${r}; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700;">Prio:
             ${n.prioridad}
           </span>
         </div>

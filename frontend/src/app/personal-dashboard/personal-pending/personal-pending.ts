@@ -160,7 +160,7 @@ export class PersonalPendingComponent implements OnInit, OnDestroy {
             </span>
             ${detallesExtraHtml}
           </div>
-          <span style="background-color: ${colorPrioridad}; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700;">
+          <span style="background-color: ${colorPrioridad}; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700;">Prio:
             ${ticketSeleccionado.prioridad}
           </span>
         </div>
