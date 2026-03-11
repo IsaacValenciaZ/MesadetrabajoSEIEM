@@ -158,6 +158,22 @@ export class PersonalPendingComponent implements OnInit, OnDestroy {
           <span style="background-color: ${colorPrioridad}; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700;">
             ${ticketSeleccionado.prioridad}
           </span>
+          <div style="margin-bottom: 30px;">
+  <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Notas</p>
+              <div style="
+                  margin-top:6px;
+                  padding:10px;
+                  background:#f8fafc;
+                  border-radius:8px;
+                  border:1px solid #e2e8f0;
+                  font-size:0.95rem;
+                  color:#334155;
+                  max-height:120px;
+                  overflow:auto;
+              ">
+                ${ticketSeleccionado.notas || 'Sin notas registradas.'}
+              </div>
+            </div>
         </div>
       </div>
     `;
@@ -193,10 +209,18 @@ export class PersonalPendingComponent implements OnInit, OnDestroy {
           <label style="font-weight: 800; color: #56212f; font-size: 0.9rem;">Resolución (Obligatorio):</label>
           <textarea id="solucion-text" class="swal2-textarea" style="margin: 5px 0 10px 0; width: 100%; height: 60px; box-sizing: border-box; font-size: 0.9rem; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1;" placeholder="Descripción..."></textarea>
           
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <label style="font-weight: 800; color: #56212f; font-size: 0.9rem;">Firma del Solicitante (Obligatorio):</label>
-            <button type="button" id="btn-limpiar-firma" style="background: none; border: none; color: #b45309; text-decoration: underline; cursor: pointer; font-size: 0.8rem; font-weight: bold;">Limpiar</button>
-          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <label style="font-weight: 800; color: #56212f; font-size: 0.9rem;">
+              Firma del Solicitante
+            </label>
+            <label style="font-size:0.8rem; cursor:pointer;">
+              <input type="checkbox" id="sin-firma"> Cerrar sin firma
+            </label>
+            <button type="button" id="btn-limpiar-firma"
+              style="background:none;border:none;color:#b45309;text-decoration:underline;cursor:pointer;font-size:0.8rem;font-weight:bold;">
+              Limpiar
+            </button>
+        </div>
 
           <div id="contenedor-firma" style="border: 2px dashed #cbd5e1; border-radius: 8px; background: #fff; margin-top: 5px; touch-action: none; position: relative;">
              <canvas id="firma-canvas" style="width: 100%; height: 220px; cursor: crosshair; display: block;"></canvas>
@@ -212,139 +236,236 @@ export class PersonalPendingComponent implements OnInit, OnDestroy {
       cancelButtonText: 'Cancelar',
       cancelButtonColor: '#000000',
       width: '650px',
-      didOpen: () => {
-        canvas = document.getElementById('firma-canvas') as HTMLCanvasElement;
-        ctx = canvas.getContext('2d');
-        const contenedor = document.getElementById('contenedor-firma');
+didOpen: () => {
 
-        const resizeCanvas = () => {
-          const rect = contenedor!.getBoundingClientRect();
-          const tempImg = canvas.toDataURL();
-          canvas.width = rect.width;
-          canvas.height = rect.height;
-          if (!isEmpty && ctx) {
-            const img = new Image();
-            img.onload = () => ctx?.drawImage(img, 0, 0);
-            img.src = tempImg;
-          }
-        };
+  canvas = document.getElementById('firma-canvas') as HTMLCanvasElement;
+  ctx = canvas.getContext('2d');
+  const contenedor = document.getElementById('contenedor-firma');
 
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
+  const resizeCanvas = () => {
+    const rect = contenedor!.getBoundingClientRect();
+    const tempImg = canvas.toDataURL();
 
-        const getPos = (evt: any) => {
-          const rectInfo = canvas.getBoundingClientRect();
-          const clientX = evt.clientX || evt.touches[0].clientX;
-          const clientY = evt.clientY || evt.touches[0].clientY;
-          return { x: clientX - rectInfo.left, y: clientY - rectInfo.top };
-        };
+    canvas.width = rect.width;
+    canvas.height = rect.height;
 
-        const startDrawing = (e: any) => {
-          if (e.type === 'touchstart') e.preventDefault();
-          isDrawing = true;
-          isEmpty = false;
-          const pos = getPos(e);
-          ctx?.beginPath(); ctx?.moveTo(pos.x, pos.y);
-        };
+    if (!isEmpty && ctx) {
+      const img = new Image();
+      img.onload = () => ctx?.drawImage(img, 0, 0);
+      img.src = tempImg;
+    }
+  };
 
-        const draw = (e: any) => {
-          if (e.type === 'touchmove') e.preventDefault();
-          if (!isDrawing || !ctx) return;
-          const pos = getPos(e);
-          ctx.lineTo(pos.x, pos.y);
-          ctx.strokeStyle = '#000'; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.stroke();
-        };
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
 
-        const stopDrawing = () => { isDrawing = false; ctx?.closePath(); };
+  const getPos = (evt: any) => {
+    const rectInfo = canvas.getBoundingClientRect();
+    const clientX = evt.clientX || evt.touches[0].clientX;
+    const clientY = evt.clientY || evt.touches[0].clientY;
 
-        canvas.addEventListener('mousedown', startDrawing);
-        canvas.addEventListener('mousemove', draw);
-        canvas.addEventListener('mouseup', stopDrawing);
-        canvas.addEventListener('touchstart', startDrawing, { passive: false });
-        canvas.addEventListener('touchmove', draw, { passive: false });
-        canvas.addEventListener('touchend', stopDrawing);
+    return {
+      x: clientX - rectInfo.left,
+      y: clientY - rectInfo.top
+    };
+  };
 
-        document.getElementById('btn-limpiar-firma')?.addEventListener('click', () => {
-          ctx?.clearRect(0, 0, canvas.width, canvas.height);
-          isEmpty = true;
-        });
-      },
-      preConfirm: async () => {
-        const descripcionResolucion = (document.getElementById('solucion-text') as HTMLTextAreaElement).value;
-        const archivoEvidenciaOriginal = (document.getElementById('evidencia-file') as HTMLInputElement).files?.[0];
+  const startDrawing = (e: any) => {
+    if (e.type === 'touchstart') e.preventDefault();
 
-        if (!descripcionResolucion || descripcionResolucion.trim() === '') {
-          Swal.showValidationMessage('⚠️ Debes escribir la resolución.');
-          return false;
-        }
-        if (isEmpty) {
-          Swal.showValidationMessage('⚠️ El usuario debe firmar.');
-          return false;
-        }
+    isDrawing = true;
+    isEmpty = false;
 
-        try {
-          let base64Evidencia = null;
-          if (archivoEvidenciaOriginal) {
-            Swal.showLoading();
-            const opciones: any = { 
-                maxSizeMB: 0.1, 
-                maxWidthOrHeight: 800, 
-                useWebWorker: true, 
-                initialQuality: 0.6 
-            };
-            const compressed = await imageCompression(archivoEvidenciaOriginal, opciones);
-            
-            base64Evidencia = await imageCompression.getDataUrlFromFile(compressed); 
-          }
+    const pos = getPos(e);
+    ctx?.beginPath();
+    ctx?.moveTo(pos.x, pos.y);
+  };
 
-          return { 
-             resolucion: descripcionResolucion, 
-             archivo: base64Evidencia, 
-             firma: canvas.toDataURL('image/png') 
-          };
-        } catch (error) {
-          Swal.showValidationMessage('⚠️ Error al procesar la foto.');
-          return false;
-        }
+  const draw = (e: any) => {
+
+    if (e.type === 'touchmove') e.preventDefault();
+    if (!isDrawing || !ctx) return;
+
+    const pos = getPos(e);
+
+    ctx.lineTo(pos.x, pos.y);
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+  };
+
+  const stopDrawing = () => {
+    isDrawing = false;
+    ctx?.closePath();
+  };
+
+  canvas.addEventListener('mousedown', startDrawing);
+  canvas.addEventListener('mousemove', draw);
+  canvas.addEventListener('mouseup', stopDrawing);
+
+  canvas.addEventListener('touchstart', startDrawing, { passive: false });
+  canvas.addEventListener('touchmove', draw, { passive: false });
+  canvas.addEventListener('touchend', stopDrawing);
+
+  document.getElementById('btn-limpiar-firma')?.addEventListener('click', () => {
+    ctx?.clearRect(0, 0, canvas.width, canvas.height);
+    isEmpty = true;
+  });
+
+
+  const checkboxSinFirma = document.getElementById('sin-firma') as HTMLInputElement;
+
+  if (checkboxSinFirma) {
+
+    checkboxSinFirma.addEventListener('change', () => {
+
+      if (checkboxSinFirma.checked) {
+
+        ctx?.clearRect(0, 0, canvas.width, canvas.height);
+        isEmpty = true;
+
+        canvas.style.pointerEvents = "none";
+        canvas.style.opacity = "0.4";
+
+      } else {
+
+        canvas.style.pointerEvents = "auto";
+        canvas.style.opacity = "1";
+
       }
-    }).then((resultadoModal) => {
-      if (resultadoModal.isConfirmed && resultadoModal.value) {
-        this.procesarCierreDeTicket(
-          ticketSeleccionado.id, 
-          resultadoModal.value.resolucion,
-          resultadoModal.value.firma,
-          resultadoModal.value.archivo
-        );
-      }
+
     });
+
   }
 
-  procesarCierreDeTicket(idTicket: number, resolucionTexto: string, firmaBase64: string, archivoAdjuntoBase64?: string) {
-    Swal.fire({ title: 'Guardando datos...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } }); 
-    
-    const payloadEnvio = {
-        id: idTicket,
-        estado: 'Completo',
-        descripcion_resolucion: resolucionTexto,
-        firma: firmaBase64,
-        usuario_id: this.usuarioActual?.id || null,
-        evidencia: archivoAdjuntoBase64 || null
+},
+preConfirm: async () => {
+
+  const descripcionResolucion =
+    (document.getElementById('solucion-text') as HTMLTextAreaElement).value;
+
+  const archivoEvidenciaOriginal =
+    (document.getElementById('evidencia-file') as HTMLInputElement).files?.[0];
+
+  const sinFirma =
+    (document.getElementById('sin-firma') as HTMLInputElement)?.checked;
+
+  if (!descripcionResolucion || descripcionResolucion.trim() === '') {
+    Swal.showValidationMessage('⚠️ Debes escribir la resolución.');
+    return false;
+  }
+
+  if (!sinFirma && isEmpty) {
+    Swal.showValidationMessage('⚠️ El usuario debe firmar o marcar "Cerrar sin firma".');
+    return false;
+  }
+
+  if (archivoEvidenciaOriginal && archivoEvidenciaOriginal.size > 5000000) {
+    Swal.showValidationMessage('⚠️ La imagen es demasiado grande (máx 5MB).');
+    return false;
+  }
+
+  try {
+
+    let base64Evidencia = null;
+
+    if (archivoEvidenciaOriginal) {
+
+      Swal.showLoading();
+
+      const opciones: any = {
+        maxSizeMB: 0.08,
+        maxWidthOrHeight: 720,
+        useWebWorker: true,
+        initialQuality: 0.55
+      };
+
+      const compressed =
+        await imageCompression(archivoEvidenciaOriginal, opciones);
+
+      base64Evidencia =
+        await imageCompression.getDataUrlFromFile(compressed);
+
+    }
+
+    return {
+      resolucion: descripcionResolucion,
+      archivo: base64Evidencia,
+      firma: sinFirma ? null : canvas.toDataURL('image/jpeg', 0.6)
     };
 
+  } catch (error) {
+
+    Swal.showValidationMessage('⚠️ Error al procesar la foto.');
+    return false;
+
+  }
+
+}
+    
+}).then((resultadoModal) => {
+
+  if (resultadoModal.isConfirmed && resultadoModal.value) {
+
+    this.procesarCierreDeTicket(
+      ticketSeleccionado.id,
+      resultadoModal.value.resolucion,
+      resultadoModal.value.firma,
+      resultadoModal.value.archivo
+    );
+
+  }
+
+});
+} 
+procesarCierreDeTicket(
+  idTicket: number,
+  resolucionTexto: string,
+  firmaBase64: string,
+  archivoAdjuntoBase64?: string
+) {
+
+  Swal.fire({
+    title: 'Guardando datos...',
+    allowOutsideClick: false,
+    didOpen: () => { Swal.showLoading(); }
+  });
+
+  const payloadEnvio = {
+    id: idTicket,
+    estado: 'Completo',
+    descripcion_resolucion: resolucionTexto,
+    firma: firmaBase64,
+    usuario_id: this.usuarioActual?.id || null,
+    evidencia: archivoAdjuntoBase64 || null
+  };
     this.apiService.actualizarEstadoTicketConEvidencia(payloadEnvio).subscribe({
       next: (res: any) => {
         if (res.status === true) {
           this.usuarioActual.estado_disponibilidad = 'disponible';
-          localStorage.setItem('usuario_actual', JSON.stringify(this.usuarioActual));
-          Swal.fire({ icon: 'success', title: 'Ticket cerrado correctamente', timer: 2000, showConfirmButton: false });
-          this.obtenerTicketsPendientes(); 
+          localStorage.setItem(
+            'usuario_actual',
+            JSON.stringify(this.usuarioActual)
+          );
+          Swal.fire({
+            icon: 'success',
+            title: 'Ticket cerrado correctamente',
+            timer: 2000,
+            showConfirmButton: false
+          });
+          this.obtenerTicketsPendientes();
         } else {
           Swal.fire('Error', res.message || 'Error al actualizar', 'error');
         }
       },
       error: (err) => {
         console.error("Error servidor:", err);
-        Swal.fire('Error de conexión', 'No se pudo conectar con el servidor', 'error');
+        Swal.fire(
+          'Error de conexión',
+          'No se pudo conectar con el servidor',
+          'error'
+        );
       }
     });
   }
