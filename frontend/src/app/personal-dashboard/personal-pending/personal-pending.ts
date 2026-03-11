@@ -283,17 +283,23 @@ export class PersonalPendingComponent implements OnInit, OnDestroy {
         }
 
         try {
-          let archivoFisico = null;
+          let base64Evidencia = null;
           if (archivoEvidenciaOriginal) {
             Swal.showLoading();
-            const opciones: any = { maxSizeMB: 5, maxWidthOrHeight: 1920, useWebWorker: false, initialQuality: 0.85 };
-            const blob = await imageCompression(archivoEvidenciaOriginal, opciones);
-            archivoFisico = new File([blob], `foto_${ticketSeleccionado.id}.jpg`, { type: 'image/jpeg' });
+            const opciones: any = { 
+                maxSizeMB: 0.1, 
+                maxWidthOrHeight: 800, 
+                useWebWorker: true, 
+                initialQuality: 0.6 
+            };
+            const compressed = await imageCompression(archivoEvidenciaOriginal, opciones);
+            
+            base64Evidencia = await imageCompression.getDataUrlFromFile(compressed); 
           }
 
           return { 
              resolucion: descripcionResolucion, 
-             archivo: archivoFisico, 
+             archivo: base64Evidencia, 
              firma: canvas.toDataURL('image/png') 
           };
         } catch (error) {
@@ -313,24 +319,19 @@ export class PersonalPendingComponent implements OnInit, OnDestroy {
     });
   }
 
-  procesarCierreDeTicket(idTicket: number, resolucionTexto: string, firmaBase64: string, archivoAdjunto?: File) {
-    Swal.fire({ title: 'Subiendo datos...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } }); 
+  procesarCierreDeTicket(idTicket: number, resolucionTexto: string, firmaBase64: string, archivoAdjuntoBase64?: string) {
+    Swal.fire({ title: 'Guardando datos...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } }); 
     
-    const formData = new FormData();
-    formData.append('id', idTicket.toString());
-    formData.append('estado', 'Completo');
-    formData.append('descripcion_resolucion', resolucionTexto);
-    formData.append('firma', firmaBase64);
-    
-    if (this.usuarioActual?.id) {
-        formData.append('usuario_id', this.usuarioActual.id.toString());
-    }
-    
-    if (archivoAdjunto) {
-        formData.append('evidencia', archivoAdjunto);
-    }
+    const payloadEnvio = {
+        id: idTicket,
+        estado: 'Completo',
+        descripcion_resolucion: resolucionTexto,
+        firma: firmaBase64,
+        usuario_id: this.usuarioActual?.id || null,
+        evidencia: archivoAdjuntoBase64 || null
+    };
 
-    this.apiService.actualizarEstadoTicketConEvidencia(formData).subscribe({
+    this.apiService.actualizarEstadoTicketConEvidencia(payloadEnvio).subscribe({
       next: (res: any) => {
         if (res.status === true) {
           this.usuarioActual.estado_disponibilidad = 'disponible';

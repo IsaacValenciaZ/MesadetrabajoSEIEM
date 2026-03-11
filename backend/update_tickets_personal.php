@@ -1,7 +1,7 @@
 <?php
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Access-Control-Allow-Headers: *");
+header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
 header("Content-Type: application/json; charset=UTF-8");
 
 date_default_timezone_set('America/Mexico_City'); 
@@ -12,11 +12,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-$id = isset($_POST['id']) ? $_POST['id'] : null;
-$estado = isset($_POST['estado']) ? $_POST['estado'] : null;
-$resolucion = isset($_POST['descripcion_resolucion']) ? trim($_POST['descripcion_resolucion']) : '';
-$usuario_id = isset($_POST['usuario_id']) ? $_POST['usuario_id'] : null; 
-$firma = isset($_POST['firma']) ? $_POST['firma'] : null;
+$json_input = file_get_contents("php://input");
+$data = json_decode($json_input, true);
+
+if (!$data) {
+    $data = $_POST;
+}
+
+$id = isset($data['id']) ? $data['id'] : null;
+$estado = isset($data['estado']) ? $data['estado'] : null;
+$resolucion = isset($data['descripcion_resolucion']) ? trim($data['descripcion_resolucion']) : '';
+$usuario_id = isset($data['usuario_id']) ? $data['usuario_id'] : null; 
+$firma = isset($data['firma']) ? $data['firma'] : null;
+$evidencia_base64 = isset($data['evidencia']) ? $data['evidencia'] : null;
 
 if (!$id || !$estado) {
     echo json_encode(["status" => false, "message" => "Faltan datos básicos (ID o Estado)."]);
@@ -27,31 +35,6 @@ if ($estado === 'Completo' || $estado === 'Completado') {
         echo json_encode(["status" => false, "message" => "La resolución y firma son obligatorias."]);
         exit();
     }
-}
-
-$ruta_evidencia = null; 
-
-if (isset($_FILES['evidencia']) && $_FILES['evidencia']['error'] === UPLOAD_ERR_OK) {
-    
-    $directorio_subida = 'evidencias/';
-    
-    if (!is_dir($directorio_subida)) {
-        mkdir($directorio_subida, 0777, true);
-    }
-
-    $extension = pathinfo($_FILES['evidencia']['name'], PATHINFO_EXTENSION) ?: 'jpg';
-    $nombre_archivo = 'ticket_' . $id . '_' . time() . '.' . $extension;
-    $ruta_destino = $directorio_subida . $nombre_archivo;
-
-    if (move_uploaded_file($_FILES['evidencia']['tmp_name'], $ruta_destino)) {
-        $ruta_evidencia = $ruta_destino; 
-    } else {
-        echo json_encode(["status" => false, "message" => "Error de permisos. El servidor no pudo guardar la foto en la carpeta."]);
-        exit();
-    }
-} elseif (isset($_FILES['evidencia']) && $_FILES['evidencia']['error'] !== UPLOAD_ERR_NO_FILE) {
-    echo json_encode(["status" => false, "message" => "El servidor AWS bloqueó la imagen por su tamaño."]);
-    exit();
 }
 
 try {
@@ -79,7 +62,7 @@ try {
         $stmtEv->execute([
             ':tid' => $id, 
             ':res' => $resolucion, 
-            ':evidencia' => $ruta_evidencia,
+            ':evidencia' => $evidencia_base64,
             ':firma' => $firma
         ]);
 
