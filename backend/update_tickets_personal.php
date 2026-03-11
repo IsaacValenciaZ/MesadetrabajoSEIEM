@@ -23,16 +23,29 @@ $id = isset($data['id']) ? $data['id'] : null;
 $estado = isset($data['estado']) ? $data['estado'] : null;
 $resolucion = isset($data['descripcion_resolucion']) ? trim($data['descripcion_resolucion']) : '';
 $usuario_id = isset($data['usuario_id']) ? $data['usuario_id'] : null; 
-$firma = isset($data['firma']) ? $data['firma'] : null;
+$firma = (!empty($data['firma']) && str_starts_with($data['firma'], 'data:image'))
+    ? $data['firma']
+    : null;
 $evidencia_base64 = isset($data['evidencia']) ? $data['evidencia'] : null;
 
+if ($firma === '' || $firma === 'null') {
+    $firma = null;
+}
+
 if (!$id || !$estado) {
-    echo json_encode(["status" => false, "message" => "Faltan datos básicos (ID o Estado)."]);
+    echo json_encode([
+        "status" => false,
+        "message" => "Faltan datos básicos (ID o Estado)."
+    ]);
     exit();
 }
+
 if ($estado === 'Completo' || $estado === 'Completado') {
-    if (empty($resolucion) || empty($firma)) {
-        echo json_encode(["status" => false, "message" => "La resolución y firma son obligatorias."]);
+    if (empty($resolucion)) {
+        echo json_encode([
+            "status" => false,
+            "message" => "La resolución es obligatoria."
+        ]);
         exit();
     }
 }

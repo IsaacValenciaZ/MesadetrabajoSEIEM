@@ -404,35 +404,42 @@ verEvidenciaFinal(ticket: any) {
 
               Swal.fire({
                 title: `Resolución del Ticket #${ticket.id}`,
-                html: `
-                  <div style="text-align: left; padding: 5px;">
-                    <p style="font-weight: bold; color: #56212f; margin-bottom: 5px;">Descripción de la solución:</p>
-                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 5px solid #27ae60; margin-bottom: 15px; max-height: 150px; overflow-y: auto;">
-                      ${ticket.descripcion_resolucion || 'El técnico no proporcionó una descripción de las tareas realizadas.'}
-                    </div>
+               html: `
+          <div style="text-align: left; padding: 5px;">
+            
+            <p style="font-weight: bold; color: #56212f; margin-bottom: 5px;">Descripción de la solución:</p>
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 5px solid #27ae60; margin-bottom: 15px; max-height: 150px; overflow-y: auto;">
+              ${ticket.descripcion_resolucion || 'El técnico no proporcionó una descripción de las tareas realizadas.'}
+            </div>
 
-                    ${firmaData ? `
-                      <p style="font-weight: bold; color: #56212f; margin-bottom: 5px;">Firma de <span style="color: #000000;">${ticket.nombre_usuario}</span>:</p>
-                      <div style="text-align: center; border: 1px solid #e2e8f0; padding: 10px; border-radius: 8px; background: #ffffff; margin-bottom: 15px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
-                        <img src="${firmaData}" style="width: 100%; max-height: 120px; object-fit: contain;">
-                      </div>
-                    ` : ''}
-                    
-                    ${imagenData ? `
-                      <p style="font-weight: bold; color: #56212f; margin-bottom: 5px;">Evidencia fotográfica:</p>
-                      <div style="text-align: center; border: 1px solid #ddd; padding: 10px; border-radius: 8px; background: #1a1a1a;">
-                        <img id="img-evidencia-${ticket.id}" src="${imagenData}" 
-                             style="width: 100%; max-height: 400px; object-fit: contain; border-radius: 4px; cursor: zoom-in; transition: transform 0.2s;"
-                             onmouseover="this.style.transform='scale(1.02)'"
-                             onmouseout="this.style.transform='scale(1)'">
-                        <small style="display:block; color: #aaa; margin-top: 8px; font-weight: bold;">
-                          <span class="material-symbols-outlined" style="font-size: 14px; vertical-align: middle;">zoom_in</span> 
-                          Haz clic en la imagen para ampliarla
-                        </small>
-                      </div>
-                    ` : '<p style="color: #999; font-style: italic; text-align: center;">Sin evidencia fotográfica adjunta.</p>'}
-                  </div>
-                `,
+            ${firmaData && firmaData.startsWith('data:image') ? `
+            <p style="font-weight: bold; color: #56212f; margin-bottom: 5px;">
+              Firma de <span style="color: #000000;">${ticket.nombre_usuario}</span>:
+            </p>
+            <div style="text-align: center; border: 1px solid #e2e8f0; padding: 10px; border-radius: 8px; background: #ffffff; margin-bottom: 15px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
+              <img src="${firmaData}" style="max-width: 100%; max-height: 120px; object-fit: contain; background: white;">
+            </div>
+            ` : `
+            <div style="padding: 12px; border-radius: 8px; background: #f8fafc; border: 1px dashed #cbd5e1; color: #64748b; font-style: italic; text-align: center; margin-bottom: 15px;">
+              Ticket cerrado sin firma del solicitante
+            </div>
+            `}
+                                
+            ${imagenData ? `
+            <p style="font-weight: bold; color: #56212f; margin-bottom: 5px;">Evidencia fotográfica:</p>
+            <div style="text-align: center; border: 1px solid #ddd; padding: 10px; border-radius: 8px; background: #1a1a1a;">
+              <img id="img-evidencia-${ticket.id}" src="${imagenData}" style="width: 100%; max-height: 400px; object-fit: contain; border-radius: 4px; cursor: zoom-in; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+              <small style="display: block; color: #aaa; margin-top: 8px; font-weight: bold;">
+                <span class="material-symbols-outlined" style="font-size: 14px; vertical-align: middle;">zoom_in</span> 
+                Haz clic en la imagen para ampliarla
+              </small>
+            </div>
+            ` : `
+            <p style="color: #999; font-style: italic; text-align: center;">Sin evidencia fotográfica adjunta.</p>
+            `}
+            
+          </div>
+        `,
                 confirmButtonText: 'Cerrar',
                 confirmButtonColor: '#56212f',
                 width: '650px',

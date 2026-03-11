@@ -121,59 +121,38 @@ export class PersonalPendingComponent implements OnInit, OnDestroy {
     else if (ticketSeleccionado.prioridad === 'Baja') colorPrioridad = '#27ae60';
 
     const htmlModal = `
-      <div style="text-align: left; font-family: 'Segoe UI', sans-serif; color: #1e293b;">
-        <h1 style="font-size: 2.2rem; font-weight: 900; margin: 0 0 20px 0; color: #0f172a; font-style: italic;">Ticket: #${ticketSeleccionado.id}</h1>
-        <div style="display: flex; gap: 40px; margin-bottom: 25px;">
+<div style="text-align: left; font-family: 'Segoe UI', sans-serif; color: #1e293b; padding: 10px;">
+        <h2 style="margin: 0 0 15px 0; color: #56212f; font-size: 1.8rem; font-weight: 800;">Ticket: #${ticketSeleccionado.id}</h2>
+        
+        <div style="display: flex; gap: 20px; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #f1f5f9;">
           <div>
-            <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Fecha de Solicitud</p>
-            <p style="margin: 4px 0 0 0; font-size: 0.95rem; font-weight: 600; color: #334155;">${ticketSeleccionado.fecha || 'N/A'}</p>
+            <p style="margin: 0; font-size: 0.7rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Apertura</p>
+            <p style="margin: 2px 0 0 0; font-size: 0.9rem; font-weight: 600;">${ticketSeleccionado.fecha}</p>
           </div>
           <div>
-            <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Vencimiento</p>
-            <p style="margin: 4px 0 0 0; font-size: 0.95rem; font-weight: 600; color: #d97706;">${ticketSeleccionado.fecha_limite || 'N/A'}</p>
-          </div>
-        </div>
-        <hr style="border: 0; border-top: 1px solid #f1f5f9; margin: 20px 0;">
-        <div style="display: flex; gap: 40px; margin-bottom: 25px;">
-          <div>
-            <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Solicitante</p>
-            <p style="margin: 4px 0 0 0; font-weight: 800; font-size: 1.1rem; color: #0f172a;">${ticketSeleccionado.nombre_usuario}</p>
-          </div>
-          <div>
-            <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Ext / Teléfono</p>
-            <p style="margin: 4px 0 0 0; font-weight: 800; font-size: 1.1rem; color: #0f172a;">${ticketSeleccionado.extension_tel || '-'}</p>
+            <p style="margin: 0; font-size: 0.7rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Cierre</p>
+            <p style="margin: 2px 0 0 0; font-size: 0.9rem; font-weight: 600; color: #56212f;">${ticketSeleccionado.fecha_fin || 'N/A'}</p>
           </div>
         </div>
-        <div style="margin-bottom: 30px;">
-          <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Departamento</p>
-          <p style="margin: 4px 0 0 0; font-weight: 500; font-size: 1.05rem; color: #334155;">${ticketSeleccionado.departamento}</p>
-        </div>
-        <div style="display: flex; align-items: center; justify-content: space-between; border: 1px solid #e2e8f0; border-left: 6px solid ${colorFondoCategoria}; border-radius: 8px; padding: 15px; margin-bottom: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
-          <div style="display: flex; align-items: center; flex-wrap: wrap;">
-            <span style="background-color: ${colorFondoCategoria}; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700;">
+
+        <p style="margin: 0; font-size: 0.7rem; color: #64748b; font-weight: 700; text-transform: uppercase;">Solicitante</p>
+        <p style="margin: 4px 0 15px 0; font-weight: 800; font-size: 1.1rem; color: #0f172a;">${ticketSeleccionado.nombre_usuario}</p>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; border: 1px solid #e2e8f0; border-left: 6px solid ${colorFondoCategoria}; border-radius: 8px; padding: 12px; margin-bottom: 20px; background: #fff;">
+          <div>
+            <span style="background-color: ${colorFondoCategoria}; color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: 700;">
               ${ticketSeleccionado.descripcion}
             </span>
             ${detallesExtraHtml}
           </div>
-          <span style="background-color: ${colorPrioridad}; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700;">
+          <span style="background-color: ${colorPrioridad}; color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: 700;">
             ${ticketSeleccionado.prioridad}
           </span>
-          <div style="margin-bottom: 30px;">
-  <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Notas</p>
-              <div style="
-                  margin-top:6px;
-                  padding:10px;
-                  background:#f8fafc;
-                  border-radius:8px;
-                  border:1px solid #e2e8f0;
-                  font-size:0.95rem;
-                  color:#334155;
-                  max-height:120px;
-                  overflow:auto;
-              ">
-                ${ticketSeleccionado.notas || 'Sin notas registradas.'}
-              </div>
-            </div>
+        </div>
+
+        <p style="margin: 0 0 5px 0; font-size: 0.7rem; color: #64748b; font-weight: 700; text-transform: uppercase;">Notas de solicitud</p>
+        <div style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 8px; padding: 12px;">
+          <p style="margin: 0; font-size: 0.9rem; color: #475569;">${ticketSeleccionado.notas || 'Sin notas.'}</p>
         </div>
       </div>
     `;
@@ -202,27 +181,24 @@ export class PersonalPendingComponent implements OnInit, OnDestroy {
     Swal.fire({
       title: `Finalizar Ticket #${ticketSeleccionado.id}`,
       grow: window.innerWidth < 600 ? 'column' : false,
-      html: `
+     html: `
         <div style="text-align: left;">
           <p style="color: #64748b; font-size: 0.85rem; margin-bottom: 8px;">Documenta la solución y solicita la firma.</p>
           
           <label style="font-weight: 800; color: #56212f; font-size: 0.9rem;">Resolución (Obligatorio):</label>
           <textarea id="solucion-text" class="swal2-textarea" style="margin: 5px 0 10px 0; width: 100%; height: 60px; box-sizing: border-box; font-size: 0.9rem; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1;" placeholder="Descripción..."></textarea>
           
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <label style="font-weight: 800; color: #56212f; font-size: 0.9rem;">
-              Firma del Solicitante
-            </label>
-            <label style="font-size:0.8rem; cursor:pointer;">
-              <input type="checkbox" id="sin-firma"> Cerrar sin firma
-            </label>
-            <button type="button" id="btn-limpiar-firma"
-              style="background:none;border:none;color:#b45309;text-decoration:underline;cursor:pointer;font-size:0.8rem;font-weight:bold;">
-              Limpiar
-            </button>
-        </div>
+          <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 6px;">
+            <label style="font-weight: 800; color: #56212f; font-size: 0.9rem; margin: 0;">Firma del Solicitante:</label>
+            <button type="button" id="btn-limpiar-firma" style="background: none; border: none; color: #b45309; text-decoration: underline; cursor: pointer; font-size: 0.8rem; font-weight: bold; padding: 0;">Limpiar</button>
+          </div>
 
-          <div id="contenedor-firma" style="border: 2px dashed #cbd5e1; border-radius: 8px; background: #fff; margin-top: 5px; touch-action: none; position: relative;">
+          <label style="display: flex; align-items: center; gap: 10px; background-color: #f1f5f9; border: 1px solid #cbd5e1; padding: 10px 12px; border-radius: 6px; cursor: pointer; margin-bottom: 8px; transition: background 0.2s;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
+            <input type="checkbox" id="sin-firma" style="width: 18px; height: 18px; cursor: pointer; accent-color: #56212f; margin: 0;">
+            <span style="font-size: 0.85rem; color: #334155; font-weight: 700; user-select: none;">Cerrar ticket sin firma (Ausencia del solicitante)</span>
+          </label>
+
+          <div id="contenedor-firma" style="border: 2px dashed #cbd5e1; border-radius: 8px; background: #fff; touch-action: none; position: relative;">
              <canvas id="firma-canvas" style="width: 100%; height: 220px; cursor: crosshair; display: block;"></canvas>
           </div>
 
