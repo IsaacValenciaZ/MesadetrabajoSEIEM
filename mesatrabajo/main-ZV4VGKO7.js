@@ -236,38 +236,57 @@ self.addEventListener('message', async (e) => {
   }
 })
 `,Oy;function m6(t,n){return new Promise((e,i)=>{Oy||(Oy=(function(s){let a=[];return typeof s=="function"?a.push(`(${s})()`):a.push(s),URL.createObjectURL(new Blob(a))})(g6));let r=new Worker(Oy);r.addEventListener("message",function(s){if(n.signal&&n.signal.aborted)r.terminate();else if(s.data.progress===void 0){if(s.data.error)return i(new Error(s.data.error)),void r.terminate();e(s.data.file),r.terminate()}else n.onProgress(s.data.progress)}),r.addEventListener("error",i),n.signal&&n.signal.addEventListener("abort",()=>{i(n.signal.reason),r.terminate()}),r.postMessage({file:t,imageCompressionLibUrl:n.libURL,options:Me(J({},n),{onProgress:void 0,signal:void 0})})})}function un(t,n){return new Promise(function(e,i){let r,o,s,a,l,c;if(r=J({},n),s=0,{onProgress:a}=r,r.maxSizeMB=r.maxSizeMB||Number.POSITIVE_INFINITY,l=typeof r.useWebWorker!="boolean"||r.useWebWorker,delete r.useWebWorker,r.onProgress=h=>{s=h,typeof a=="function"&&a(s)},!(t instanceof Blob||t instanceof h6))return i(new Error("The file given is not an instance of Blob or File"));if(!/^image/.test(t.type))return i(new Error("The file given is not an image"));if(c=typeof WorkerGlobalScope<"u"&&self instanceof WorkerGlobalScope,!l||typeof Worker!="function"||c)return u2(t,r).then(function(h){try{return o=h,f.call(this)}catch(v){return i(v)}}.bind(this),i);var d=function(){try{return f.call(this)}catch(h){return i(h)}}.bind(this),u=function(h){try{return u2(t,r).then(function(v){try{return o=v,d()}catch(w){return i(w)}},i)}catch(v){return i(v)}};try{return r.libURL=r.libURL||"https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js",m6(t,r).then(function(h){try{return o=h,d()}catch{return u()}},u)}catch{u()}function f(){try{o.name=t.name,o.lastModified=t.lastModified}catch{}try{r.preserveExif&&t.type==="image/jpeg"&&(!r.fileType||r.fileType&&r.fileType===t.type)&&(o=f2(t,o))}catch{}return e(o)}})}un.getDataUrlFromFile=m2,un.getFilefromDataUrl=Ny,un.loadImage=b2,un.drawImageInCanvas=y2,un.drawFileInCanvas=Ah,un.canvasToFile=Ph,un.getExifOrientation=_2,un.handleMaxWidthOrHeight=w2,un.followExifOrientation=x2,un.cleanupCanvasMemory=Dr,un.isAutoOrientationInBrowser=fl,un.approximateBelowMaximumCanvasSizeOfBrowser=v2,un.copyExifWithoutOrientation=f2,un.getBrowserName=Ws,un.version="2.0.2";var b6=(t,n,e,i,r,o,s)=>({"cat-internet":t,"cat-office":n,"cat-telefonia":e,"cat-tecnico":i,"cat-dictaminar":r,"cat-extension":o,"cat-correo":s}),v6=(t,n,e)=>({"prio-alta":t,"prio-media":n,"prio-baja":e}),y6=(t,n)=>({"status-espera":t,"status-incompleto":n});function _6(t,n){t&1&&(m(0,"span",24),y(1," Vencido "),b())}function w6(t,n){t&1&&(m(0,"span",25),y(1," En curso "),b())}function x6(t,n){if(t&1&&(m(0,"span",26),y(1),b()),t&2){let e=Y().$implicit;D(),ne(" EQ: ",e.cantidad_dicta," ")}}function C6(t,n){if(t&1&&(m(0,"span",26),y(1),b()),t&2){let e=Y().$implicit;D(),ne(" Dom: ",e.correo_tipo," ")}}function E6(t,n){if(t&1&&(m(0,"span",27),y(1),b()),t&2){let e=Y().$implicit;D(),ne(" ",e.soporte_tipo," ")}}function D6(t,n){if(t&1){let e=xe();m(0,"tr",11),Z("click",function(){let r=oe(e).$implicit,o=Y();return se(o.abrirModalTicket(r))}),m(1,"td",12)(2,"strong"),y(3),b()(),m(4,"td",13)(5,"div",14),y(6),dt(7,"date"),b(),m(8,"div",15),y(9),dt(10,"date"),b()(),m(11,"td",13)(12,"div",16),y(13),dt(14,"date"),b(),de(15,_6,2,0,"span",17)(16,w6,2,0,"span",18),b(),m(17,"td")(18,"strong"),y(19),b()(),m(20,"td",19),y(21),b(),m(22,"td",20),y(23),b(),m(24,"td")(25,"span",21),y(26),b(),de(27,x6,2,1,"span",22)(28,C6,2,1,"span",22)(29,E6,2,1,"span",23),b(),m(30,"td")(31,"span",21),y(32),b()(),m(33,"td",8)(34,"span",21),y(35),b()()()}if(t&2){let e=n.$implicit,i=Y();D(3),ne("#",e.id),D(3),ne(" ",ln(7,18,e.fecha,"dd/MM/yyyy")," "),D(3),ne(" ",ln(10,21,e.fecha,"HH:mm")," hrs "),D(4),ne(" ",e.fecha_limite?ln(14,24,e.fecha_limite,"dd/MM/yyyy HH:mm"):"N/A"," "),D(2),W("ngIf",i.verificarVencimiento(e.fecha_limite)),D(),W("ngIf",e.fecha_limite&&!i.verificarVencimiento(e.fecha_limite)),D(3),X(e.nombre_usuario),D(2),ne(" ",e.departamento," "),D(2),ne(" ",e.extension_tel||"-"," "),D(2),W("ngClass",lc(27,b6,e.descripcion==="Internet",e.descripcion==="Office",e.descripcion==="Telefonia",e.descripcion==="Tecnico",e.descripcion==="Dictaminar",e.descripcion==="Extension/Telefono",e.descripcion==="Correo")),D(),ne(" ",e.descripcion," "),D(),W("ngIf",e.descripcion==="Dictaminar"&&e.cantidad_dicta),D(),W("ngIf",e.descripcion==="Correo"&&e.correo_tipo),D(),W("ngIf",e.descripcion==="Tecnico"&&e.soporte_tipo),D(2),W("ngClass",wi(35,v6,e.prioridad==="Alta",e.prioridad==="Media",e.prioridad==="Baja")),D(),ne(" ",e.prioridad," "),D(2),W("ngClass",L0(39,y6,e.estado==="En espera",e.estado==="Incompleto")),D(),ne(" ",e.estado||"Pendiente"," ")}}function M6(t,n){t&1&&(m(0,"tr")(1,"td",28),y(2," No tienes tickets pendientes en este momento. "),b()())}var Oh=class t{apiService=B(Ge);cdr=B(je);pollingSubscription;usuarioActual={};listaTicketsPendientes=[];cargandoDatos=!0;fechaReferenciaActual=new Date;ngOnInit(){let n=localStorage.getItem("usuario_actual");n&&(this.usuarioActual=JSON.parse(n),this.obtenerTicketsPendientes(),this.pollingSubscription=rs(15e3).subscribe(()=>{this.ejecutarLlamadaApi(!0)}))}ngOnDestroy(){this.pollingSubscription&&this.pollingSubscription.unsubscribe()}obtenerTicketsPendientes(){this.cargandoDatos=!0,this.ejecutarLlamadaApi(!1)}ejecutarLlamadaApi(n){this.apiService.getMisTickets(this.usuarioActual.nombre).subscribe({next:e=>{let i=e||[];this.fechaReferenciaActual=new Date;let r=this.listaTicketsPendientes.map(l=>l.id),o=i.filter(l=>l.estado==="En espera"||l.estado==="Asignado"||!l.estado);o.sort((l,c)=>new Date(l.fecha_limite).getTime()-new Date(c.fecha_limite).getTime());let a=o.map(l=>l.id).some(l=>!r.includes(l));this.listaTicketsPendientes=o,this.cargandoDatos=!1,this.cdr.detectChanges(),a&&r.length>0&&Zn.default.mixin({toast:!0,position:"top-end",showConfirmButton:!1,timer:3e3}).fire({icon:"info",iconColor:"#56212f",title:"\xA1Tienes nuevos reportes asignados!"})},error:e=>{this.cargandoDatos=!1,this.cdr.detectChanges()}})}verificarVencimiento(n){return n?new Date(n)<this.fechaReferenciaActual:!1}abrirModalTicket(n){let e="",i="#64748b";n.descripcion==="Internet"?i="#2980b9":n.descripcion==="Office"?i="#d35400":n.descripcion==="Telefonia"?i="#2c3e50":n.descripcion==="Extension/Telefono"?i="#94961c":n.descripcion==="Dictaminar"?(i="#6c5ce7",n.cantidad_dicta&&(e=`<span style="color: #cbd5e1; margin: 0 10px;">|</span> <span style="font-size: 0.95rem; font-weight: 800; color: ${i};">Equipos: ${n.cantidad_dicta}</span>`)):n.descripcion==="Correo"?(i="#96241c",n.correo_tipo&&(e=`<span style="color: #cbd5e1; margin: 0 10px;">|</span> <span style="font-size: 0.95rem; font-weight: 800; color: ${i};">Dominio: ${n.correo_tipo}</span>`)):n.descripcion==="Tecnico"&&(i="#16a085",n.soporte_tipo&&(e=`<span style="color: #cbd5e1; margin: 0 10px;">|</span> <span style="font-size: 0.95rem; font-weight: 800; color: ${i};">Soporte: ${n.soporte_tipo}</span>`));let r="#64748b";n.prioridad==="Alta"?r="#c0392b":n.prioridad==="Media"?r="#f39c12":n.prioridad==="Baja"&&(r="#27ae60");let o=`
-<div style="text-align: left; font-family: 'Segoe UI', sans-serif; color: #1e293b; padding: 10px;">
-        <h2 style="margin: 0 0 15px 0; color: #56212f; font-size: 1.8rem; font-weight: 800;">Ticket: #${n.id}</h2>
+      <div style="text-align: left; font-family: 'Segoe UI', sans-serif; color: #1e293b;">
+        <h1 style="font-size: 2.2rem; font-weight: 900; margin: 0 0 20px 0; color: #0f172a; font-style: italic;">Ticket: #${n.id}</h1>
         
-        <div style="display: flex; gap: 20px; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #f1f5f9;">
+        <div style="display: flex; gap: 40px; margin-bottom: 25px;">
           <div>
-            <p style="margin: 0; font-size: 0.7rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Apertura</p>
-            <p style="margin: 2px 0 0 0; font-size: 0.9rem; font-weight: 600;">${n.fecha}</p>
+            <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Fecha de Solicitud</p>
+            <p style="margin: 4px 0 0 0; font-size: 0.95rem; font-weight: 600; color: #334155;">${n.fecha||"N/A"}</p>
           </div>
           <div>
-            <p style="margin: 0; font-size: 0.7rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Cierre</p>
-            <p style="margin: 2px 0 0 0; font-size: 0.9rem; font-weight: 600; color: #56212f;">${n.fecha_fin||"N/A"}</p>
+            <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Vencimiento</p>
+            <p style="margin: 4px 0 0 0; font-size: 0.95rem; font-weight: 600; color: #d97706;">${n.fecha_limite||"N/A"}</p>
           </div>
         </div>
-
-        <p style="margin: 0; font-size: 0.7rem; color: #64748b; font-weight: 700; text-transform: uppercase;">Solicitante</p>
-        <p style="margin: 4px 0 15px 0; font-weight: 800; font-size: 1.1rem; color: #0f172a;">${n.nombre_usuario}</p>
-
-        <div style="display: flex; align-items: center; justify-content: space-between; border: 1px solid #e2e8f0; border-left: 6px solid ${i}; border-radius: 8px; padding: 12px; margin-bottom: 20px; background: #fff;">
+        
+        <hr style="border: 0; border-top: 1px solid #f1f5f9; margin: 20px 0;">
+        
+        <div style="display: flex; gap: 40px; margin-bottom: 25px;">
           <div>
-            <span style="background-color: ${i}; color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: 700;">
+            <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Solicitante</p>
+            <p style="margin: 4px 0 0 0; font-weight: 800; font-size: 1.1rem; color: #0f172a;">${n.nombre_usuario}</p>
+          </div>
+          <div>
+            <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Ext / Tel\xE9fono</p>
+            <p style="margin: 4px 0 0 0; font-weight: 800; font-size: 1.1rem; color: #0f172a;">${n.extension_tel||"-"}</p>
+          </div>
+        </div>
+        
+        <div style="margin-bottom: 30px;">
+          <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Departamento</p>
+          <p style="margin: 4px 0 0 0; font-weight: 500; font-size: 1.05rem; color: #334155;">${n.departamento}</p>
+        </div>
+        
+        <div style="display: flex; align-items: center; justify-content: space-between; border: 1px solid #e2e8f0; border-left: 6px solid ${i}; border-radius: 8px; padding: 15px; margin-bottom: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+          <div style="display: flex; align-items: center; flex-wrap: wrap;">
+            <span style="background-color: ${i}; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700;">
               ${n.descripcion}
             </span>
             ${e}
           </div>
-          <span style="background-color: ${r}; color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: 700;">
+          <span style="background-color: ${r}; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700;">
             ${n.prioridad}
           </span>
         </div>
-
-        <p style="margin: 0 0 5px 0; font-size: 0.7rem; color: #64748b; font-weight: 700; text-transform: uppercase;">Notas de solicitud</p>
-        <div style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 8px; padding: 12px;">
-          <p style="margin: 0; font-size: 0.9rem; color: #475569;">${n.notas||"Sin notas."}</p>
+        
+        <div>
+          <p style="margin: 0 0 8px 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Notas Adicionales</p>
+          <div style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 8px; padding: 15px;">
+            <p style="margin: 0; font-size: 0.95rem; color: #475569; line-height: 1.5;">
+              ${n.notas?n.notas:'<em style="color: #cbd5e1;">Sin notas adicionales.</em>'}
+            </p>
+          </div>
         </div>
       </div>
     `;Zn.default.fire({html:o,width:"600px",showCancelButton:!0,confirmButtonText:'<span class="material-symbols-outlined" style="vertical-align: middle; font-size: 1.2rem; margin-right: 5px;">check_circle</span> Completar Ticket',confirmButtonColor:"#56212f",cancelButtonText:"Cerrar",cancelButtonColor:"#000000"}).then(s=>{s.isConfirmed&&this.abrirModalFinalizacion(n)})}abrirModalFinalizacion(n){let e,i,r=!1,o=!0;Zn.default.fire({title:`Finalizar Ticket #${n.id}`,grow:window.innerWidth<600?"column":!1,html:`
