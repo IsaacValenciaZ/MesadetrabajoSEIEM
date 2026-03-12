@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'http://200.94.77.174/soporteSEIEM/MesadetrabajoSEIEM/backend'
+  apiUrl: 'http://10.15.10.46/soporteSEIEM/MesadetrabajoSEIEM/backend'
 };
