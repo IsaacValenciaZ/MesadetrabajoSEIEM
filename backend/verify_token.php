@@ -38,7 +38,6 @@ if (!$email || strlen($token) < 4 || strlen($token) > 100) {
 }
 
 try {
-    // Usamos NOW() de la base de datos para evitar desfases de tiempo entre PHP y SQL
     $stmt = $conn->prepare("
         SELECT id
         FROM recuperar
