@@ -7,23 +7,23 @@
 }
 
 .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
     width: 260px;
-    background-color: #000000; 
+    height: 100vh;
+    background-color: #000000;
     color: #d6d1ca;
     display: flex;
     flex-direction: column;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    flex-shrink: 0;
-    box-shadow: 4px 0 10px rgba(0,0,0,0.2); 
-    z-index: 20;
+    transform: translateX(0);
     transition: transform 0.3s ease;
+    z-index: 200;
 }
 
 .sidebar.closed {
-    width: 0;
     transform: translateX(-100%);
-    opacity: 0;
-    pointer-events: none;
+
 }
 
 .sidebar-header {
@@ -175,8 +175,10 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    overflow-y: auto; 
+    overflow-y: auto;
     position: relative;
+    margin-left: 260px;
+    transition: margin-left 0.3s ease;
 }
 
 .top-bar {
