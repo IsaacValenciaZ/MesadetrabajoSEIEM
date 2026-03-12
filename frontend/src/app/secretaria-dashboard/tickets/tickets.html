@@ -136,25 +136,26 @@
       <table class="modern-table">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>HORA</th>
-            <th>SOLICITANTE</th>
-            <th>DEPARTAMENTO</th>
-            <th>EXT / TEL</th>
-            <th>CATEGORÍA</th>
-            <th>PRIORIDAD</th>
-            <th>TÉCNICO</th>
-           <th style="text-align: center;">NOTAS</th>
-            <th>ASIGNADORA</th>
+            <th class="id-col">ID</th>
+            <th class="time-col">Hora</th>
+            <th class="solicitante-col">Solicitante</th>
+            <th class="depto-col">Depto</th>
+            <th class="ext-col">Ext/Tel</th>
+            <th class="cat-col">Categoría</th>
+            <th class="prio-col">Prioridad</th>
+             <th class="tech-col">Técnico</th>
+            <th class="msg-col" style="text-align: center;">NOTAS</th>
+            <th class="asignadora-col">Asignadora</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let reporte of reportesDelDia">
             <td class="id-col">#{{ reporte.id }}</td>
             <td class="time-col">{{ reporte.fecha | date:'hh:mm a' }}</td>
-            <td class="user-col">{{ reporte.nombre_usuario }}</td>
+
+            <td class="solicitante-col">{{ reporte.nombre_usuario }}</td>
             <td class="depto-col">{{ reporte.departamento }}</td>
-            <td class="tech-col">{{ reporte.extension_tel }}</td>
+            <td class="ext-col">{{ reporte.extension_tel }}</td>
             
             <td>
                 <span class="badge-solid" [ngClass]="{

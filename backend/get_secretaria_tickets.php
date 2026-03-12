@@ -9,14 +9,6 @@ header("X-Frame-Options: SAMEORIGIN");
 
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     http_response_code(405);
-    // Devolvemos arreglo vacío en vez de objeto para no romper Angular
-    echo json_encode([]);
-    exit();
-}
-
-$secretaria_id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
-
-if (!$secretaria_id) {
     echo json_encode([]);
     exit();
 }
@@ -30,6 +22,7 @@ try {
             t.descripcion,
             t.prioridad,
             t.personal,
+            t.extension_tel,
             t.estado,
             t.fecha,
             t.fecha_limite,
@@ -39,14 +32,11 @@ try {
         FROM tickets t
         LEFT JOIN usuarios u
             ON t.secretaria_id = u.id
-        WHERE t.secretaria_id = :secretaria
         ORDER BY t.fecha DESC
     ";
 
     $stmt = $conn->prepare($query);
-    $stmt->execute([
-        ':secretaria' => $secretaria_id
-    ]);
+    $stmt->execute();
 
     $tickets = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
