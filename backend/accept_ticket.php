@@ -3,10 +3,11 @@ include_once("db_connect.php");
 
 $env = parse_ini_file(__DIR__ . '/.env');
 
+$base_url = rtrim($env['FRONTEND_URL'], '/'); 
+$url_destino = $base_url . "/personal/mis-reportes";
+
 $ticket_id = filter_input(INPUT_GET, 'ticket_id', FILTER_VALIDATE_INT);
 $tech_id = filter_input(INPUT_GET, 'tech_id', FILTER_VALIDATE_INT);
-
-$url_destino = $env['FRONTEND_URL'] . "/personal/mis-reportes";
 
 if ($ticket_id && $tech_id) {
     try {
@@ -23,7 +24,7 @@ if ($ticket_id && $tech_id) {
                 $stmtTech = $conn->prepare("UPDATE usuarios SET estado_disponibilidad = 'ocupado' WHERE id = :tech_id");
                 $stmtTech->execute([':tech_id' => $tech_id]);
 
-                $stmtTicket = $conn->prepare("UPDATE tickets SET estado = 'En espera' WHERE id = :ticket_id");
+                $stmtTicket = $conn->prepare("UPDATE tickets SET estado = 'Asignado' WHERE id = :ticket_id");
                 $stmtTicket->execute([':ticket_id' => $ticket_id]);
 
                 $conn->commit();
@@ -34,14 +35,12 @@ if ($ticket_id && $tech_id) {
         exit();
 
     } catch (PDOException $e) {
-        if ($conn->inTransaction()) {
-            $conn->rollBack();
-        }
-        http_response_code(500);
-        echo "Error interno del servidor.";
+        if ($conn->inTransaction()) { $conn->rollBack(); }
+        header("Location: " . $url_destino . "?error=server");
+        exit();
     }
 } else {
-    http_response_code(400);
-    echo "Datos inválidos.";
+    header("Location: " . $url_destino . "?error=data");
+    exit();
 }
 ?>

@@ -29,8 +29,10 @@ try {
             t.prioridad,
             t.estado,
             t.fecha,
+            t.extension_tel,
             t.fecha_limite,
             t.fecha_fin,
+            t.notas,
             e.descripcion_resolucion,
             IF(e.evidencia_archivo IS NOT NULL AND e.evidencia_archivo != '', true, false) AS tiene_foto,
             IF(e.firma_base64 IS NOT NULL AND e.firma_base64 != '', true, false) AS tiene_firma

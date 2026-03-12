@@ -69,7 +69,7 @@ if (isset($data->nombre_usuario) && isset($data->personal) && isset($data->descr
         if (isset($data->personal_email) && isset($data->personal_id)) {
             $personal_id = intval($data->personal_id);
             $backend_url = $env['BACKEND_URL'] ?? ($env['FRONTEND_URL'] ?? '') . '/backend';
-            $enlace_aceptar = rtrim($backend_url, '/') . "/accept_ticket.php?ticket_id={$ticket_id}&tech_id={$personal_id}";
+           $enlace_aceptar = $backend_url . "/accept_ticket.php?ticket_id={$ticket_id}&tech_id={$personal_id}";
 
             $mail = new PHPMailer(true);
 

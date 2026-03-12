@@ -181,6 +181,7 @@ export class TicketsComponent implements OnInit, OnDestroy {
         this.pollingTecnicos.unsubscribe();
     }
   }
+  
 
   validarSoloNumeros(evento: KeyboardEvent): boolean {
     const codigoTecla = evento.which ? evento.which : evento.keyCode;
