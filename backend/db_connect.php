@@ -35,7 +35,9 @@ try {
 } catch (PDOException $exception) {
 
     http_response_code(500);
-    exit("Error de conexión a la base de datos.");
+    echo $exception->getMessage();
+    exit;
+
 }
 
 ?>
