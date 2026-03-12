@@ -8,26 +8,21 @@ header("X-Content-Type-Options: nosniff");
 header("X-Frame-Options: SAMEORIGIN");
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-
     http_response_code(405);
-
     echo json_encode([
         "status" => false,
         "message" => "Método no permitido"
     ]);
-
     exit();
 }
 
 $data = json_decode(file_get_contents("php://input"));
 
 if (!isset($data->id) || !isset($data->estado)) {
-
     echo json_encode([
         "status" => false,
         "message" => "Datos incompletos"
     ]);
-
     exit();
 }
 
@@ -37,17 +32,14 @@ $estado = trim($data->estado);
 $estadosPermitidos = ["disponible", "ocupado"];
 
 if (!$id || !in_array($estado, $estadosPermitidos)) {
-
     echo json_encode([
         "status" => false,
         "message" => "Datos inválidos"
     ]);
-
     exit();
 }
 
 try {
-
     $sql = "
         UPDATE usuarios
         SET estado_disponibilidad = :estado
@@ -67,13 +59,10 @@ try {
     ]);
 
 } catch (PDOException $e) {
-
     http_response_code(500);
-
     echo json_encode([
         "status" => false,
         "message" => "Error interno del servidor"
     ]);
 }
-
 ?>

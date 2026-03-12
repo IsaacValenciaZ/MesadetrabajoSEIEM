@@ -1,5 +1,4 @@
 <?php
-
 include_once("cors.php");
 include_once("db_connect.php");
 
@@ -8,19 +7,12 @@ header("X-Content-Type-Options: nosniff");
 header("X-Frame-Options: SAMEORIGIN");
 
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-
     http_response_code(405);
-
-    echo json_encode([
-        "status" => false,
-        "message" => "Método no permitido"
-    ]);
-
+    echo json_encode([]);
     exit();
 }
 
 try {
-
     $query = "
         SELECT
             t.id,
@@ -33,6 +25,7 @@ try {
             t.fecha,
             t.fecha_limite,
             t.fecha_fin,
+            t.notas,
             u.nombre AS nombre_creador
         FROM tickets t
         LEFT JOIN usuarios u
@@ -41,24 +34,14 @@ try {
     ";
 
     $stmt = $conn->prepare($query);
-
     $stmt->execute();
 
     $tickets = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    echo json_encode([
-        "status" => true,
-        "data" => $tickets
-    ]);
+    echo json_encode($tickets ? $tickets : []);
 
 } catch (PDOException $e) {
-
     http_response_code(500);
-
-    echo json_encode([
-        "status" => false,
-        "message" => "Error interno del servidor"
-    ]);
+    echo json_encode([]);
 }
-
 ?>

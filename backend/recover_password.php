@@ -1,11 +1,23 @@
 <?php
+include_once("cors.php");
+include_once("db_connect.php");
+include_once("config_mail.php");
 
-include 'db_connect.php';
-include 'config_mail.php';
+header("Content-Type: application/json; charset=UTF-8");
+header("X-Content-Type-Options: nosniff");
+header("X-Frame-Options: SAMEORIGIN");
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo json_encode([
+        "status" => false,
+        "message" => "Método no permitido"
+    ]);
+    exit();
+}
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
-
 
 require 'PHPMailer/src/Exception.php';
 require 'PHPMailer/src/PHPMailer.php';
@@ -14,21 +26,28 @@ require 'PHPMailer/src/SMTP.php';
 $data = json_decode(file_get_contents("php://input"));
 
 if (!isset($data->email)) {
+    http_response_code(400);
     echo json_encode(["status" => false, "message" => "Falta el correo"]);
-    exit;
+    exit();
 }
 
-$email = $data->email;
+$email = filter_var(trim($data->email), FILTER_VALIDATE_EMAIL);
+
+if (!$email) {
+    http_response_code(400);
+    echo json_encode(["status" => false, "message" => "Correo inválido"]);
+    exit();
+}
 
 try {
     $stmt = $conn->prepare("SELECT id, nombre FROM usuarios WHERE email = :email");
-    $stmt->bindParam(':email', $email);
+    $stmt->bindParam(':email', $email, PDO::PARAM_STR);
     $stmt->execute();
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$user) {
         echo json_encode(["status" => false, "message" => "Este correo no está registrado"]);
-        exit;
+        exit();
     }
 
     try {
@@ -61,8 +80,7 @@ try {
     $mail->isHTML(true);
     $mail->CharSet = 'UTF-8';
     $mail->Subject = 'Recuperar Contraseña - Mesa de Trabajo';
-    $mail->Body    =
-                "
+    $mail->Body    = "
                 <div style='background-color: #f4f4f4; padding: 20px; font-family: sans-serif;'>
                     <div style='max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);'>
                         
@@ -96,8 +114,10 @@ try {
     echo json_encode(["status" => true, "message" => "Correo enviado correctamente. Revisa tu bandeja."]);
 
 } catch (Exception $e) {
-    echo json_encode(["status" => false, "message" => "Error al enviar correo: " . $mail->ErrorInfo]);
+    http_response_code(500);
+    echo json_encode(["status" => false, "message" => "Error al enviar correo."]);
 } catch (PDOException $e) {
-    echo json_encode(["status" => false, "message" => "Error de base de datos: " . $e->getMessage()]);
+    http_response_code(500);
+    echo json_encode(["status" => false, "message" => "Error interno del servidor"]);
 }
 ?>

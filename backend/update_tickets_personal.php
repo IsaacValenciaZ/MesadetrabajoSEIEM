@@ -10,14 +10,11 @@ header("X-Frame-Options: SAMEORIGIN");
 date_default_timezone_set('America/Mexico_City');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-
     http_response_code(405);
-
     echo json_encode([
         "status" => false,
         "message" => "Método no permitido"
     ]);
-
     exit();
 }
 
@@ -39,44 +36,36 @@ $firma = (!empty($data['firma']) && str_starts_with($data['firma'], 'data:image'
 
 $evidencia_base64 = $data['evidencia'] ?? null;
 
-$estadosPermitidos = ["En espera","Asignado","Completo","Completado"];
+$estadosPermitidos = ["En espera", "Asignado", "Completo", "Completado"];
 
 if (!$id || !in_array($estado, $estadosPermitidos)) {
-
     echo json_encode([
         "status" => false,
         "message" => "Datos inválidos"
     ]);
-
     exit();
 }
 
 if (($estado === 'Completo' || $estado === 'Completado') && empty($resolucion)) {
-
     echo json_encode([
         "status" => false,
         "message" => "La resolución es obligatoria."
     ]);
-
     exit();
 }
 
 if ($evidencia_base64 && strlen($evidencia_base64) > 5000000) {
-
     echo json_encode([
         "status" => false,
         "message" => "La evidencia es demasiado grande"
     ]);
-
     exit();
 }
 
 try {
-
     $conn->beginTransaction();
 
     if ($estado === 'En espera' || $estado === 'Asignado') {
-
         $stmt = $conn->prepare("
             UPDATE tickets
             SET estado = :estado, fecha_fin = NULL
@@ -96,13 +85,11 @@ try {
         $stmtEv->execute([':tid' => $id]);
 
         $mensaje = "Ticket reabierto correctamente.";
-
     } else {
-
         $stmtEv = $conn->prepare("
             INSERT INTO evidencias_tickets
-            (ticket_id,descripcion_resolucion,evidencia_archivo,firma_base64)
-            VALUES (:tid,:res,:evidencia,:firma)
+            (ticket_id, descripcion_resolucion, evidencia_archivo, firma_base64)
+            VALUES (:tid, :res, :evidencia, :firma)
             ON DUPLICATE KEY UPDATE
                 descripcion_resolucion = :res,
                 evidencia_archivo = :evidencia,
@@ -131,7 +118,6 @@ try {
         ]);
 
         if ($usuario_id) {
-
             $conn->prepare("
                 UPDATE usuarios
                 SET estado_disponibilidad = 'disponible'
@@ -150,13 +136,11 @@ try {
     ]);
 
 } catch (Exception $e) {
-
     if ($conn->inTransaction()) {
         $conn->rollBack();
     }
 
     http_response_code(500);
-
     echo json_encode([
         "status" => false,
         "message" => "Error interno del servidor"
@@ -164,5 +148,4 @@ try {
 }
 
 $conn = null;
-
 ?>

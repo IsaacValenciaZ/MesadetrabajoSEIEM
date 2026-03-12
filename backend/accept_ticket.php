@@ -9,19 +9,15 @@ $tech_id = filter_input(INPUT_GET, 'tech_id', FILTER_VALIDATE_INT);
 $url_destino = $env['FRONTEND_URL'] . "/personal/mis-reportes";
 
 if ($ticket_id && $tech_id) {
-
     try {
-
         $stmtCheck = $conn->prepare("SELECT estado FROM tickets WHERE id = :ticket_id");
         $stmtCheck->execute([':ticket_id' => $ticket_id]);
         $ticketInfo = $stmtCheck->fetch(PDO::FETCH_ASSOC);
 
         if ($ticketInfo) {
-
             $estadoActual = $ticketInfo['estado'];
 
             if ($estadoActual === 'En espera' || empty($estadoActual)) {
-
                 $conn->beginTransaction();
 
                 $stmtTech = $conn->prepare("UPDATE usuarios SET estado_disponibilidad = 'ocupado' WHERE id = :tech_id");
@@ -38,12 +34,12 @@ if ($ticket_id && $tech_id) {
         exit();
 
     } catch (PDOException $e) {
-
-        $conn->rollBack();
+        if ($conn->inTransaction()) {
+            $conn->rollBack();
+        }
         http_response_code(500);
         echo "Error interno del servidor.";
     }
-
 } else {
     http_response_code(400);
     echo "Datos inválidos.";

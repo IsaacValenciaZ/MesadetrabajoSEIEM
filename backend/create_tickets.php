@@ -16,18 +16,13 @@ require 'PHPMailer/src/Exception.php';
 require 'PHPMailer/src/PHPMailer.php';
 require 'PHPMailer/src/SMTP.php';
 
-$env = parse_ini_file(__DIR__ . '/.env');
+$envPath = __DIR__ . '/.env';
+$env = file_exists($envPath) ? parse_ini_file($envPath) : [];
 
 $data = json_decode(file_get_contents("php://input"));
 
-if (
-    isset($data->nombre_usuario) &&
-    isset($data->personal) &&
-    isset($data->descripcion)
-) {
-
+if (isset($data->nombre_usuario) && isset($data->personal) && isset($data->descripcion)) {
     try {
-
         $nombre_usuario = htmlspecialchars(trim($data->nombre_usuario));
         $departamento   = htmlspecialchars(trim($data->departamento ?? ''));
         $descripcion    = htmlspecialchars(trim($data->descripcion));
@@ -36,60 +31,23 @@ if (
         $notas          = htmlspecialchars(trim($data->notas ?? ''));
 
         $fecha_limite = date('Y-m-d H:i:s', strtotime('+24 hours'));
-
         $secretariaId = isset($data->secretaria_id) ? intval($data->secretaria_id) : null;
-
-        $cantidad = ($descripcion === 'Dictaminar' && isset($data->cantidad))
-            ? intval($data->cantidad)
-            : null;
-
-        $correo_tipo = ($descripcion === 'Correo' && isset($data->correo_tipo))
-            ? htmlspecialchars(trim($data->correo_tipo))
-            : null;
-
-        $soporte_tipo = ($descripcion === 'Tecnico' && isset($data->soporte_tipo))
-            ? htmlspecialchars(trim($data->soporte_tipo))
-            : null;
-
-        $extension_tel = isset($data->extension_tel)
-            ? htmlspecialchars(trim($data->extension_tel))
-            : null;
+        
+        $cantidad = ($descripcion === 'Dictaminar' && isset($data->cantidad)) ? intval($data->cantidad) : null;
+        $correo_tipo = ($descripcion === 'Correo' && isset($data->correo_tipo)) ? htmlspecialchars(trim($data->correo_tipo)) : null;
+        $soporte_tipo = ($descripcion === 'Tecnico' && isset($data->soporte_tipo)) ? htmlspecialchars(trim($data->soporte_tipo)) : null;
+        $extension_tel = isset($data->extension_tel) ? htmlspecialchars(trim($data->extension_tel)) : null;
 
         $sql = "INSERT INTO tickets (
-                    nombre_usuario,
-                    departamento,
-                    descripcion,
-                    prioridad,
-                    personal,
-                    notas,
-                    fecha_limite,
-                    fecha_fin,
-                    secretaria_id,
-                    cantidad_dicta,
-                    extension_tel,
-                    correo_tipo,
-                    soporte_tipo,
-                    estado
-                )
-                VALUES (
-                    :user,
-                    :depto,
-                    :desc,
-                    :prio,
-                    :pers,
-                    :notas,
-                    :limite,
-                    NULL,
-                    :secretariaId,
-                    :cant,
-                    :ext_tel,
-                    :correo_tipo,
-                    :soporte_tipo,
-                    :estado
+                    nombre_usuario, departamento, descripcion, prioridad, personal, 
+                    notas, fecha_limite, fecha_fin, secretaria_id, cantidad_dicta, 
+                    extension_tel, correo_tipo, soporte_tipo, estado
+                ) VALUES (
+                    :user, :depto, :desc, :prio, :pers, :notas, :limite, NULL, 
+                    :secretariaId, :cant, :ext_tel, :correo_tipo, :soporte_tipo, :estado
                 )";
 
         $stmt = $conn->prepare($sql);
-
         $stmt->execute([
             ':user'         => $nombre_usuario,
             ':depto'        => $departamento,
@@ -109,85 +67,68 @@ if (
         $ticket_id = $conn->lastInsertId();
 
         if (isset($data->personal_email) && isset($data->personal_id)) {
-
             $personal_id = intval($data->personal_id);
-
-            $backend_url = $env['BACKEND_URL'] ?? '';
-
-            $enlace_aceptar = $backend_url .
-                "/accept_ticket.php?ticket_id={$ticket_id}&tech_id={$personal_id}";
+            $backend_url = $env['BACKEND_URL'] ?? ($env['FRONTEND_URL'] ?? '') . '/backend';
+            $enlace_aceptar = rtrim($backend_url, '/') . "/accept_ticket.php?ticket_id={$ticket_id}&tech_id={$personal_id}";
 
             $mail = new PHPMailer(true);
 
             try {
-
                 $mail->isSMTP();
                 $mail->SMTPAuth   = true;
                 $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-
                 $mail->Host       = MAIL_HOST;
                 $mail->Username   = MAIL_USER;
                 $mail->Password   = MAIL_PASS;
                 $mail->Port       = MAIL_PORT;
 
                 $mail->setFrom(MAIL_USER, 'Mesa de Trabajo SEIEM');
-
                 $mail->addAddress($data->personal_email, $personal);
-
                 $mail->isHTML(true);
                 $mail->Subject = "Nuevo Ticket Asignado: #" . $ticket_id;
 
                 $mail->Body = "
-                            <div style='background-color: #f4f4f4; padding: 20px; font-family: sans-serif;'>
-                                <div style='max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);'>
-                                    
-                                    <div style='background-color: #56212f; padding: 30px; text-align: center;'>
-                                        <h1 style='color: #ffffff; margin: 0; font-size: 24px;'>Nuevo Reporte Asignado</h1>
-                                    </div>
-                                    
-                                    <div style='padding: 30px; color: #333333; line-height: 1.6;'>
-                                        <p style='font-size: 18px;'>Hola, <strong>{$data->personal}</strong>,</p>
-                                        <p>Se te ha asignado un nuevo ticket en la Mesa de Trabajo. Por favor, revisa los detalles de la solicitud a continuación:</p>
-                                        
-                                        <div style='background-color: #fdfdfd; border: 1px solid #e0e0e0; padding: 20px; border-radius: 8px; margin: 25px 0;'>
-                                            <table style='width: 100%; border-collapse: collapse; font-size: 15px;'>
-                                                <tr>
-                                                    <td style='padding: 10px 0; color: #777777; width: 35%; border-bottom: 1px solid #eeeeee;'><strong>Prioridad:</strong></td>
-                                                    <td style='padding: 10px 0; color: #56212f; font-weight: bold; border-bottom: 1px solid #eeeeee;'>{$data->prioridad}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td style='padding: 10px 0; color: #777777; border-bottom: 1px solid #eeeeee;'><strong>Solicitante:</strong></td>
-                                                    <td style='padding: 10px 0; color: #333333; font-weight: 600; border-bottom: 1px solid #eeeeee;'>{$data->nombre_usuario}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td style='padding: 10px 0; color: #777777; border-bottom: 1px solid #eeeeee;'><strong>Departamento:</strong></td>
-                                                    <td style='padding: 10px 0; color: #333333; border-bottom: 1px solid #eeeeee;'>{$data->departamento}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td style='padding: 10px 0; color: #777777;'><strong>Problema:</strong></td>
-                                                    <td style='padding: 10px 0; color: #333333;'>{$data->descripcion}</td>
-                                                </tr>
-                                            </table>
-                                        </div>
-                                        
-                                        <p style='color: #666666; font-size: 15px; text-align: center; margin-bottom: 25px;'>Para aceptar este ticket y cambiar tu estado a <strong style='color: #ba9156;'>Ocupado</strong>, haz clic en el siguiente botón:</p>
-                                        
-                                        <div style='text-align: center;'>
-                                            <a href='{$enlace_aceptar}' style='background-color: #56212f; color: #ffffff; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; font-size: 16px; box-shadow: 0 3px 6px rgba(0,0,0,0.15);'>Aceptar e ir a la Mesa de Trabajo</a>
-                                        </div>
-                                    </div>
-                                    
-                                    <div style='background-color: #f9f9f9; padding: 20px; text-align: center; color: #999999; font-size: 11px; border-top: 1px solid #eeeeee;'>
-                                        <p style='margin: 0;'>Este correo es generado automáticamente por el sistema, favor de no responder.</p>
-                                        <p style='margin: 5px 0 0 0;'>&copy; " . date('Y') . " SEIEM - Mesa de Trabajo</p>
-                                    </div>
-                                    
+                    <div style='background-color: #f4f4f4; padding: 20px; font-family: sans-serif;'>
+                        <div style='max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);'>
+                            <div style='background-color: #56212f; padding: 30px; text-align: center;'>
+                                <h1 style='color: #ffffff; margin: 0; font-size: 24px;'>Nuevo Reporte Asignado</h1>
+                            </div>
+                            <div style='padding: 30px; color: #333333; line-height: 1.6;'>
+                                <p style='font-size: 18px;'>Hola, <strong>{$data->personal}</strong>,</p>
+                                <p>Se te ha asignado un nuevo ticket en la Mesa de Trabajo. Por favor, revisa los detalles de la solicitud a continuación:</p>
+                                <div style='background-color: #fdfdfd; border: 1px solid #e0e0e0; padding: 20px; border-radius: 8px; margin: 25px 0;'>
+                                    <table style='width: 100%; border-collapse: collapse; font-size: 15px;'>
+                                        <tr>
+                                            <td style='padding: 10px 0; color: #777777; width: 35%; border-bottom: 1px solid #eeeeee;'><strong>Prioridad:</strong></td>
+                                            <td style='padding: 10px 0; color: #56212f; font-weight: bold; border-bottom: 1px solid #eeeeee;'>{$data->prioridad}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style='padding: 10px 0; color: #777777; border-bottom: 1px solid #eeeeee;'><strong>Solicitante:</strong></td>
+                                            <td style='padding: 10px 0; color: #333333; font-weight: 600; border-bottom: 1px solid #eeeeee;'>{$data->nombre_usuario}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style='padding: 10px 0; color: #777777; border-bottom: 1px solid #eeeeee;'><strong>Departamento:</strong></td>
+                                            <td style='padding: 10px 0; color: #333333; border-bottom: 1px solid #eeeeee;'>{$data->departamento}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style='padding: 10px 0; color: #777777;'><strong>Problema:</strong></td>
+                                            <td style='padding: 10px 0; color: #333333;'>{$data->descripcion}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <p style='color: #666666; font-size: 15px; text-align: center; margin-bottom: 25px;'>Para aceptar este ticket y cambiar tu estado a <strong style='color: #ba9156;'>Ocupado</strong>, haz clic en el siguiente botón:</p>
+                                <div style='text-align: center;'>
+                                    <a href='{$enlace_aceptar}' style='background-color: #56212f; color: #ffffff; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; font-size: 16px; box-shadow: 0 3px 6px rgba(0,0,0,0.15);'>Aceptar e ir a la Mesa de Trabajo</a>
                                 </div>
                             </div>
-                            ";
-
+                            <div style='background-color: #f9f9f9; padding: 20px; text-align: center; color: #999999; font-size: 11px; border-top: 1px solid #eeeeee;'>
+                                <p style='margin: 0;'>Este correo es generado automáticamente por el sistema, favor de no responder.</p>
+                                <p style='margin: 5px 0 0 0;'>&copy; " . date('Y') . " SEIEM - Mesa de Trabajo</p>
+                            </div>
+                        </div>
+                    </div>
+                ";
                 $mail->send();
-
             } catch (Exception $e) {
             }
         }
@@ -198,15 +139,12 @@ if (
         ]);
 
     } catch (PDOException $e) {
-
         echo json_encode([
             "status" => false,
             "message" => "Error al crear el ticket"
         ]);
     }
-
 } else {
-
     echo json_encode([
         "status" => false,
         "message" => "Faltan datos obligatorios"

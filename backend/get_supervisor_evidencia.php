@@ -1,5 +1,4 @@
 <?php
-
 include_once("cors.php");
 include_once("db_connect.php");
 
@@ -7,32 +6,26 @@ header("Content-Type: application/json; charset=UTF-8");
 header("X-Content-Type-Options: nosniff");
 header("X-Frame-Options: SAMEORIGIN");
 
+$default_response = [
+    "evidencia_archivo" => null,
+    "firma_base64" => null,
+    "descripcion_resolucion" => null
+];
+
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-
     http_response_code(405);
-
-    echo json_encode([
-        "status" => false,
-        "message" => "Método no permitido"
-    ]);
-
+    echo json_encode($default_response);
     exit();
 }
 
 $ticket_id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
 if (!$ticket_id) {
-
-    echo json_encode([
-        "status" => false,
-        "message" => "ID inválido o no proporcionado"
-    ]);
-
+    echo json_encode($default_response);
     exit();
 }
 
 try {
-
     $query = "
         SELECT 
             evidencia_archivo,
@@ -44,40 +37,18 @@ try {
     ";
 
     $stmt = $conn->prepare($query);
-
-    $stmt->execute([
-        ':id' => $ticket_id
-    ]);
+    $stmt->execute([':id' => $ticket_id]);
 
     $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($data) {
-
-        echo json_encode([
-            "status" => true,
-            "data" => $data
-        ]);
-
+        echo json_encode($data);
     } else {
-
-        echo json_encode([
-            "status" => true,
-            "data" => [
-                "evidencia_archivo" => null,
-                "firma_base64" => null,
-                "descripcion_resolucion" => "Sin descripción disponible"
-            ]
-        ]);
+        echo json_encode($default_response);
     }
 
 } catch (PDOException $e) {
-
     http_response_code(500);
-
-    echo json_encode([
-        "status" => false,
-        "message" => "Error interno del servidor"
-    ]);
+    echo json_encode($default_response);
 }
-
 ?>

@@ -1,6 +1,6 @@
 <?php
-
-include_once("cors.php");
+// 1. Mantenemos tu seguridad CORS y conexión
+require_once("cors.php");
 include_once("db_connect.php");
 
 header("Content-Type: application/json; charset=UTF-8");
@@ -8,31 +8,20 @@ header("X-Content-Type-Options: nosniff");
 header("X-Frame-Options: SAMEORIGIN");
 
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-
     http_response_code(405);
-
-    echo json_encode([
-        "status" => false,
-        "message" => "Método no permitido"
-    ]);
-
+    // Devolvemos arreglo vacío en vez de objeto para no romper Angular
+    echo json_encode([]);
     exit();
 }
 
 $secretaria_id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
 if (!$secretaria_id) {
-
-    echo json_encode([
-        "status" => false,
-        "message" => "ID inválido o no proporcionado"
-    ]);
-
+    echo json_encode([]);
     exit();
 }
 
 try {
-
     $query = "
         SELECT
             t.id,
@@ -45,6 +34,7 @@ try {
             t.fecha,
             t.fecha_limite,
             t.fecha_fin,
+            t.notas,
             u.nombre AS nombre_creador
         FROM tickets t
         LEFT JOIN usuarios u
@@ -54,26 +44,16 @@ try {
     ";
 
     $stmt = $conn->prepare($query);
-
     $stmt->execute([
         ':secretaria' => $secretaria_id
     ]);
 
     $tickets = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    echo json_encode([
-        "status" => true,
-        "data" => $tickets
-    ]);
+    echo json_encode($tickets ? $tickets : []);
 
 } catch (PDOException $e) {
-
     http_response_code(500);
-
-    echo json_encode([
-        "status" => false,
-        "message" => "Error interno del servidor"
-    ]);
+    echo json_encode([]);
 }
-
 ?>

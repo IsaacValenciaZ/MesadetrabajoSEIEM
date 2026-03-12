@@ -8,26 +8,21 @@ header("X-Content-Type-Options: nosniff");
 header("X-Frame-Options: SAMEORIGIN");
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-
     http_response_code(405);
-
     echo json_encode([
         "status" => false,
         "message" => "Método no permitido"
     ]);
-
     exit();
 }
 
 $data = json_decode(file_get_contents("php://input"));
 
 if (!isset($data->id) || !isset($data->nombre) || !isset($data->email) || !isset($data->rol)) {
-
     echo json_encode([
         "status" => false,
         "message" => "Faltan datos requeridos"
     ]);
-
     exit();
 }
 
@@ -36,20 +31,17 @@ $nombre = htmlspecialchars(trim($data->nombre));
 $email = filter_var(trim($data->email), FILTER_VALIDATE_EMAIL);
 $rol = trim($data->rol);
 
-$rolesPermitidos = ["admin","tecnico","usuario"];
+$rolesPermitidos = ["admin", "tecnico", "usuario"];
 
 if (!$id || !$email || !in_array($rol, $rolesPermitidos)) {
-
     echo json_encode([
         "status" => false,
         "message" => "Datos inválidos"
     ]);
-
     exit();
 }
 
 try {
-
     $check = $conn->prepare("
         SELECT id 
         FROM usuarios 
@@ -62,12 +54,10 @@ try {
     ]);
 
     if ($check->rowCount() > 0) {
-
         echo json_encode([
             "status" => false,
             "message" => "Este correo ya está registrado por otro usuario"
         ]);
-
         exit();
     }
 
@@ -78,20 +68,19 @@ try {
     ");
 
     $stmtOld->execute([':id' => $id]);
-
     $usuarioViejo = $stmtOld->fetch(PDO::FETCH_ASSOC);
 
     if (!$usuarioViejo) {
-
         echo json_encode([
             "status" => false,
             "message" => "Usuario no encontrado"
         ]);
-
         exit();
     }
 
     $nombreViejo = $usuarioViejo['nombre'];
+
+    $conn->beginTransaction();
 
     $stmt = $conn->prepare("
         UPDATE usuarios
@@ -109,7 +98,6 @@ try {
     ]);
 
     if ($nombreViejo !== $nombre) {
-
         $stmtTickets = $conn->prepare("
             UPDATE tickets
             SET personal = :nuevoNombre
@@ -122,19 +110,21 @@ try {
         ]);
     }
 
+    $conn->commit();
+
     echo json_encode([
         "status" => true,
         "message" => "Usuario actualizado correctamente"
     ]);
 
 } catch (PDOException $e) {
-
+    if ($conn->inTransaction()) {
+        $conn->rollBack();
+    }
     http_response_code(500);
-
     echo json_encode([
         "status" => false,
         "message" => "Error interno del servidor"
     ]);
 }
-
 ?>
