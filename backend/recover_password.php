@@ -1,7 +1,6 @@
 <?php
 
 include 'db_connect.php';
-
 include 'config_mail.php';
 
 use PHPMailer\PHPMailer\PHPMailer;

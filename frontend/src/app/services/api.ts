@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -9,8 +10,7 @@ export class ApiService {
   
   private http = inject(HttpClient);
   
- private baseUrl = 'http://10.15.10.46/soporteSEIEM/MesadetrabajoSEIEM/backend'; 
-  //private baseUrl = 'http://localhost/mesatrabajoBACKEND/backend/'; 
+private baseUrl = environment.apiUrl;
 
   constructor() { }
 

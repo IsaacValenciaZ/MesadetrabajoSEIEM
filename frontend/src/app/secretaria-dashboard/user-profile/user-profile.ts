@@ -1,7 +1,6 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
 import Swal from 'sweetalert2';
 import { ApiService } from '../../services/api'; 
 import { Chart, registerables } from 'chart.js';
@@ -17,11 +16,8 @@ Chart.register(...registerables);
 })
 export class UserProfileComponent implements OnInit {
 
-  private http = inject(HttpClient);
   private apiService = inject(ApiService);
   private detectorCambios = inject(ChangeDetectorRef);
-  //private apiUrl = 'http://localhost/mesatrabajoBACKEND/backend/update_profile.php'; 
- private apiUrl = 'http://10.15.10.46/soporteSEIEM/MesadetrabajoSEIEM/backend/update_profile.php'; 
 
   datosUsuario: any = { nombre: '', email: '' }; 
   nuevaContrasena = '';
@@ -53,11 +49,10 @@ export class UserProfileComponent implements OnInit {
     this.nombreMesActual = `${nombreMes.charAt(0).toUpperCase() + nombreMes.slice(1)}/${añoSistema}`;
     const dia = fechaSistema.getDate();
     this.fechaHoy= `${dia} de ${nombreMes.charAt(0).toUpperCase() + nombreMes.slice(1)} de ${añoSistema}`;
-
   }
 
 
-obtenerRendimientoHistorico(idUsuario: number) {
+  obtenerRendimientoHistorico(idUsuario: number) {
       this.apiService.getDatosDeSecretaria(idUsuario).subscribe({
           next: (respuestaServidor: any[]) => {
               this.historialTicketsCreados = respuestaServidor || [];
@@ -162,7 +157,7 @@ obtenerRendimientoHistorico(idUsuario: number) {
   }
 
 
-dibujarGraficaDona() {
+  dibujarGraficaDona() {
     const elementoLienzo = document.getElementById('createdTotalChart') as HTMLCanvasElement;
     if (!elementoLienzo) return;
     const instanciaPrevia = Chart.getChart(elementoLienzo);
@@ -241,7 +236,7 @@ dibujarGraficaDona() {
           } 
         }
     });
-}
+  }
 
   dibujarGraficaBarras() {
       const elementoLienzo = document.getElementById('createdHistoryChart') as HTMLCanvasElement;
@@ -320,7 +315,7 @@ dibujarGraficaDona() {
               }
           }
       });
-}
+  }
 
 
   calcularDistribucionAnual() {
@@ -347,8 +342,15 @@ dibujarGraficaDona() {
      if (!this.datosUsuario.nombre || !this.datosUsuario.email) {
          Swal.fire('Atención', 'Datos incompletos', 'warning'); return;
      }
-     const objetoEnvio = { id: this.datosUsuario.id, nombre: this.datosUsuario.nombre, email: this.datosUsuario.email, password: this.nuevaContrasena };
-     this.http.post(this.apiUrl, objetoEnvio).subscribe({
+     
+     const objetoEnvio = { 
+         id: this.datosUsuario.id, 
+         nombre: this.datosUsuario.nombre, 
+         email: this.datosUsuario.email, 
+         password: this.nuevaContrasena 
+     };
+     
+     this.apiService.updateProfile(objetoEnvio).subscribe({
          next: (respuestaServidor: any) => {
              if(respuestaServidor.status) {
                  const sesionAlmacenada = localStorage.getItem('usuario_actual');
@@ -359,10 +361,15 @@ dibujarGraficaDona() {
                      localStorage.setItem('usuario_actual', JSON.stringify(parseoUsuario));
                  }
                  Swal.fire({ icon: 'success', title: '¡Éxito!', text: 'Perfil actualizado', confirmButtonColor: '#56212f' }).then(() => window.location.reload());
-             } else { Swal.fire('Error', respuestaServidor.message, 'error'); }
+             } else { 
+                 Swal.fire('Error', respuestaServidor.message, 'error'); 
+             }
+         },
+         error: (err) => {
+             console.error("Error actualizando perfil:", err);
+             Swal.fire('Error', 'No se pudo conectar con el servidor', 'error');
          }
      });
   }
 
-  
 }

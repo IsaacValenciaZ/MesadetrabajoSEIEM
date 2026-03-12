@@ -1,69 +1,119 @@
 <?php
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
-header("Content-Type: application/json; charset=UTF-8");
+
+include_once("cors.php");
+include_once("db_connect.php");
+require_once "config_mail.php";
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-include_once("db_connect.php");
-require_once 'config_mail.php'; 
 require 'PHPMailer/src/Exception.php';
 require 'PHPMailer/src/PHPMailer.php';
 require 'PHPMailer/src/SMTP.php';
 
+header("Content-Type: application/json; charset=UTF-8");
+header("X-Content-Type-Options: nosniff");
+header("X-Frame-Options: SAMEORIGIN");
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+
+    http_response_code(405);
+
+    echo json_encode([
+        "status" => false,
+        "message" => "Método no permitido"
+    ]);
+
+    exit();
+}
+
 $postdata = file_get_contents("php://input");
 
-if(isset($postdata) && !empty($postdata)) {
-    $request = json_decode($postdata);
+$request = json_decode($postdata);
 
-    if(!isset($request->nombre) || !isset($request->email)) {
-         echo json_encode(['status' => false, 'message' => 'Faltan datos']);
-         exit;
-    }
+if (!isset($request->nombre) || !isset($request->email) || !isset($request->rol)) {
 
-    $nombre = trim($request->nombre);
-    $email = trim($request->email);
-    $password = trim($request->password);
-    $rol = trim($request->rol);
+    echo json_encode([
+        "status" => false,
+        "message" => "Faltan datos"
+    ]);
+
+    exit();
+}
+
+$nombre = htmlspecialchars(trim($request->nombre));
+$email = filter_var(trim($request->email), FILTER_VALIDATE_EMAIL);
+$rol = trim($request->rol);
+
+$rolesPermitidos = ["admin","tecnico","usuario"];
+
+if (!$email || !in_array($rol, $rolesPermitidos)) {
+
+    echo json_encode([
+        "status" => false,
+        "message" => "Datos inválidos"
+    ]);
+
+    exit();
+}
+
+$passwordTemp = bin2hex(random_bytes(4));
+$passwordHash = password_hash($passwordTemp, PASSWORD_DEFAULT);
+
+try {
 
     $sql_check = "SELECT email FROM usuarios WHERE email = :email";
+
     $stmt_check = $conn->prepare($sql_check);
+
     $stmt_check->bindParam(':email', $email);
+
     $stmt_check->execute();
 
     if ($stmt_check->rowCount() > 0) {
-        echo json_encode(['status' => false, 'message' => 'El correo ya está registrado']);
-    } else {
-        $password_hashed = password_hash($password, PASSWORD_DEFAULT);
 
-        $sql = "INSERT INTO usuarios (nombre, email, password, rol) VALUES (:nombre, :email, :password, :rol)";
-        $stmt = $conn->prepare($sql);
-        $stmt->bindParam(':nombre', $nombre);
-        $stmt->bindParam(':email', $email);
-        $stmt->bindParam(':password', $password_hashed); 
-        $stmt->bindParam(':rol', $rol);
+        echo json_encode([
+            "status" => false,
+            "message" => "El correo ya está registrado"
+        ]);
 
-        if ($stmt->execute()) {
-            $mail = new PHPMailer(true);
-            try {
-                $mail->isSMTP();
-                $mail->Host       = MAIL_HOST;
-                $mail->SMTPAuth   = true;
-                $mail->Username   = MAIL_USER;
-                $mail->Password   = MAIL_PASS;
-                $mail->Port       = MAIL_PORT;
-                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        exit();
+    }
 
-                $mail->setFrom(MAIL_USER, 'Servicios Educativos Integrados al Estado de México (Departamento Técnico)');
-                $mail->addAddress($email, $nombre); 
+    $sql = "
+        INSERT INTO usuarios (nombre,email,password,rol)
+        VALUES (:nombre,:email,:password,:rol)
+    ";
 
-                $mail->isHTML(true);
-                $mail->CharSet = 'UTF-8';
-                $mail->Subject = 'Bienvenido a SEIEM - Credenciales de Acceso';
+    $stmt = $conn->prepare($sql);
 
-                $mail->Body    = 
-                        "
+    $stmt->execute([
+        ':nombre' => $nombre,
+        ':email' => $email,
+        ':password' => $passwordHash,
+        ':rol' => $rol
+    ]);
+
+    $mail = new PHPMailer(true);
+
+    try {
+
+        $mail->isSMTP();
+        $mail->Host = MAIL_HOST;
+        $mail->SMTPAuth = true;
+        $mail->Username = MAIL_USER;
+        $mail->Password = MAIL_PASS;
+        $mail->Port = MAIL_PORT;
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+
+        $mail->setFrom(MAIL_USER, 'SEIEM Mesa de Trabajo');
+        $mail->addAddress($email, $nombre);
+
+        $mail->isHTML(true);
+        $mail->CharSet = 'UTF-8';
+        $mail->Subject = 'Credenciales de Acceso';
+
+        $mail->Body =  "
                         <div style='background-color: #f4f4f4; padding: 20px; font-family: sans-serif;'>
                             <div style='max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);'>
                                 <div style='background-color: #56212f; padding: 30px; text-align: center;'>
@@ -80,7 +130,7 @@ if(isset($postdata) && !empty($postdata)) {
                                     </div>
                                     <p style='color: #977e5b; font-size: 13px; font-style: italic;'>* Deberás cambiar esta contraseña en el apartado ¿Olvidaste tu Contraseña? en el Login.</p>
                                     <div style='text-align: center; margin-top: 30px;'>
-                                        <a href='http://localhost:4200/login' style='background-color: #56212f; color: #ffffff; padding: 15px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;'>Acceder al Login</a>
+                                        <a href='http://10.15.10.46/soporteSEIEM/MesadetrabajoSEIEM/mesatrabajo/login' style='background-color: #56212f; color: #ffffff; padding: 15px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;'>Acceder al Login</a>
                                         </div>
 
                                         
@@ -92,17 +142,31 @@ if(isset($postdata) && !empty($postdata)) {
                             </div>
                         </div>
                         ";
-                            //http://localhost:4200/login
-                        //'http://10.15.10.46/soporteSEIEM/MesadetrabajoSEIEM/mesatrabajo/login'
 
-                $mail->send();
-                echo json_encode(['status' => true, 'message' => 'Usuario creado y correo enviado']);
-            } catch (Exception $e) {
-                echo json_encode(['status' => true, 'message' => 'Usuario creado, pero error en envío: ' . $mail->ErrorInfo]);
-            }
-        } else {
-            echo json_encode(['status' => false, 'message' => 'Error al guardar en la base de datos']);
-        }
+
+        $mail->send();
+
+        echo json_encode([
+            "status" => true,
+            "message" => "Usuario creado y correo enviado"
+        ]);
+
+    } catch (Exception $e) {
+
+        echo json_encode([
+            "status" => true,
+            "message" => "Usuario creado (correo no enviado)"
+        ]);
     }
+
+} catch (PDOException $e) {
+
+    http_response_code(500);
+
+    echo json_encode([
+        "status" => false,
+        "message" => "Error interno del servidor"
+    ]);
 }
+
 ?>

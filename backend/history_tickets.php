@@ -1,21 +1,61 @@
 <?php
 
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
-header("Content-Type: application/json");
-
+include_once("cors.php");
 include_once("db_connect.php");
 
+header("Content-Type: application/json; charset=UTF-8");
+header("X-Content-Type-Options: nosniff");
+header("X-Frame-Options: SAMEORIGIN");
+
+if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+
+    http_response_code(405);
+
+    echo json_encode([
+        "status" => false,
+        "message" => "Método no permitido"
+    ]);
+
+    exit();
+}
+
 try {
-   
-    $sql = "SELECT * FROM tickets ORDER BY fecha DESC";
-    
+
+    $sql = "
+        SELECT
+            id,
+            nombre_usuario,
+            departamento,
+            descripcion,
+            prioridad,
+            personal,
+            estado,
+            fecha,
+            fecha_limite,
+            fecha_fin
+        FROM tickets
+        ORDER BY fecha DESC
+    ";
+
     $stmt = $conn->prepare($sql);
+
     $stmt->execute();
-    
-    echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
+
+    $tickets = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    echo json_encode([
+        "status" => true,
+        "data" => $tickets
+    ]);
 
 } catch (PDOException $e) {
-    echo json_encode([]);
+
+    http_response_code(500);
+
+    echo json_encode([
+        "status" => false,
+        "message" => "Error interno del servidor"
+    ]);
 }
+
 ?>

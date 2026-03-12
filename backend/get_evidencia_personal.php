@@ -1,26 +1,84 @@
 <?php
-header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json; charset=UTF-8");
-include_once 'db_connect.php';
 
-if (isset($_GET['id'])) {
-    $ticket_id = $_GET['id'];
-    
-    $query = "SELECT evidencia_archivo, firma_base64, descripcion_resolucion FROM evidencias_tickets WHERE ticket_id = ?";
+include_once("cors.php");
+include_once("db_connect.php");
+
+header("Content-Type: application/json; charset=UTF-8");
+header("X-Content-Type-Options: nosniff");
+header("X-Frame-Options: SAMEORIGIN");
+
+if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+
+    http_response_code(405);
+    echo json_encode([
+        "status" => false,
+        "message" => "Método no permitido"
+    ]);
+    exit();
+}
+
+if (!isset($_GET['id'])) {
+
+    http_response_code(400);
+    echo json_encode([
+        "status" => false,
+        "message" => "ID no proporcionado"
+    ]);
+    exit();
+}
+
+$ticket_id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+
+if ($ticket_id === false) {
+
+    http_response_code(400);
+    echo json_encode([
+        "status" => false,
+        "message" => "ID inválido"
+    ]);
+    exit();
+}
+
+try {
+
+    $query = "SELECT evidencia_archivo, firma_base64, descripcion_resolucion 
+              FROM evidencias_tickets 
+              WHERE ticket_id = :ticket_id";
+
     $stmt = $conn->prepare($query);
-    $stmt->execute([$ticket_id]);
+
+    $stmt->bindParam(':ticket_id', $ticket_id, PDO::PARAM_INT);
+
+    $stmt->execute();
+
     $evidencia = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if($evidencia) {
-        echo json_encode($evidencia);
-    } else {
+    if ($evidencia) {
+
         echo json_encode([
-            "evidencia_archivo" => null, 
-            "firma_base64" => null, 
-            "descripcion_resolucion" => null
+            "status" => true,
+            "data" => $evidencia
+        ]);
+
+    } else {
+
+        echo json_encode([
+            "status" => true,
+            "data" => [
+                "evidencia_archivo" => null,
+                "firma_base64" => null,
+                "descripcion_resolucion" => null
+            ]
         ]);
     }
-} else {
-    echo json_encode(["error" => "ID no proporcionado"]);
+
+} catch (PDOException $e) {
+
+    http_response_code(500);
+
+    echo json_encode([
+        "status" => false,
+        "message" => "Error interno del servidor"
+    ]);
 }
 ?>

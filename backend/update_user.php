@@ -1,79 +1,140 @@
 <?php
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Headers: Content-Type");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Content-Type: application/json");
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
+include_once("cors.php");
+include_once("db_connect.php");
+
+header("Content-Type: application/json; charset=UTF-8");
+header("X-Content-Type-Options: nosniff");
+header("X-Frame-Options: SAMEORIGIN");
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+
+    http_response_code(405);
+
+    echo json_encode([
+        "status" => false,
+        "message" => "Método no permitido"
+    ]);
+
     exit();
 }
-include 'db_connect.php'; 
 
 $data = json_decode(file_get_contents("php://input"));
 
-if(isset($data->id) && isset($data->nombre) && isset($data->email) && isset($data->rol)) {
-    try {
-      
-        $check = $conn->prepare("SELECT id FROM usuarios WHERE email = :email AND id != :id");
-        $check->bindParam(':email', $data->email);
-        $check->bindParam(':id', $data->id);
-        $check->execute();
+if (!isset($data->id) || !isset($data->nombre) || !isset($data->email) || !isset($data->rol)) {
 
-        if($check->rowCount() > 0) {
-            echo json_encode([
-                "status" => false, 
-                "message" => "Este correo electrónico ya está registrado por otro usuario."
-            ]);
-        } else {
-            
-            $queryOld = "SELECT nombre FROM usuarios WHERE id = :id";
-            $stmtOld = $conn->prepare($queryOld);
-            $stmtOld->bindParam(':id', $data->id);
-            $stmtOld->execute();
-            $usuarioViejo = $stmtOld->fetch(PDO::FETCH_ASSOC);
-            
-            $nombreViejo = $usuarioViejo['nombre'];
-            $nombreNuevo = trim($data->nombre);
+    echo json_encode([
+        "status" => false,
+        "message" => "Faltan datos requeridos"
+    ]);
 
-            $query = "UPDATE usuarios SET nombre = :nombre, email = :email, rol = :rol WHERE id = :id";
-            $stmt = $conn->prepare($query);
-            $stmt->bindParam(':nombre', $nombreNuevo);
-            $stmt->bindParam(':email', trim($data->email));
-            $stmt->bindParam(':rol', $data->rol);
-            $stmt->bindParam(':id', $data->id);
-            
-            if($stmt->execute()) {
-                
-                if ($nombreViejo !== $nombreNuevo) {
-                    $queryTickets = "UPDATE tickets SET personal = :nuevoNombre WHERE personal = :viejoNombre";
-                    $stmtTickets = $conn->prepare($queryTickets);
-                    $stmtTickets->bindParam(':nuevoNombre', $nombreNuevo);
-                    $stmtTickets->bindParam(':viejoNombre', $nombreViejo);
-                    $stmtTickets->execute();
-                }
+    exit();
+}
 
-                echo json_encode([
-                    "status" => true, 
-                    "message" => "Usuario y registros actualizados con éxito."
-                ]);
-            } else {
-                echo json_encode([
-                    "status" => false, 
-                    "message" => "No se realizaron cambios en la base de datos."
-                ]);
-            }
-        }
-    } catch(PDOException $e) {
+$id = filter_var($data->id, FILTER_VALIDATE_INT);
+$nombre = htmlspecialchars(trim($data->nombre));
+$email = filter_var(trim($data->email), FILTER_VALIDATE_EMAIL);
+$rol = trim($data->rol);
+
+$rolesPermitidos = ["admin","tecnico","usuario"];
+
+if (!$id || !$email || !in_array($rol, $rolesPermitidos)) {
+
+    echo json_encode([
+        "status" => false,
+        "message" => "Datos inválidos"
+    ]);
+
+    exit();
+}
+
+try {
+
+    $check = $conn->prepare("
+        SELECT id 
+        FROM usuarios 
+        WHERE email = :email AND id != :id
+    ");
+
+    $check->execute([
+        ':email' => $email,
+        ':id' => $id
+    ]);
+
+    if ($check->rowCount() > 0) {
+
         echo json_encode([
-            "status" => false, 
-            "message" => "Error de BD: " . $e->getMessage()
+            "status" => false,
+            "message" => "Este correo ya está registrado por otro usuario"
+        ]);
+
+        exit();
+    }
+
+    $stmtOld = $conn->prepare("
+        SELECT nombre
+        FROM usuarios
+        WHERE id = :id
+    ");
+
+    $stmtOld->execute([':id' => $id]);
+
+    $usuarioViejo = $stmtOld->fetch(PDO::FETCH_ASSOC);
+
+    if (!$usuarioViejo) {
+
+        echo json_encode([
+            "status" => false,
+            "message" => "Usuario no encontrado"
+        ]);
+
+        exit();
+    }
+
+    $nombreViejo = $usuarioViejo['nombre'];
+
+    $stmt = $conn->prepare("
+        UPDATE usuarios
+        SET nombre = :nombre,
+            email = :email,
+            rol = :rol
+        WHERE id = :id
+    ");
+
+    $stmt->execute([
+        ':nombre' => $nombre,
+        ':email' => $email,
+        ':rol' => $rol,
+        ':id' => $id
+    ]);
+
+    if ($nombreViejo !== $nombre) {
+
+        $stmtTickets = $conn->prepare("
+            UPDATE tickets
+            SET personal = :nuevoNombre
+            WHERE personal = :viejoNombre
+        ");
+
+        $stmtTickets->execute([
+            ':nuevoNombre' => $nombre,
+            ':viejoNombre' => $nombreViejo
         ]);
     }
-} else {
+
     echo json_encode([
-        "status" => false, 
-        "message" => "Faltan datos requeridos para la actualización."
+        "status" => true,
+        "message" => "Usuario actualizado correctamente"
+    ]);
+
+} catch (PDOException $e) {
+
+    http_response_code(500);
+
+    echo json_encode([
+        "status" => false,
+        "message" => "Error interno del servidor"
     ]);
 }
+
 ?>

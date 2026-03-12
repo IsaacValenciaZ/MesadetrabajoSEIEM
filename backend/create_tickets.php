@@ -1,74 +1,143 @@
 <?php
-date_default_timezone_set('America/Mexico_City'); 
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Headers: Content-Type");
-header("Content-Type: application/json");
+date_default_timezone_set('America/Mexico_City');
 
+include_once("cors.php");
 include_once("db_connect.php");
-include_once("config_mail.php"); 
+include_once("config_mail.php");
+
+header("Content-Type: application/json");
+header("X-Content-Type-Options: nosniff");
+header("X-Frame-Options: SAMEORIGIN");
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+
 require 'PHPMailer/src/Exception.php';
 require 'PHPMailer/src/PHPMailer.php';
 require 'PHPMailer/src/SMTP.php';
 
+$env = parse_ini_file(__DIR__ . '/.env');
+
 $data = json_decode(file_get_contents("php://input"));
 
-if(isset($data->nombre_usuario) && isset($data->personal) && isset($data->descripcion)) {
-    try {
-        $fecha_limite = date('Y-m-d H:i:s', strtotime('+24 hours'));
-        $secretariaId = isset($data->secretaria_id) ? $data->secretaria_id : null;
-        $cantidad = ($data->descripcion === 'Dictaminar' && isset($data->cantidad)) ? $data->cantidad : null;
-        $correo_tipo = ($data->descripcion === 'Correo' && isset($data->correo_tipo)) ? $data->correo_tipo : null;
-        $soporte_tipo = ($data->descripcion === 'Tecnico' && isset($data->soporte_tipo)) ? $data->soporte_tipo : null;
-        $extension_tel = isset($data->extension_tel) ? $data->extension_tel : null;
+if (
+    isset($data->nombre_usuario) &&
+    isset($data->personal) &&
+    isset($data->descripcion)
+) {
 
-        $sql = "INSERT INTO tickets (nombre_usuario, departamento, descripcion, prioridad, personal, notas, fecha_limite, fecha_fin, secretaria_id, cantidad_dicta, extension_tel, correo_tipo, soporte_tipo, estado) 
-                VALUES (:user, :depto, :desc, :prio, :pers, :notas, :limite, NULL, :secretariaId, :cant, :ext_tel, :correo_tipo, :soporte_tipo, :estado)";
-        
+    try {
+
+        $nombre_usuario = htmlspecialchars(trim($data->nombre_usuario));
+        $departamento   = htmlspecialchars(trim($data->departamento ?? ''));
+        $descripcion    = htmlspecialchars(trim($data->descripcion));
+        $prioridad      = htmlspecialchars(trim($data->prioridad ?? 'Normal'));
+        $personal       = htmlspecialchars(trim($data->personal));
+        $notas          = htmlspecialchars(trim($data->notas ?? ''));
+
+        $fecha_limite = date('Y-m-d H:i:s', strtotime('+24 hours'));
+
+        $secretariaId = isset($data->secretaria_id) ? intval($data->secretaria_id) : null;
+
+        $cantidad = ($descripcion === 'Dictaminar' && isset($data->cantidad))
+            ? intval($data->cantidad)
+            : null;
+
+        $correo_tipo = ($descripcion === 'Correo' && isset($data->correo_tipo))
+            ? htmlspecialchars(trim($data->correo_tipo))
+            : null;
+
+        $soporte_tipo = ($descripcion === 'Tecnico' && isset($data->soporte_tipo))
+            ? htmlspecialchars(trim($data->soporte_tipo))
+            : null;
+
+        $extension_tel = isset($data->extension_tel)
+            ? htmlspecialchars(trim($data->extension_tel))
+            : null;
+
+        $sql = "INSERT INTO tickets (
+                    nombre_usuario,
+                    departamento,
+                    descripcion,
+                    prioridad,
+                    personal,
+                    notas,
+                    fecha_limite,
+                    fecha_fin,
+                    secretaria_id,
+                    cantidad_dicta,
+                    extension_tel,
+                    correo_tipo,
+                    soporte_tipo,
+                    estado
+                )
+                VALUES (
+                    :user,
+                    :depto,
+                    :desc,
+                    :prio,
+                    :pers,
+                    :notas,
+                    :limite,
+                    NULL,
+                    :secretariaId,
+                    :cant,
+                    :ext_tel,
+                    :correo_tipo,
+                    :soporte_tipo,
+                    :estado
+                )";
+
         $stmt = $conn->prepare($sql);
-        
+
         $stmt->execute([
-            ':user'         => $data->nombre_usuario,
-            ':depto'        => $data->departamento,
-            ':desc'         => $data->descripcion,     
-            ':prio'         => $data->prioridad,
-            ':pers'         => $data->personal,
-            ':notas'        => $data->notas,
+            ':user'         => $nombre_usuario,
+            ':depto'        => $departamento,
+            ':desc'         => $descripcion,
+            ':prio'         => $prioridad,
+            ':pers'         => $personal,
+            ':notas'        => $notas,
             ':limite'       => $fecha_limite,
             ':secretariaId' => $secretariaId,
             ':cant'         => $cantidad,
             ':ext_tel'      => $extension_tel,
             ':correo_tipo'  => $correo_tipo,
             ':soporte_tipo' => $soporte_tipo,
-            ':estado'       => 'En espera' 
+            ':estado'       => 'En espera'
         ]);
 
-        $ticket_id = $conn->lastInsertId(); 
+        $ticket_id = $conn->lastInsertId();
 
-        if(isset($data->personal_email) && isset($data->personal_id)) {
-              $enlace_aceptar = "http://10.15.10.46/soporteSEIEM/MesadetrabajoSEIEM/backend/accept_ticket.php?ticket_id={$ticket_id}&tech_id={$data->personal_id}";
-              //$enlace_aceptar = "http://localhost/mesatrabajoBACKEND/backend/accept_ticket.php?ticket_id={$ticket_id}&tech_id={$data->personal_id}";
-                                            
+        if (isset($data->personal_email) && isset($data->personal_id)) {
+
+            $personal_id = intval($data->personal_id);
+
+            $backend_url = $env['BACKEND_URL'] ?? '';
+
+            $enlace_aceptar = $backend_url .
+                "/accept_ticket.php?ticket_id={$ticket_id}&tech_id={$personal_id}";
+
             $mail = new PHPMailer(true);
+
             try {
+
                 $mail->isSMTP();
                 $mail->SMTPAuth   = true;
                 $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-                $mail->Host       = MAIL_HOST; 
-                $mail->Username   = MAIL_USER; 
-                $mail->Password   = MAIL_PASS; 
+
+                $mail->Host       = MAIL_HOST;
+                $mail->Username   = MAIL_USER;
+                $mail->Password   = MAIL_PASS;
                 $mail->Port       = MAIL_PORT;
 
-                $mail->setFrom(MAIL_USER, 'Mesa de Trabajo SEIEM'); 
+                $mail->setFrom(MAIL_USER, 'Mesa de Trabajo SEIEM');
 
-                $mail->addAddress($data->personal_email, $data->personal);
+                $mail->addAddress($data->personal_email, $personal);
 
                 $mail->isHTML(true);
                 $mail->Subject = "Nuevo Ticket Asignado: #" . $ticket_id;
-                $mail->Body    = 
-                            "
+
+                $mail->Body = "
                             <div style='background-color: #f4f4f4; padding: 20px; font-family: sans-serif;'>
                                 <div style='max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);'>
                                     
@@ -78,7 +147,7 @@ if(isset($data->nombre_usuario) && isset($data->personal) && isset($data->descri
                                     
                                     <div style='padding: 30px; color: #333333; line-height: 1.6;'>
                                         <p style='font-size: 18px;'>Hola, <strong>{$data->personal}</strong>,</p>
-                                        <p>Se te ha  asignado un nuevo ticket en la Mesa de Trabajo. Por favor, revisa los detalles de la solicitud a continuación:</p>
+                                        <p>Se te ha asignado un nuevo ticket en la Mesa de Trabajo. Por favor, revisa los detalles de la solicitud a continuación:</p>
                                         
                                         <div style='background-color: #fdfdfd; border: 1px solid #e0e0e0; padding: 20px; border-radius: 8px; margin: 25px 0;'>
                                             <table style='width: 100%; border-collapse: collapse; font-size: 15px;'>
@@ -118,19 +187,29 @@ if(isset($data->nombre_usuario) && isset($data->personal) && isset($data->descri
                             ";
 
                 $mail->send();
+
             } catch (Exception $e) {
             }
         }
-    
-        echo json_encode(["status" => true, "message" => "Ticket creado correctamente"]);
-    } catch (PDOException $e) {
+
         echo json_encode([
-            "status" => false, 
-            "error" => "Error SQL Crudo: " . $e->getMessage(),
-            "detalles_estado" => "En espera"
+            "status" => true,
+            "message" => "Ticket creado correctamente"
+        ]);
+
+    } catch (PDOException $e) {
+
+        echo json_encode([
+            "status" => false,
+            "message" => "Error al crear el ticket"
         ]);
     }
+
 } else {
-    echo json_encode(["status" => false, "message" => "Faltan datos obligatorios"]);
+
+    echo json_encode([
+        "status" => false,
+        "message" => "Faltan datos obligatorios"
+    ]);
 }
 ?>

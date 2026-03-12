@@ -1,30 +1,79 @@
 <?php
-header("Access-Control-Allow-Origin: *");
+
+include_once("cors.php");
+include_once("db_connect.php");
+
 header("Content-Type: application/json; charset=UTF-8");
-include_once 'db_connect.php'; 
+header("X-Content-Type-Options: nosniff");
+header("X-Frame-Options: SAMEORIGIN");
 
-if (isset($_GET['id'])) {
-    
-    $secretaria_id = $_GET['id']; 
+if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 
-    try {
-        $query = "SELECT t.*, u.nombre as nombre_creador 
-                  FROM tickets t
-                  LEFT JOIN usuarios u ON t.secretaria_id = u.id
-                  ORDER BY t.fecha DESC"; 
-        
-        $stmt = $conn->prepare($query);
-        $stmt->execute();
-        $tickets = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    http_response_code(405);
 
-        echo json_encode($tickets);
+    echo json_encode([
+        "status" => false,
+        "message" => "Método no permitido"
+    ]);
 
-    } catch (PDOException $e) {
-        http_response_code(500);
-        echo json_encode(["error" => "Error SQL: " . $e->getMessage()]);
-    }
-
-} else {
-    echo json_encode([]);
+    exit();
 }
+
+$secretaria_id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+
+if (!$secretaria_id) {
+
+    echo json_encode([
+        "status" => false,
+        "message" => "ID inválido o no proporcionado"
+    ]);
+
+    exit();
+}
+
+try {
+
+    $query = "
+        SELECT
+            t.id,
+            t.nombre_usuario,
+            t.departamento,
+            t.descripcion,
+            t.prioridad,
+            t.personal,
+            t.estado,
+            t.fecha,
+            t.fecha_limite,
+            t.fecha_fin,
+            u.nombre AS nombre_creador
+        FROM tickets t
+        LEFT JOIN usuarios u
+            ON t.secretaria_id = u.id
+        WHERE t.secretaria_id = :secretaria
+        ORDER BY t.fecha DESC
+    ";
+
+    $stmt = $conn->prepare($query);
+
+    $stmt->execute([
+        ':secretaria' => $secretaria_id
+    ]);
+
+    $tickets = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    echo json_encode([
+        "status" => true,
+        "data" => $tickets
+    ]);
+
+} catch (PDOException $e) {
+
+    http_response_code(500);
+
+    echo json_encode([
+        "status" => false,
+        "message" => "Error interno del servidor"
+    ]);
+}
+
 ?>
