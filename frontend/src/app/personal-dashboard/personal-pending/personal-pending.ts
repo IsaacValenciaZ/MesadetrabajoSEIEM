@@ -227,8 +227,8 @@ export class PersonalPendingComponent implements OnInit, OnDestroy {
           </div>
 
           <label style="font-weight: 800; color: #56212f; font-size: 0.9rem; display: block; margin-top: 15px;">Evidencia Fotográfica (Opcional):</label>
-          <input type="file" id="evidencia-file" class="swal2-file" accept="image/jpeg, image/png, image/jpg" capture="environment" style="width: 100%; margin: 5px 0 0 0; font-size: 0.8rem; padding: 5px; border-radius: 8px;">
-        </div>
+        <input type="file" id="evidencia-file" class="swal2-file" accept="image/*   style="width: 100%; margin: 5px 0 0 0; font-size: 0.8rem; padding: 5px; border-radius: 8px;">
+   </div>
       `,
       showCancelButton: true,
       confirmButtonText: 'Guardar y Cerrar',

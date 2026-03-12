@@ -21,6 +21,7 @@ try {
             t.descripcion,
             t.prioridad,
             t.personal,
+            t.extension_tel,
             t.estado,
             t.fecha,
             t.fecha_limite,
