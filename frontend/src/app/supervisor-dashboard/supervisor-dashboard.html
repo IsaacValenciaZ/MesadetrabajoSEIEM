@@ -36,7 +36,7 @@
   </nav>
   </aside>
 
-  <div class="main-wrapper">
+  <div class="main-wrapper" [class.menu-cerrado]="!menuLateralAbierto">
     <header class="top-bar">
       <div class="flex-start">
         <button class="hamburger-btn" (click)="alternarMenuLateral()">☰</button>

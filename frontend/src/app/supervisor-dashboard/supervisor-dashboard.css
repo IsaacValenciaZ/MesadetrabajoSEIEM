@@ -180,7 +180,9 @@
     margin-left: 260px;
     transition: margin-left 0.3s ease;
 }
-
+.main-wrapper.menu-cerrado {
+    margin-left: 0;
+}
 .top-bar {
     background: #000000;
     padding: 10px 30px;  
