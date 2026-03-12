@@ -32,6 +32,7 @@ try {
             FROM tickets t
             LEFT JOIN usuarios u 
                 ON t.secretaria_id = u.id
+            WHERE DATE(t.fecha) = CURDATE()
             ORDER BY t.id DESC";
 
     $stmt = $conn->prepare($sql);

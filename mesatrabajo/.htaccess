@@ -1,8 +1,11 @@
 <IfModule mod_rewrite.c>
-  RewriteEngine On
-  RewriteBase /soporteSEIEM/MesadetrabajoSEIEM/mesatrabajo/
-  RewriteRule ^index\.html$ - [L]
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule . /soporteSEIEM/MesadetrabajoSEIEM/mesatrabajo/index.html [L]
+ RewriteEngine On
+
+# NO redirigir backend a Angular
+RewriteCond %{REQUEST_URI} !backend/
+
+# reglas normales de Angular
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.html [L]
 </IfModule>

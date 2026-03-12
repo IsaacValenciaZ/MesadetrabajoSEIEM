@@ -4,7 +4,7 @@ include_once("db_connect.php");
 $env = parse_ini_file(__DIR__ . '/.env');
 
 $base_url = rtrim($env['FRONTEND_URL'], '/'); 
-$url_destino = $base_url . "/personal/mis-reportes";
+$url_destino = $base_url . "/#/personal/mis-reportes";
 
 $ticket_id = filter_input(INPUT_GET, 'ticket_id', FILTER_VALIDATE_INT);
 $tech_id = filter_input(INPUT_GET, 'tech_id', FILTER_VALIDATE_INT);
@@ -35,7 +35,10 @@ if ($ticket_id && $tech_id) {
         exit();
 
     } catch (PDOException $e) {
-        if ($conn->inTransaction()) { $conn->rollBack(); }
+        if ($conn->inTransaction()) { 
+            $conn->rollBack(); 
+        }
+
         header("Location: " . $url_destino . "?error=server");
         exit();
     }
