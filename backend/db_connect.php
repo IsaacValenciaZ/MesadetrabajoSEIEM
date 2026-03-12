@@ -35,8 +35,8 @@ try {
 } catch (PDOException $exception) {
 
     http_response_code(500);
-    echo $exception->getMessage();
-    exit;
+   echo json_encode(["status" => false, "message" => "Error al conectar con la base de datos."]);
+    exit();
 
 }
 
