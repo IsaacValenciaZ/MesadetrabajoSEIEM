@@ -39,10 +39,15 @@ if (!isset($request->nombre) || !isset($request->email) || !isset($request->rol)
 }
 
 $nombre = htmlspecialchars(trim($request->nombre));
-$email = filter_var(trim($request->email), FILTER_VALIDATE_EMAIL);
+
+$email = trim($request->email);
+$email = strtolower($email);
+$email = preg_replace('/\s+/', '', $email);
+$email = filter_var($email, FILTER_VALIDATE_EMAIL);
+
 $rol = trim($request->rol);
 
-$rolesPermitidos = ["admin", "tecnico", "usuario"];
+$rolesPermitidos = ["admin", "personal", "usuario"];
 
 if (!$email || !in_array($rol, $rolesPermitidos)) {
     echo json_encode([
@@ -52,16 +57,22 @@ if (!$email || !in_array($rol, $rolesPermitidos)) {
     exit();
 }
 
-$passwordTemp = "123456"; 
+$passwordTemp = "123456";
 $passwordHash = password_hash($passwordTemp, PASSWORD_DEFAULT);
 
 try {
-    $sql_check = "SELECT email FROM usuarios WHERE email = :email";
-    $stmt_check = $conn->prepare($sql_check);
-    $stmt_check->bindParam(':email', $email);
-    $stmt_check->execute();
 
-    if ($stmt_check->rowCount() > 0) {
+    $stmt_check = $conn->prepare("
+        SELECT 1 FROM usuarios 
+        WHERE LOWER(email) = LOWER(:email) 
+        LIMIT 1
+    ");
+
+    $stmt_check->execute([
+        ':email' => $email
+    ]);
+
+    if ($stmt_check->fetch()) {
         echo json_encode([
             "status" => false,
             "message" => "El correo ya está registrado"
@@ -75,6 +86,7 @@ try {
     ";
 
     $stmt = $conn->prepare($sql);
+
     $stmt->execute([
         ':nombre' => $nombre,
         ':email' => $email,
@@ -87,6 +99,7 @@ try {
     $mail = new PHPMailer(true);
 
     try {
+
         $mail->isSMTP();
         $mail->Host = MAIL_HOST;
         $mail->SMTPAuth = true;
@@ -103,7 +116,13 @@ try {
         $mail->Subject = 'Credenciales de Acceso';
 
         $mail->Body = "
-            <div style='background-color: #f4f4f4; padding: 20px; font-family: sans-serif;'>
+10/03/2026
+prioridad Alta mandar correo al supervisor
+
+no cerrar ticket con foto 
+
+
+ <div style='background-color: #f4f4f4; padding: 20px; font-family: sans-serif;'>
                 <div style='max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);'>
                     <div style='background-color: #56212f; padding: 30px; text-align: center;'>
                         <h1 style='color: #ffffff; margin: 0; font-size: 24px;'>Bienvenido al Sistema de (SEIEM)</h1>
@@ -127,8 +146,7 @@ try {
                         <p style='margin: 5px 0 0 0;'>&copy; " . date('Y') . " SEIEM - Panel de Administración</p>
                     </div>
                 </div>
-            </div>
-        ";
+            </div>";
 
         $mail->send();
 
@@ -138,6 +156,7 @@ try {
         ]);
 
     } catch (Exception $e) {
+
         echo json_encode([
             "status" => true,
             "message" => "Usuario creado (correo no enviado)"
@@ -145,10 +164,12 @@ try {
     }
 
 } catch (PDOException $e) {
+
     http_response_code(500);
+
     echo json_encode([
         "status" => false,
-        "message" => "Error interno del servidor"
+        "message" => $e->getMessage()
     ]);
 }
 ?>

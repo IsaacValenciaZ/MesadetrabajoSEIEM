@@ -80,9 +80,13 @@ getSupervisorUsers(): Observable<any[]> {
   return this.http.post(`${this.baseUrl}/register.php`, usuario);
   }
 
-  cambiarPassword(email: string, newPass: string): Observable<any> {
-  return this.http.post(`${this.baseUrl}/reset_password.php`, { email, newPass });
-  }
+cambiarPassword(email: string, newPass: string, token: string): Observable<any> {
+  return this.http.post(`${this.baseUrl}/reset_password.php`, {
+    email: email,
+    newPass: newPass,
+    token: token
+  });
+}
 
   updateProfile(datosPerfil: any): Observable<any> {
   return this.http.post<any>(`${this.baseUrl}/update_profile.php`, datosPerfil);

@@ -69,7 +69,7 @@ if (isset($data->nombre_usuario) && isset($data->personal) && isset($data->descr
         if (isset($data->personal_email) && isset($data->personal_id)) {
             $personal_id = intval($data->personal_id);
 
-            $backend = "http://10.15.10.46/soporteSEIEM/MesadetrabajoSEIEM/mesatrabajo/backend";
+            $backend = "http://10.15.10.46/soporteSEIEM/MesadetrabajoSEIEM/backend";
             $enlace_aceptar = $backend . "/accept_ticket.php?ticket_id={$ticket_id}&tech_id={$personal_id}";
 
             $mail = new PHPMailer(true);

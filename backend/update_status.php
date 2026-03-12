@@ -29,7 +29,7 @@ if (!isset($data->id) || !isset($data->estado)) {
 $id = filter_var($data->id, FILTER_VALIDATE_INT);
 $estado = trim($data->estado);
 
-$estadosPermitidos = ["disponible", "ocupado"];
+$estadosPermitidos = ["disponible", "ocupado", "ausente"];
 
 if (!$id || !in_array($estado, $estadosPermitidos)) {
     echo json_encode([

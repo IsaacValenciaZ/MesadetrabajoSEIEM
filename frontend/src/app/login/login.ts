@@ -180,7 +180,11 @@ login() {
 
     Swal.fire({ title: 'Actualizando credenciales...', didOpen: () => Swal.showLoading() });
 
-    this.apiService.cambiarPassword(this.emailRecuperacion, this.nuevaPassword).subscribe({
+this.apiService.cambiarPassword(
+  this.emailRecuperacion,
+  this.nuevaPassword,
+  this.tokenIngresado
+).subscribe({
       next: (res: any) => {
         if (res.status) {
           Swal.fire({

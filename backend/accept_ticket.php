@@ -24,7 +24,7 @@ if ($ticket_id && $tech_id) {
                 $stmtTech = $conn->prepare("UPDATE usuarios SET estado_disponibilidad = 'ocupado' WHERE id = :tech_id");
                 $stmtTech->execute([':tech_id' => $tech_id]);
 
-                $stmtTicket = $conn->prepare("UPDATE tickets SET estado = 'Asignado' WHERE id = :ticket_id");
+                $stmtTicket = $conn->prepare("UPDATE tickets SET estado = 'En espera' WHERE id = :ticket_id");
                 $stmtTicket->execute([':ticket_id' => $ticket_id]);
 
                 $conn->commit();
