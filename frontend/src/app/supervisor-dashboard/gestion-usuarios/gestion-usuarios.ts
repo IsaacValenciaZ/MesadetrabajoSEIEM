@@ -138,17 +138,36 @@ export class GestionUsuariosComponent implements OnInit {
     this.countSupervisor = this.usersList.filter(u => u.rol && u.rol.trim().toLowerCase() === 'supervisor').length;
   }
 
-  guardarEdicion() {
-    if (this.selectedUser.nombre && this.selectedUser.email && this.selectedUser.rol) {
-      this.apiService.updateUser(this.selectedUser).subscribe({
-        next: (res: any) => {
-          if (res.status) {
-            Swal.fire({ icon: 'success', title: '¡Cambios Guardados!', confirmButtonColor: '#56212f' });
-            this.cargarDatos(); 
-            this.closeModals(); 
-          }
+ guardarEdicion() {
+  if (this.selectedUser.nombre && this.selectedUser.email && this.selectedUser.rol) {
+    this.apiService.updateUser(this.selectedUser).subscribe({
+      next: (res: any) => {
+
+        if (res.status) {
+
+          Swal.fire({
+            icon: 'success',
+            title: '¡Cambios Guardados!',
+            confirmButtonColor: '#56212f'
+          });
+
+          this.cargarDatos();
+          this.closeModals();
+
+        } else {
+
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: res.message
+          });
+
         }
-      });
-    }
+      },
+      error: () => {
+        Swal.fire('Error', 'No se pudo conectar con el servidor', 'error');
+      }
+    });
   }
+}
 }

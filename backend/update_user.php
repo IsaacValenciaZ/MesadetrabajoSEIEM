@@ -28,10 +28,14 @@ if (!isset($data->id) || !isset($data->nombre) || !isset($data->email) || !isset
 
 $id = filter_var($data->id, FILTER_VALIDATE_INT);
 $nombre = htmlspecialchars(trim($data->nombre));
-$email = filter_var(trim($data->email), FILTER_VALIDATE_EMAIL);
-$rol = trim($data->rol);
 
-$rolesPermitidos = ["admin", "tecnico", "usuario"];
+$email = trim($data->email);
+$email = strtolower($email);
+$email = filter_var($email, FILTER_VALIDATE_EMAIL);
+
+$rol = strtolower(trim($data->rol));
+
+$rolesPermitidos = ["personal", "secretaria", "supervisor"];
 
 if (!$id || !$email || !in_array($rol, $rolesPermitidos)) {
     echo json_encode([
@@ -42,10 +46,12 @@ if (!$id || !$email || !in_array($rol, $rolesPermitidos)) {
 }
 
 try {
+
     $check = $conn->prepare("
         SELECT id 
         FROM usuarios 
-        WHERE email = :email AND id != :id
+        WHERE LOWER(email) = LOWER(:email) AND id != :id
+        LIMIT 1
     ");
 
     $check->execute([
@@ -53,7 +59,7 @@ try {
         ':id' => $id
     ]);
 
-    if ($check->rowCount() > 0) {
+    if ($check->fetch()) {
         echo json_encode([
             "status" => false,
             "message" => "Este correo ya está registrado por otro usuario"
@@ -65,9 +71,11 @@ try {
         SELECT nombre
         FROM usuarios
         WHERE id = :id
+        LIMIT 1
     ");
 
     $stmtOld->execute([':id' => $id]);
+
     $usuarioViejo = $stmtOld->fetch(PDO::FETCH_ASSOC);
 
     if (!$usuarioViejo) {
@@ -98,6 +106,7 @@ try {
     ]);
 
     if ($nombreViejo !== $nombre) {
+
         $stmtTickets = $conn->prepare("
             UPDATE tickets
             SET personal = :nuevoNombre
@@ -118,10 +127,13 @@ try {
     ]);
 
 } catch (PDOException $e) {
+
     if ($conn->inTransaction()) {
         $conn->rollBack();
     }
+
     http_response_code(500);
+
     echo json_encode([
         "status" => false,
         "message" => "Error interno del servidor"

@@ -28,6 +28,9 @@ try {
             t.fecha_limite,
             t.fecha_fin,
             t.notas,
+            t.cantidad_dicta,
+            t.correo_tipo,
+            t.soporte_tipo,
             u.nombre AS nombre_creador
         FROM tickets t
         LEFT JOIN usuarios u
