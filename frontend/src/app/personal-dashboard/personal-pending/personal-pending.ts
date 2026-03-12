@@ -121,9 +121,10 @@ export class PersonalPendingComponent implements OnInit, OnDestroy {
     else if (ticketSeleccionado.prioridad === 'Baja') colorPrioridad = '#27ae60';
 
    const htmlModal = `
-      <div style="text-align: left; font-family: 'Segoe UI', sans-serif; color: #1e293b;">
-        <h1 style="font-size: 2.2rem; font-weight: 900; margin: 0 0 20px 0; color: #0f172a; font-style: italic;">Ticket: #${ticketSeleccionado.id}</h1>
+       <div style="text-align: left; font-family: 'Segoe UI', sans-serif; color: #1e293b;">
         
+        <h1 style="font-size: 2.2rem; font-weight: 900; margin: 0 0 20px 0; color: #0f172a; font-style: italic;">Ticket:  #${ticketSeleccionado.id}</h1>
+
         <div style="display: flex; gap: 40px; margin-bottom: 25px;">
           <div>
             <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Fecha de Solicitud</p>
@@ -134,9 +135,9 @@ export class PersonalPendingComponent implements OnInit, OnDestroy {
             <p style="margin: 4px 0 0 0; font-size: 0.95rem; font-weight: 600; color: #d97706;">${ticketSeleccionado.fecha_limite || 'N/A'}</p>
           </div>
         </div>
-        
+
         <hr style="border: 0; border-top: 1px solid #f1f5f9; margin: 20px 0;">
-        
+
         <div style="display: flex; gap: 40px; margin-bottom: 25px;">
           <div>
             <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Solicitante</p>
@@ -147,11 +148,13 @@ export class PersonalPendingComponent implements OnInit, OnDestroy {
             <p style="margin: 4px 0 0 0; font-weight: 800; font-size: 1.1rem; color: #0f172a;">${ticketSeleccionado.extension_tel || '-'}</p>
           </div>
         </div>
-        
+
         <div style="margin-bottom: 30px;">
           <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Departamento</p>
           <p style="margin: 4px 0 0 0; font-weight: 500; font-size: 1.05rem; color: #334155;">${ticketSeleccionado.departamento}</p>
         </div>
+
+        <p style="margin: 0 0 8px 0; font-size: 0.75rem; color: 64748b; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;  display: inline-block; padding: 4px 8px; border-radius: 4px;">Clasificación del Problema</p>
         
         <div style="display: flex; align-items: center; justify-content: space-between; border: 1px solid #e2e8f0; border-left: 6px solid ${colorFondoCategoria}; border-radius: 8px; padding: 15px; margin-bottom: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
           <div style="display: flex; align-items: center; flex-wrap: wrap;">
@@ -160,11 +163,12 @@ export class PersonalPendingComponent implements OnInit, OnDestroy {
             </span>
             ${detallesExtraHtml}
           </div>
-          <span style="background-color: ${colorPrioridad}; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700;">Prio:
+          <p style="color: #64748b; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700; white-space: nowrap;">Prio:</p>
+          <span style="background-color: ${colorPrioridad}; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700; white-space: nowrap;">
             ${ticketSeleccionado.prioridad}
           </span>
         </div>
-        
+
         <div>
           <p style="margin: 0 0 8px 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Notas Adicionales</p>
           <div style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 8px; padding: 15px;">
@@ -173,6 +177,7 @@ export class PersonalPendingComponent implements OnInit, OnDestroy {
             </p>
           </div>
         </div>
+
       </div>
     `;
 

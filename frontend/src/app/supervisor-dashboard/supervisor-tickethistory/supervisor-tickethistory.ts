@@ -138,20 +138,80 @@ export class SupervisorTickethistoryComponent implements OnInit {
     return new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' }).format(new Date(parseInt(y), parseInt(m) - 1));
   }
 
+  
+  private getDetallesExtra(ticket: any, color: string): string {
+    if (ticket.descripcion === 'Dictaminar' && ticket.cantidad_dicta) 
+      return `<span style="color: #cbd5e1; margin: 0 10px;">|</span> <span style="font-size: 0.9rem; font-weight: 800; color: ${color};">Equipos: ${ticket.cantidad_dicta}</span>`;
+    if (ticket.descripcion === 'Correo' && ticket.correo_tipo) 
+      return `<span style="color: #cbd5e1; margin: 0 10px;">|</span> <span style="font-size: 0.9rem; font-weight: 800; color: ${color};">Tipo: ${ticket.correo_tipo}</span>`;
+    if (ticket.descripcion === 'Tecnico' && ticket.soporte_tipo) 
+      return `<span style="color: #cbd5e1; margin: 0 10px;">|</span> <span style="font-size: 0.9rem; font-weight: 800; color: ${color};">Soporte: ${ticket.soporte_tipo}</span>`;
+    return '';
+  }
+
   abrirModalTicket(ticket: any) {
     const colorFondoCategoria = this.getProblemaColor(ticket.descripcion);
     const colorPrioridad = this.getPrioridadColor(ticket.prioridad);
-
+    const detallesExtraHtml = this.getDetallesExtra(ticket, colorFondoCategoria);
+    
     const htmlModal = `
-      <div style="text-align: left; font-family: 'Segoe UI', sans-serif;">
-        <h2 style="color: #56212f; font-weight: 800;">Ticket: #${ticket.id}</h2>
-        <p><strong>Solicitante:</strong> ${ticket.nombre_usuario}</p>
-        <p><strong>Técnico:</strong> ${ticket.personal || 'Sin asignar'}</p>
-        <div style="margin: 15px 0; padding: 10px; border-left: 5px solid ${colorFondoCategoria}; background: #f8fafc;">
-          <span style="color:${colorFondoCategoria}; font-weight:700;">${ticket.descripcion}</span> | 
-          <span style="color:${colorPrioridad}; font-weight:700;">Prioridad ${ticket.prioridad}</span>
+      <div style="text-align: left; font-family: 'Segoe UI', sans-serif; color: #1e293b;">
+        
+        <h1 style="font-size: 2.2rem; font-weight: 900; margin: 0 0 20px 0; color: #0f172a; font-style: italic;">Ticket:  #${ticket.id}</h1>
+
+        <div style="display: flex; gap: 40px; margin-bottom: 25px;">
+          <div>
+            <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Fecha de Solicitud</p>
+            <p style="margin: 4px 0 0 0; font-size: 0.95rem; font-weight: 600; color: #334155;">${ticket.fecha || 'N/A'}</p>
+          </div>
+          <div>
+            <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Vencimiento</p>
+            <p style="margin: 4px 0 0 0; font-size: 0.95rem; font-weight: 600; color: #d97706;">${ticket.fecha_limite || 'N/A'}</p>
+          </div>
         </div>
-        <p style="font-size: 0.9rem; color: #475569;"><strong>Notas:</strong><br>${ticket.notas || 'Sin notas.'}</p>
+
+        <hr style="border: 0; border-top: 1px solid #f1f5f9; margin: 20px 0;">
+
+        <div style="display: flex; gap: 40px; margin-bottom: 25px;">
+          <div>
+            <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Solicitante</p>
+            <p style="margin: 4px 0 0 0; font-weight: 800; font-size: 1.1rem; color: #0f172a;">${ticket.nombre_usuario}</p>
+          </div>
+          <div>
+            <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Ext / Teléfono</p>
+            <p style="margin: 4px 0 0 0; font-weight: 800; font-size: 1.1rem; color: #0f172a;">${ticket.extension_tel || '-'}</p>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 30px;">
+          <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Departamento</p>
+          <p style="margin: 4px 0 0 0; font-weight: 500; font-size: 1.05rem; color: #334155;">${ticket.departamento}</p>
+        </div>
+
+        <p style="margin: 0 0 8px 0; font-size: 0.75rem; color: 64748b; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;  display: inline-block; padding: 4px 8px; border-radius: 4px;">Clasificación del Problema</p>
+        
+        <div style="display: flex; align-items: center; justify-content: space-between; border: 1px solid #e2e8f0; border-left: 6px solid ${colorFondoCategoria}; border-radius: 8px; padding: 15px; margin-bottom: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+          <div style="display: flex; align-items: center; flex-wrap: wrap;">
+            <span style="background-color: ${colorFondoCategoria}; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700;">
+              ${ticket.descripcion}
+            </span>
+            ${detallesExtraHtml}
+          </div>
+          <p style="color: #64748b; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700; white-space: nowrap;">Prio:</p>
+          <span style="background-color: ${colorPrioridad}; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700; white-space: nowrap;">
+            ${ticket.prioridad}
+          </span>
+        </div>
+
+        <div>
+          <p style="margin: 0 0 8px 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Notas Adicionales</p>
+          <div style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 8px; padding: 15px;">
+            <p style="margin: 0; font-size: 0.95rem; color: #475569; line-height: 1.5;">
+              ${ticket.notas ? ticket.notas : '<em style="color: #cbd5e1;">Sin notas adicionales.</em>'}
+            </p>
+          </div>
+        </div>
+
       </div>
     `;
 

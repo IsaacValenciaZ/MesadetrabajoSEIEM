@@ -33,6 +33,9 @@ try {
             t.fecha_limite,
             t.fecha_fin,
             t.notas,
+            t.cantidad_dicta,
+            t.correo_tipo,
+            t.soporte_tipo,
             e.descripcion_resolucion,
             IF(e.evidencia_archivo IS NOT NULL AND e.evidencia_archivo != '', true, false) AS tiene_foto,
             IF(e.firma_base64 IS NOT NULL AND e.firma_base64 != '', true, false) AS tiene_firma
