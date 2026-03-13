@@ -202,6 +202,7 @@ textarea.simple-input {
     border-collapse: separate;
     border-spacing: 0;
     table-layout: fixed !important; 
+    
 }
 .modern-table th {
     text-align: left;
@@ -218,7 +219,7 @@ textarea.simple-input {
     padding: 12px 10px;
     border-bottom: 1px solid #f1f1f1;
     color: #333;
-    vertical-align: middle;
+    vertical-align: top;
     font-size: 0.85rem;
 }
 
@@ -281,11 +282,11 @@ textarea.simple-input {
 .ext-col { width: 75px; text-align: center; color: #64748b; }
 .cat-col { width: 125px; }
 .prio-col { width: 100px; }
-.tech-col { width: 110px; font-weight: 600; color: #475569; }
-.asignadora-col { width: 110px; font-weight: 600; color: #56212f; }
+.tech-col { width: 130px; font-weight: 600; color: #475569; }
+.asignadora-col { width: 130px; font-weight: 600; color: #56212f; }
 
 .msg-col { 
-    width: auto; 
+    width: 220px;
     white-space: normal; 
     font-size: 0.8rem;
     line-height: 1.4;
@@ -339,13 +340,14 @@ textarea.simple-input {
 }
 
 .notes-col {
-    width: auto !important; 
-    white-space: normal !important;
+    width: 200px;  
+    white-space: normal;
     word-break: break-word;
     line-height: 1.4;
     color: #334155;
-    padding-right: 20px !important;
+    padding-right: 15px !important;
 }
+
 .link-ver-mas {
     color: #d4a055;
     font-weight: 700;

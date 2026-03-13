@@ -2,8 +2,8 @@
   <div class="perf-window">
     <div class="perf-header">
       <div>
-        <h2>Historial de tickets por Personal Tecnico</h2>
-        <p style="color: #666; margin-top: 5px;">{{ user?.nombre }} | Periodo {{ mesSeleccionado }}</p>
+        <h2>Historial de Tickets  de: {{ user?.nombre }}</h2>
+        <p style="color: #666; margin-top: 5px;"> Periodo {{ mesSeleccionado }}</p>
       </div>
       <div class="perf-actions">
         <select class="month-select" [(ngModel)]="mesSeleccionado" (change)="procesarRendimiento()">

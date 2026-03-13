@@ -1,11 +1,11 @@
-/* Contenedor que bloquea el resto de la pantalla */
+
 .delete-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.7); /* Oscurece el fondo institucional */
+    background: rgba(0, 0, 0, 0.7); 
     display: flex;
     justify-content: center;
     align-items: center;
@@ -13,7 +13,6 @@
     backdrop-filter: blur(4px);
 }
 
-/* Tarjeta principal del modal */
 .delete-modal-card {
     background: white;
     width: 95%;
@@ -25,7 +24,6 @@
     animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-/* Icono de advertencia circular */
 .warning-icon {
     width: 70px;
     height: 70px;
@@ -63,7 +61,6 @@
     margin-bottom: 30px;
 }
 
-/* Acciones */
 .delete-footer {
     display: flex;
     gap: 15px;

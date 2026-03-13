@@ -1,0 +1,122 @@
+<div class="view-section fade-in">
+  <div class="section-header">
+    <div>
+      <h1>MÉTRICAS DE USUARIOS Y RENDIMIENTO</h1>
+      <p>Monitoreo en vivo de cumplimiento. Mes actual: <strong>{{ mesActualNombre }}</strong></p>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <span class="stat-label">Tickets Creados (Mes)</span>
+      <span class="stat-number">{{ totalTicketsMes }}</span>
+      <div class="indicator"></div>
+    </div>
+    <div class="stat-card success">
+      <span class="stat-label">Resueltos (Mes)</span>
+      <span class="stat-number green">{{ resueltosMes }}</span>
+    </div>
+    <div class="stat-card warning">
+      <span class="stat-label">Pendientes (Mes)</span>
+      <span class="stat-number orange">{{ pendientesMes }}</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Eficiencia (Mes)</span>
+      <span class="stat-number gold">{{ eficienciaMes }}%</span>
+    </div>
+  </div>
+
+  <div class="rankings-3col">
+    
+    <div class="card ranking-card">
+      <h3><span class="material-symbols-outlined icon-success">military_tech</span> Técnicos con Mayor Resolución {{ mesActualNombre }}</h3>
+      <p class="subtitle">Los Técnicos con Más Tickets Resueltos</p>
+      
+      <div class="ranking-list">
+        <div class="ranking-item top" *ngFor="let tec of topTecnicos; let i = index">
+          <div class="rank-pos">{{ i + 1 }}</div>
+          <div class="rank-info"><span class="rank-name">{{ tec.nombre }}</span></div>
+          <div class="rank-score">{{ tec.cantidad }} <span class="tag-resuelto">resueltos</span></div>
+        </div>
+        <div class="empty-state-small" *ngIf="topTecnicos.length === 0">Sin resoluciones aún.</div>
+      </div>
+    </div>
+
+    <div class="card ranking-card alert-card">
+      <h3><span class="material-symbols-outlined icon-alert">warning</span> Técnicos con Más Tickets Pendientes  {{ mesActualNombre }}</h3>
+      <p class="subtitle">Técnicos con Acumulación de Tickets</p>
+      
+      <div class="ranking-list">
+        <div class="ranking-item bad" *ngFor="let tec of tecnicosAtrasados; let i = index">
+          <div class="rank-pos danger-pos">{{ i + 1 }}</div>
+          <div class="rank-info"><span class="rank-name">{{ tec.nombre }}</span></div>
+          <div class="rank-score danger-text">{{ tec.cantidad }} <span class="tag-retraso">pendientes</span></div>
+        </div>
+        <div class="empty-state-small" *ngIf="tecnicosAtrasados.length === 0" style="color: #166534; font-weight: bold;">
+          ¡Excelente! Nadie tiene tickets atrasados.
+        </div>
+      </div>
+    </div>
+
+    <div class="card ranking-card">
+      <h3><span class="material-symbols-outlined icon-title">support_agent</span> Secretarias con Más Tickets Creados {{ mesActualNombre }}</h3>
+      <p class="subtitle">Secretarias con Más Tickets Generados</p>
+      
+      <div class="ranking-list">
+        <div class="ranking-item neutral" *ngFor="let sec of topSecretarias; let i = index">
+          <div class="rank-pos neutral-pos">{{ i + 1 }}</div>
+          <div class="rank-info"><span class="rank-name">{{ sec.nombre }}</span></div>
+          <div class="rank-score">{{ sec.cantidad }} <span class="tag-creado">creados</span></div>
+        </div>
+        <div class="empty-state-small" *ngIf="topSecretarias.length === 0">Sin reportes aún.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="card table-card">
+    <h3><span class="material-symbols-outlined icon-title">person_search</span> Análisis Profundo Individual</h3>
+    <p class="subtitle">Abre el historial completo de cualquier empleado</p>
+    
+    <div class="table-responsive" style="max-height: 400px;">
+      <table class="simple-table">
+        <thead>
+          <tr>
+            <th>NOMBRE</th>
+            <th>PERFIL</th>
+            <th style="text-align: center;">ACTIVIDAD (MES)</th>
+            <th style="text-align: center;">PENDIENTES TOTALES</th>
+            <th style="text-align: center;">ACCIÓN</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of listaPersonal">
+            <td style="font-weight: 600; color: #333;">{{ user.nombre }}</td>
+            <td>
+              <span class="badge" 
+                    [class.badge-personal]="user.rol.toLowerCase() === 'personal'"
+                    [class.badge-secretaria]="user.rol.toLowerCase() === 'secretaria'">
+                {{ user.rol }}
+              </span>
+            </td>
+            <td style="text-align: center; font-weight: 700; color: #56212f;">
+              {{ user.metric1 }} {{ user.rol.toLowerCase() === 'personal' ? 'Resueltos' : 'Solicitados' }}
+            </td>
+            <td style="text-align: center; font-weight: 700;">
+              <span [ngStyle]="{'color': user.metric2 > 3 ? '#ef4444' : '#64748b'}">{{ user.metric2 }}</span>
+            </td>
+            <td style="text-align: center;">
+              <button class="btn-view-stats" (click)="abrirRendimientoIndividual(user)">
+                <span class="material-symbols-outlined">analytics</span> Ver Historial
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<app-performance-user *ngIf="showPerformance" [user]="selectedUser" (close)="cerrarModales()"></app-performance-user>
+<app-performance-secretaria *ngIf="showSecretariaPerf" [user]="selectedUser" (close)="cerrarModales()"></app-performance-secretaria>

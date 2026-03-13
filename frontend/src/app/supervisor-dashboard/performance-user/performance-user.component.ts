@@ -57,7 +57,6 @@ export class PerformanceUserComponent implements OnInit {
   procesarRendimiento() {
     const filtrados = this.ticketsTodos.filter(t => t.fecha && t.fecha.startsWith(this.mesSeleccionado));
 
-    // USAMOS TU LÓGICA DE CÁLCULO DE PERSONAL-HISTORY
     let completos = 0; let vencidos = 0; let aTiempo = 0; let tarde = 0;
     let sumaMinutos = 0; let conteoConTiempo = 0;
     let rapido = 0; let normal = 0; let lento = 0;
@@ -101,7 +100,7 @@ export class PerformanceUserComponent implements OnInit {
 
     
     const ctx1 = document.getElementById('perfEstatus') as HTMLCanvasElement;
-    if (ctx1) this.charts.push(new Chart(ctx1, { type: 'doughnut', data: { labels: ['Ok', 'Vencido'], datasets: [{ data: [this.stats.completos, this.stats.vencidos], backgroundColor: ['#28f328', '#f32828'] }] }, options: config }));
+    if (ctx1) this.charts.push(new Chart(ctx1, { type: 'doughnut', data: { labels: ['Completado', 'Vencido'], datasets: [{ data: [this.stats.completos, this.stats.vencidos], backgroundColor: ['#28f328', '#f32828'] }] }, options: config }));
     const ctx2 = document.getElementById('perfPuntualidad') as HTMLCanvasElement;
     if (ctx2) this.charts.push(new Chart(ctx2, { type: 'pie', data: { labels: ['A tiempo', 'Tarde', 'Vencido'], datasets: [{ data: [this.stats.aTiempo, this.stats.tarde, this.stats.vencidos], backgroundColor: ['#28f328', '#f3f028', '#f32828'] }] }, options: config }));
     const ctx3 = document.getElementById('perfTiempos') as HTMLCanvasElement;

@@ -1,16 +1,20 @@
 <div class="dashboard-layout">
 
   <aside class="sidebar" [class.closed]="!menuLateralAbierto">
-    <div class="sidebar-header">
+       <div class="sidebar-header">
       <div class="brand">
-        <h2>Bienvenido {{ usuarioActual?.nombre || 'Supervisor' }}</h2>
-        <span class="role-badge">Panel Supervisor</span>
+        <h2>Bienvenido</h2>
+        <span class="user-name-header">{{ usuarioActual.nombre }}</span>
+        <span class="role-badge">Panel Técnico</span>
       </div>
     </div> 
 
    <nav class="sidebar-nav">
           <a routerLink="inicio" routerLinkActive="active" class="nav-item">
           <span class="material-symbols-outlined icon">admin_meds</span> Panel de Gestion
+      </a>
+            <a routerLink="metricas" routerLinkActive="active" class="nav-item">
+          <span class="material-symbols-outlined icon">bar_chart</span> Métricas de Usuarios
       </a>
       <a routerLink="gestion-usuarios" routerLinkActive="active" class="nav-item">
           <span class="material-symbols-outlined icon">group</span> Gestión de Usuarios
@@ -37,14 +41,18 @@
   </aside>
 
   <div class="main-wrapper" [class.menu-cerrado]="!menuLateralAbierto">
-    <header class="top-bar">
-      <div class="flex-start">
-        <button class="hamburger-btn" (click)="alternarMenuLateral()">☰</button>
 
-        <div class="header-top logos-container">
-           <img src="icons/seiem_blanco.svg" class="logo-header" alt="Logotipo Institucional SEIEM">
-        </div>
+
+    <header class="top-bar">
+      <button class="hamburger-btn" (click)="alternarMenuLateral()">
+        <span class="material-symbols-outlined">menu</span>
+      </button>
+      
+      <div class="header-center">
+        <img src="icons/seiem_blanco.svg" class="logo-header" alt="Logotipo Institucional SEIEM">
       </div>
+      
+      <div class="header-spacer"></div>
     </header>
 
     <main class="content fade-in">

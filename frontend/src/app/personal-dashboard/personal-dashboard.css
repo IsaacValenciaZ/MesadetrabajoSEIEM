@@ -196,9 +196,10 @@
     display: flex;
     flex-direction: column;
     min-width: 0;
- 
-    margin-left: 280px; 
+    margin-left: 280px;
     width: calc(100% - 280px);
+    height: 100vh;         
+    overflow-y: auto;    
     transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -207,18 +208,18 @@
     width: 100%;
 }
 
+
 .top-bar {
     background: #56212f;
-    padding: 0 25px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    padding: 0 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
     display: flex;
     justify-content: space-between;
     align-items: center;
     position: sticky;
     top: 0;
-    z-index: 10;
-    height: 70px;
-    flex-shrink: 0;
+    z-index: 1000;
+    height: 110px;
 }
 
 .hamburger-btn {
@@ -247,7 +248,7 @@
 }
 
 .logo-header {
-    height: 42px;
+    height: 55px;
     width: auto;
     object-fit: contain;
     filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
@@ -258,12 +259,12 @@
 }
 
 .content {
-    flex: 1;
-    overflow-y: auto;
+    flex: none;   
     padding: 30px;
     width: 100%;
-    box-sizing: border-box; 
+    box-sizing: border-box;
 }
+
 @media (max-width: 1024px) {
     .main-wrapper {
         margin-left: 0 !important;

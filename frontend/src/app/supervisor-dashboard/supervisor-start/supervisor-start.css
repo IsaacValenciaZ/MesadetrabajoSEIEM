@@ -3,27 +3,11 @@
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    margin-bottom: 40px;
-    border-bottom: 2px solid #56212f;
-    padding-bottom: 15px;
-}
 
-.header h1 {
-    font-size: 1.8rem;
-    color: #56212f;
-    font-weight: 800;
-    margin: 0;
-}
+.header{display:flex;justify-content:space-between;align-items:center;padding:20px 0;border-bottom:2px solid #56212f;margin-bottom:30px}
 
-.header p {
-    color: #977e5b;
-    margin: 5px 0 0 0;
-    font-weight: 500;
-}
+.header h1{font-size:1.8rem;color:#56212f;font-weight:800;margin:0}
+.header p{color:#977e5b;margin:5px 0 0;font-weight:500}
 
 
 .kpi-grid {

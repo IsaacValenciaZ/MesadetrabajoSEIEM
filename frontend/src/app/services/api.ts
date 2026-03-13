@@ -67,6 +67,10 @@ getSupervisorUsers(): Observable<any[]> {
   return this.http.get<any[]>(`${this.baseUrl}/get_supervisor_users.php`);
 }
 
+getReportMetrics(periodo: string = 'mes') {
+    return this.http.get(`${this.baseUrl}/get_report_metrics.php?periodo=${periodo}`);
+  }
+
   login(email: string, password: string): Observable<any> {
   const body = { email: email, password: password };
   return this.http.post(`${this.baseUrl}/login.php`, body);

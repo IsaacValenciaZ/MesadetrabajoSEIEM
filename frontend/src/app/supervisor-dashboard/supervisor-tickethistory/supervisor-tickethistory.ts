@@ -19,7 +19,7 @@ export class SupervisorTickethistoryComponent implements OnInit {
   private cdr = inject(ChangeDetectorRef); 
 
   listaHistorialCompleto: any[] = [];
-  listaTicketsFiltrados: any[] = []; // Restaurado
+  listaTicketsFiltrados: any[] = []; 
   gruposPorDia: { fecha: string, tickets: any[] }[] = [];
   
   tipoBusqueda: string = 'tecnico'; 

@@ -5,11 +5,14 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms'; 
 import { ApiService } from '../../services/api'; 
 import Swal from 'sweetalert2'; 
-
+import { Chart, registerables } from 'chart.js';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 import { PerformanceUserComponent } from '../performance-user/performance-user.component'; 
 import { PerformanceSecretariaComponent } from '../performance-secretaria/performance-secretaria.component'; 
 import { CreateUserComponent } from '../create-user/create-user.component'; 
 import { DeleteUserComponent } from '../delete-user/delete-user.component'; 
+Chart.register(...registerables);
 
 @Component({
   selector: 'app-gestion-usuarios',
@@ -49,6 +52,13 @@ export class GestionUsuariosComponent implements OnInit {
   
   selectedUser: any = {}; 
 
+  showReportModal: boolean = false;
+  periodoReporte: string = 'semana';
+  reportData: any = {};
+  reportChart: any;
+  priorityChart: any;
+  deptChart: any;
+
   ngOnInit() {
     this.cargarDatos();
   }
@@ -62,6 +72,125 @@ export class GestionUsuariosComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: (err) => console.error("Error cargando usuarios:", err)
+    });
+  }
+abrirModalReporte() {
+    this.showReportModal = true;
+    this.cargarDatosReporte();
+  }
+
+  cerrarModalReporte() {
+    this.showReportModal = false;
+    this.destruirGraficas();
+  }
+
+  destruirGraficas() {
+    if (this.reportChart) { this.reportChart.destroy(); this.reportChart = null; }
+    if (this.priorityChart) { this.priorityChart.destroy(); this.priorityChart = null; }
+    if (this.deptChart) { this.deptChart.destroy(); this.deptChart = null; }
+  }
+
+  cargarDatosReporte() {
+    this.apiService.getReportMetrics(this.periodoReporte).subscribe({
+      next: (res: any) => {
+        this.reportData = res;
+        this.cdr.detectChanges(); 
+
+        setTimeout(() => {
+          this.dibujarGraficas();
+        }, 300);
+      },
+      error: () => {
+        Swal.fire('Error', 'No se pudieron cargar las estadísticas', 'error');
+      }
+    });
+  }
+
+  dibujarGraficas() {
+    this.destruirGraficas();
+
+    const ctxPie = document.getElementById('reportPieChart') as HTMLCanvasElement;
+    if (ctxPie && this.reportData.categorias) {
+      this.reportChart = new Chart(ctxPie, {
+        type: 'doughnut',
+        data: {
+          labels: this.reportData.categorias.map((c: any) => c.nombre),
+          datasets: [{
+            data: this.reportData.categorias.map((c: any) => c.cantidad),
+            backgroundColor: ['#2980b9', '#d35400', '#2c3e50', '#16a085', '#6c5ce7', '#94961c'],
+            borderWidth: 1
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+      });
+    }
+
+    const ctxPrio = document.getElementById('reportPriorityChart') as HTMLCanvasElement;
+    if (ctxPrio && this.reportData.prioridades) {
+      this.priorityChart = new Chart(ctxPrio, {
+        type: 'pie',
+        data: {
+          labels: this.reportData.prioridades.map((p: any) => p.nombre),
+          datasets: [{
+            data: this.reportData.prioridades.map((p: any) => p.cantidad),
+            backgroundColor: ['#f1c40f', '#e74c3c', '#2ecc71', '#95a5a6'], 
+            borderWidth: 1
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+      });
+    }
+
+    const ctxDept = document.getElementById('reportDeptChart') as HTMLCanvasElement;
+    if (ctxDept && this.reportData.departamentos) {
+      this.deptChart = new Chart(ctxDept, {
+        type: 'bar',
+        data: {
+          labels: this.reportData.departamentos.map((d: any) => d.nombre.substring(0, 25)),
+          datasets: [{
+            label: 'Tickets',
+            data: this.reportData.departamentos.map((d: any) => d.cantidad),
+            backgroundColor: '#c3b08f',
+            borderRadius: 4
+          }]
+        },
+        options: { 
+          responsive: true, 
+          maintainAspectRatio: false, 
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+        }
+      });
+    }
+  }
+
+  descargarPDF() {
+    const data = document.getElementById('pdf-capture-area');
+    if (!data) return;
+
+    Swal.fire({
+      title: 'Generando PDF...',
+      text: 'Por favor espera',
+      allowOutsideClick: false,
+      didOpen: () => { Swal.showLoading(); }
+    });
+
+    html2canvas(data, { scale: 2, useCORS: true }).then(canvas => {
+      const imgWidth = 210; 
+      let position = 0;    
+      const pageHeight = 297;
+      
+      const imgHeight = canvas.height * imgWidth / canvas.width;
+      const contentDataURL = canvas.toDataURL('image/png');
+
+      const pdf = new jsPDF('p', 'mm', 'a4');
+
+      pdf.addImage(contentDataURL, 'PNG', 0, position, imgWidth, imgHeight);
+      pdf.save(`Reporte_SEIEM_${this.periodoReporte}.pdf`);
+      
+      Swal.close();
+    }).catch(err => {
+      Swal.fire('Error', 'No se pudo generar el PDF', 'error');
     });
   }
 

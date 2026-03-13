@@ -13,6 +13,7 @@ import { SupervisorDashboardComponent } from './supervisor-dashboard/supervisor-
 import { GestionUsuariosComponent } from './supervisor-dashboard/gestion-usuarios/gestion-usuarios';
 import { SupervisorStartComponent } from './supervisor-dashboard/supervisor-start/supervisor-start';
 import { SupervisorTickethistoryComponent } from './supervisor-dashboard/supervisor-tickethistory/supervisor-tickethistory';
+import { SupervisorMetricsComponent } from './supervisor-dashboard/supervisor-metrics/supervisor-metrics';
 
 //personal
 import { PersonalDashboardComponent } from './personal-dashboard/personal-dashboard';
@@ -47,6 +48,7 @@ export const routes: Routes = [
         children: [
              { path: '', redirectTo: 'inicio', pathMatch: 'full' }, 
              { path: 'inicio', component: SupervisorStartComponent },
+             { path: 'metricas', component: SupervisorMetricsComponent },
             { path: 'gestion-usuarios', component: GestionUsuariosComponent },
             { path: 'historial-tickets', component: SupervisorTickethistoryComponent },
 
