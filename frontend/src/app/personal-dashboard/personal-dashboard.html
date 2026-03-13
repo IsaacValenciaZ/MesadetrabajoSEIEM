@@ -1,50 +1,60 @@
-<div class="dashboard-layout">
+<div class="dashboard-layout" [class.menu-open]="menuLateralAbierto">
 
-<div 
-    class="sidebar-overlay" 
-    *ngIf="menuLateralAbierto" 
-    (click)="menuLateralAbierto = false">
-  </div>
+  <div class="sidebar-overlay" *ngIf="menuLateralAbierto" (click)="menuLateralAbierto = false"></div>
   
   <aside class="sidebar" [class.closed]="!menuLateralAbierto">
     <div class="sidebar-header">
       <div class="brand">
-        <h2>Bienvenido {{ usuarioActual.nombre }}</h2>
+        <h2>Bienvenido</h2>
+        <span class="user-name-header">{{ usuarioActual.nombre }}</span>
         <span class="role-badge">Panel Técnico</span>
       </div>
     </div> 
 
-   <nav class="sidebar-nav">
-      <a routerLink="mis-reportes" routerLinkActive="active" class="nav-item" (click)="menuLateralAbierto = false">Pendientes</a>
-      <a routerLink="historial" routerLinkActive="active" class="nav-item" (click)="menuLateralAbierto = false">Historial</a>
+    <nav class="sidebar-nav">
+      <a routerLink="mis-reportes" routerLinkActive="active" class="nav-item" (click)="menuLateralAbierto = false">
+        <span class="material-symbols-outlined icon">assignment</span>
+        Pendientes
+      </a>
+      
+      <a routerLink="historial" routerLinkActive="active" class="nav-item" (click)="menuLateralAbierto = false">
+        <span class="material-symbols-outlined icon">history</span>
+        Historial
+      </a>
 
       <div class="spacer"></div>
 
-    <div class="user-info-sidebar profile-link" routerLink="perfil" (click)="menuLateralAbierto = false">
-    <div class="avatar-circle">{{ usuarioActual.nombre?.charAt(0) }}</div>
-    <div class="user-details">
-      <span class="user-name">{{ usuarioActual.nombre }}</span>
-      <span class="user-role">Visualizar Perfil</span> 
-    </div>
-  </div>
+      <div class="user-info-sidebar profile-link" routerLink="perfil" (click)="menuLateralAbierto = false">
+        <div class="avatar-circle">{{ usuarioActual.nombre?.charAt(0) || 'U' }}</div>
+        <div class="user-details">
+          <span class="user-name">{{ usuarioActual.nombre }}</span>
+          <span class="user-role">Visualizar Perfil</span> 
+        </div>
+      </div>
 
-      <button (click)="cerrarSesion()" class="btn-logout">Cerrar Sesión</button>
-  </nav>
+      <button (click)="cerrarSesion()" class="btn-logout">
+        <span class="material-symbols-outlined icon" style="margin-right: 8px;">logout</span>
+        Cerrar Sesión
+      </button>
+    </nav>
   </aside>
 
   <div class="main-wrapper">
     <header class="top-bar">
-      <div class="flex-start">
-        <button class="hamburger-btn" (click)="alternarMenuLateral()">☰</button>
-
-        <div class="header-top logos-container">
-           <img src="icons/seiem_blanco.svg" class="logo-header" alt="Logotipo Institucional SEIEM">
-        </div>
+      <button class="hamburger-btn" (click)="alternarMenuLateral()">
+        <span class="material-symbols-outlined">menu</span>
+      </button>
+      
+      <div class="header-center">
+        <img src="icons/seiem_blanco.svg" class="logo-header" alt="Logotipo Institucional SEIEM">
       </div>
+      
+      <div class="header-spacer"></div>
     </header>
 
     <main class="content">
       <router-outlet></router-outlet>
     </main>
   </div>
+
 </div>

@@ -4,6 +4,7 @@
     margin: 0 auto;
     padding-bottom: 50px;
     padding-top: 50px; 
+    box-sizing: border-box;
 }
 
 .fade-in { 
@@ -20,6 +21,8 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
 .section-header h1 {
@@ -38,6 +41,7 @@
     display: flex; 
     gap: 15px; 
     align-items: center; 
+    flex-wrap: wrap;
 }
 
 .month-select {
@@ -51,6 +55,7 @@
     outline: none;
     min-width: 180px;
     transition: border-color 0.3s;
+    flex: 1;
 }
 
 .month-select:focus { 
@@ -172,12 +177,15 @@
     margin-bottom: 15px; 
     padding-left: 10px; 
     border-left: 4px solid #56212f;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
 .left-info { 
     display: flex; 
     align-items: center; 
     gap: 15px; 
+    flex-wrap: wrap;
 }
 
 .date-text {
@@ -199,7 +207,7 @@
 .table-card {
     background: white;
     border-radius: 12px;
-    padding: 25px;
+    padding: 20px;
     box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(0,0,0,0.03);
     overflow: hidden;
@@ -208,17 +216,19 @@
 .table-responsive { 
     width: 100%; 
     overflow-x: auto; 
+    -webkit-overflow-scrolling: touch;
 }
 
 .simple-table { 
     width: 100%; 
     border-collapse: separate; 
     border-spacing: 0; 
+    min-width: 900px; 
 }
 
 .simple-table th {
     text-align: left; 
-    padding: 15px; 
+    padding: 12px 10px; 
     color: #977e5b;
     font-weight: 700; 
     font-size: 0.85rem; 
@@ -228,7 +238,7 @@
 }
 
 .simple-table td { 
-    padding: 15px; 
+    padding: 12px 10px; 
     border-bottom: 1px solid #f1f1f1;
     color: #333; 
     vertical-align: middle; 
@@ -257,6 +267,8 @@
     justify-content: center;
     align-items: center;
     width: 100%;
+    flex-wrap: wrap;
+    gap: 5px;
 }
 
 .simple-table tr:hover { 
@@ -278,7 +290,7 @@
 .text-muted { color: #9ca3af; }
 
 .badge {
-    padding: 5px 10px; 
+    padding: 5px 8px; 
     border-radius: 6px; 
     font-size: 0.75rem;
     font-weight: 700; 
@@ -309,10 +321,10 @@
 .badge-completed { 
     background-color: #dcfce7; 
     color: #166534; 
-    padding: 5px 12px; 
+    padding: 5px 10px; 
     border-radius: 20px; 
     font-weight: 700; 
-    font-size: 0.75rem; 
+    font-size: 0.7rem; 
     border: 1px solid #bbf7d0; 
     display: inline-block; 
 }
@@ -320,10 +332,10 @@
 .badge-incomplete { 
     background-color: #ef4444; 
     color: white; 
-    padding: 5px 12px; 
+    padding: 5px 10px; 
     border-radius: 20px; 
     font-weight: 700; 
-    font-size: 0.75rem; 
+    font-size: 0.7rem; 
     border: 1px solid #b91c1c; 
     display: inline-block; 
 }
@@ -334,7 +346,7 @@
     border: 1px solid #bbf7d0; 
     padding: 4px 8px; 
     border-radius: 4px; 
-    font-size: 0.75rem; 
+    font-size: 0.7rem; 
     font-weight: 700; 
     display: inline-block; 
     white-space: nowrap;
@@ -346,7 +358,7 @@
     border: 1px solid #fecaca; 
     padding: 4px 8px; 
     border-radius: 4px; 
-    font-size: 0.75rem; 
+    font-size: 0.7rem; 
     font-weight: 700; 
     display: inline-block; 
     animation: pulse 2s infinite; 
@@ -359,7 +371,7 @@
     border: 1px solid #fee7ca; 
     padding: 4px 8px; 
     border-radius: 4px; 
-    font-size: 0.75rem; 
+    font-size: 0.7rem; 
     font-weight: 700; 
     display: inline-block; 
     white-space: nowrap;
@@ -386,6 +398,7 @@
     font-size: 0.7rem; 
     font-weight: 700; 
     display: inline-block;
+    margin-top: 2px;
 }
 
 @keyframes pulse { 
@@ -407,6 +420,7 @@
     justify-content: center;
     transition: transform 0.2s, background-color 0.2s;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    flex-shrink: 0;
 }
 
 .btn-summary:hover, .btn-stats:hover {
@@ -422,6 +436,7 @@
     font-size: 0.8rem; 
     cursor: pointer; 
     text-decoration: underline;
+    white-space: nowrap;
 }
 
 .btn-text:hover { 
@@ -438,6 +453,7 @@
     font-size: 0.8rem; 
     font-weight: 600; 
     transition: 0.2s;
+    white-space: nowrap;
 }
 
 .btn-action:hover { 
@@ -461,20 +477,9 @@
 
 .empty-state { 
     text-align: center; 
-    padding: 50px; 
+    padding: 50px 20px; 
     color: #94a3b8; 
     font-style: italic; 
-}
-
-@media (max-width: 768px) {
-    .table-responsive { 
-        overflow-x: auto; 
-    }
-    .section-header { 
-        flex-direction: column; 
-        align-items: flex-start; 
-        gap: 15px; 
-    }
 }
 
 .res-btn {
@@ -492,6 +497,7 @@
     cursor: pointer;
     font-size: 0.8rem;
     transition: 0.3s;
+    white-space: nowrap;
 }
 
 .btn-reopen:hover {
@@ -499,63 +505,73 @@
     color: white;
 }
 
-.qty-badge {
-    font-size: 0.7rem;
-    color: #666;
-    margin-top: 2px;
+@media (max-width: 900px) {
+    .calendar-popup {
+        right: auto;
+        left: 0;
+        top: 60px;
+    }
 }
 
 @media (max-width: 768px) {
     .view-section {
-        padding-top: 20px;
-        padding-bottom: 20px;
+        width: 100%;
+        padding: 20px 10px;
     }
 
     .section-header { 
         flex-direction: column; 
         align-items: flex-start; 
-        gap: 20px; 
+        gap: 15px; 
     }
 
     .filters-container {
         width: 100%;
         flex-wrap: wrap; 
-        justify-content: flex-start;
+        gap: 10px;
     }
 
     .month-select {
-        flex: 1; 
-        min-width: unset;
-    }
-
-    .calendar-popup {
-        right: auto;
-        left: 0;
-        top: 60px; 
+        flex: 1 1 100%;
     }
 
     .calendar-wrapper {
-        width: 100%;
-        max-width: 300px;
+        width: calc(100vw - 40px);
+        max-width: 320px;
+        position: fixed;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1001;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    }
+    
+    .calendar-popup::before {
+        content: '';
+        position: fixed;
+        top: 0; left: 0; width: 100vw; height: 100vh;
+        background: rgba(0,0,0,0.5);
+        z-index: 1000;
     }
 
     .date-divider {
         flex-direction: column;
         align-items: flex-start;
         gap: 15px;
+        border-left: none;
+        border-top: 4px solid #56212f;
+        padding-left: 0;
+        padding-top: 10px;
     }
 
     .left-info {
-        flex-wrap: wrap;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
     }
 
-    .table-responsive { 
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch; 
-        margin-bottom: 10px;
-    }
-    
     .table-card {
-        padding: 15px; 
+        padding: 10px; 
+        border-radius: 8px;
     }
 }
