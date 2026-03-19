@@ -32,6 +32,8 @@ export class PersonalPendingComponent implements OnInit, OnDestroy {
       this.pollingSubscription = interval(15000).subscribe(() => {
           this.ejecutarLlamadaApi(true);
       });
+
+      this.mostrarNovedades();
     }
   }
 
@@ -154,19 +156,21 @@ export class PersonalPendingComponent implements OnInit, OnDestroy {
           <p style="margin: 4px 0 0 0; font-weight: 500; font-size: 1.05rem; color: #334155;">${ticketSeleccionado.departamento}</p>
         </div>
 
-        <p style="margin: 0 0 8px 0; font-size: 0.75rem; color: 64748b; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;  display: inline-block; padding: 4px 8px; border-radius: 4px;">Clasificación del Problema</p>
+         <p style="margin: 0 0 8px 0; font-size: 0.75rem; color: 64748b; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;  display: inline-block; padding: 4px 8px; border-radius: 4px;">Clasificación del Problema</p>
         
-        <div style="display: flex; align-items: center; justify-content: space-between; border: 1px solid #e2e8f0; border-left: 6px solid ${colorFondoCategoria}; border-radius: 8px; padding: 15px; margin-bottom: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; border: 1px solid #e2e8f0; border-left: 6px solid ${colorFondoCategoria}; border-radius: 8px; padding: 15px; margin-bottom: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); gap: 10px;">
           <div style="display: flex; align-items: center; flex-wrap: wrap;">
-            <span style="background-color: ${colorFondoCategoria}; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700;">
+            <span style="background-color: ${colorFondoCategoria}; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700; display: inline-block;">
               ${ticketSeleccionado.descripcion}
             </span>
             ${detallesExtraHtml}
           </div>
-          <p style="color: #64748b; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700; white-space: nowrap;">Prio:</p>
-          <span style="background-color: ${colorPrioridad}; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700; white-space: nowrap;">
-            ${ticketSeleccionado.prioridad}
-          </span>
+          <div style="display: flex; align-items: center; gap: 5px; flex-wrap: wrap;">
+             <p style="margin:0; color: #64748b; font-size: 0.85rem; font-weight: 700;">Prio:</p>
+             <span style="background-color: ${colorPrioridad}; color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: 700; display: inline-block;">
+               ${ticketSeleccionado.prioridad}
+             </span>
+          </div>
         </div>
 
         <div>
@@ -196,247 +200,348 @@ export class PersonalPendingComponent implements OnInit, OnDestroy {
     });
   }
 
-  abrirModalFinalizacion(ticketSeleccionado: any) {
-    let canvas: HTMLCanvasElement;
-    let ctx: CanvasRenderingContext2D | null;
-    let isDrawing = false;
-    let isEmpty = true;
+abrirModalFinalizacion(ticketSeleccionado: any) {
+  let canvas: HTMLCanvasElement;
+  let ctx: CanvasRenderingContext2D | null;
+  let isDrawing = false;
+  let isEmpty = true;
+  let resizeCanvas: () => void;
 
-    Swal.fire({
-      title: `Finalizar Ticket #${ticketSeleccionado.id}`,
-      grow: window.innerWidth < 600 ? 'column' : false,
-     html: `
-        <div style="text-align: left;">
-          <p style="color: #64748b; font-size: 0.85rem; margin-bottom: 8px;">Documenta la solución y solicita la firma.</p>
+  Swal.fire({
+    title: `Finalizar Ticket #${ticketSeleccionado.id}`,
+    grow: window.innerWidth < 600 ? 'column' : false,
+    html: `
+      <div style="text-align: left;">
+        <p style="color: #64748b; font-size: 0.85rem; margin-bottom: 8px;">Documenta la solución y solicita la firma.</p>
+        
+        <label style="font-weight: 800; color: #56212f; font-size: 0.9rem;">Resolución (Obligatorio):</label>
+        <textarea id="solucion-text" class="swal2-textarea" style="margin: 5px 0 10px 0; width: 100%; height: 60px; box-sizing: border-box; font-size: 0.9rem; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1;" placeholder="Descripción..."></textarea>
+        
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 6px;">
+          <label style="font-weight: 800; color: #56212f; font-size: 0.9rem; margin: 0;">Firma del Solicitante:</label>
+          <button type="button" id="btn-limpiar-firma" style="background: none; border: none; color: #b45309; text-decoration: underline; cursor: pointer; font-size: 0.8rem; font-weight: bold; padding: 0;">Limpiar</button>
+        </div>
+
+        <label style="display: flex; align-items: center; gap: 10px; background-color: #f1f5f9; border: 1px solid #cbd5e1; padding: 10px 12px; border-radius: 6px; cursor: pointer; margin-bottom: 8px; transition: background 0.2s;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
+          <input type="checkbox" id="sin-firma" style="width: 18px; height: 18px; cursor: pointer; accent-color: #56212f; margin: 0;">
+          <span style="font-size: 0.85rem; color: #334155; font-weight: 700; user-select: none;">Cerrar ticket sin firma (Ausencia del solicitante)</span>
+        </label>
+
+        <!-- TOCA PARA FIRMAR EN MOVIL-->
+        <div id="contenedor-firma" style="border: 2px dashed #cbd5e1; border-radius: 8px; background: #fff; touch-action: none; position: relative;">
+          <canvas id="firma-canvas" style="width: 100%; height: 220px; cursor: crosshair; display: block;"></canvas>
           
-          <label style="font-weight: 800; color: #56212f; font-size: 0.9rem;">Resolución (Obligatorio):</label>
-          <textarea id="solucion-text" class="swal2-textarea" style="margin: 5px 0 10px 0; width: 100%; height: 60px; box-sizing: border-box; font-size: 0.9rem; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1;" placeholder="Descripción..."></textarea>
-          
-          <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 6px;">
-            <label style="font-weight: 800; color: #56212f; font-size: 0.9rem; margin: 0;">Firma del Solicitante:</label>
-            <button type="button" id="btn-limpiar-firma" style="background: none; border: none; color: #b45309; text-decoration: underline; cursor: pointer; font-size: 0.8rem; font-weight: bold; padding: 0;">Limpiar</button>
+          <!-- TOCA PARA FIRMAR -->
+          <div id="overlay-abrir-firma" style="
+            display: none;
+            position: absolute; inset: 0;
+            background: rgba(86,33,47,0.06);
+            border-radius: 8px;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 8px;
+            cursor: pointer;Overlay existe
+          ">
+            <span class="material-symbols-outlined" style=" color: #56212f; font-size: 2rem;">stylus_note</span>
+            <span style="font-weight: 800; color: #56212f; font-size: 0.95rem;">Toca para firmar</span>
+            <span style="font-size: 0.75rem; color: #64748b;">Se abrirá en pantalla completa</span>
           </div>
+        </div>
 
-          <label style="display: flex; align-items: center; gap: 10px; background-color: #f1f5f9; border: 1px solid #cbd5e1; padding: 10px 12px; border-radius: 6px; cursor: pointer; margin-bottom: 8px; transition: background 0.2s;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
-            <input type="checkbox" id="sin-firma" style="width: 18px; height: 18px; cursor: pointer; accent-color: #56212f; margin: 0;">
-            <span style="font-size: 0.85rem; color: #334155; font-weight: 700; user-select: none;">Cerrar ticket sin firma (Ausencia del solicitante)</span>
-          </label>
+        <!--  VISTA PREVIA TRAS CONFIRMAR -->
+        <div id="firma-preview-container" style="display: none; margin-top: 6px;">
+          <img id="firma-preview-img" style="width: 100%; border-radius: 8px; border: 1px solid #cbd5e1; max-height: 80px; object-fit: contain; background: #fff;">
+          <p style="font-size: 0.75rem; color: #27ae60; font-weight: 700; margin: 4px 0 0 0;"> <span class="material-symbols-outlined" style="  font-size: 2rem;">check</span>Firma capturada correctamente</p>
+        </div>
 
-          <div id="contenedor-firma" style="border: 2px dashed #cbd5e1; border-radius: 8px; background: #fff; touch-action: none; position: relative;">
-             <canvas id="firma-canvas" style="width: 100%; height: 220px; cursor: crosshair; display: block;"></canvas>
+        <!-- PANTALLA COMPLETA DE FIRMA  -->
+        <div id="firma-fullscreen-overlay" style="
+          display: none;
+          position: fixed; inset: 0;
+          background: #fff;
+          z-index: 99999;
+          flex-direction: column;
+        ">
+          <div style="background: #56212f; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
+            <span  style="color: #fff; font-weight: 600; font-size: 1rem;"><span class="material-symbols-outlined">stylus_note</span>Firma del Solicitante</span>
+            <div style="display: flex; gap: 8px;">
+              <button id="btn-limpiar-fullscreen" type="button" style="background: rgba(255,255,255,0.15); border: none; color: #fff; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 0.82rem;">Limpiar</button>
+              <button id="btn-cancelar-fullscreen" type="button" style="background: rgba(255,255,255,0.15); border: none; color: #fff; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 0.82rem;">Cancelar</button>
+              <button id="btn-confirmar-fullscreen" type="button" style="background: #c3b08f; border: none; color: #56212f; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 800; font-size: 0.9rem;">Confirmar ✓</button>
+            </div>
           </div>
+          <div style="flex: 1; padding: 10px; display: flex; flex-direction: column; gap: 6px; min-height: 0; overflow: hidden;">
+            <p style="color: #64748b; font-size: 0.8rem; margin: 0; text-align: center; flex-shrink: 0;">Firme en el área de abajo</p>
+            <canvas id="firma-canvas-fullscreen" style="flex: 1; width: 100%; border: 2px dashed #cbd5e1; border-radius: 8px; cursor: crosshair; touch-action: none; display: block; min-height: 0;"></canvas>
+          </div>
+        </div>
 
-          <label style="font-weight: 800; color: #56212f; font-size: 0.9rem; display: block; margin-top: 15px;">Evidencia Fotográfica (Opcional):</label>
-        <input type="file" id="evidencia-file" class="swal2-file" accept="image/*   style="width: 100%; margin: 5px 0 0 0; font-size: 0.8rem; padding: 5px; border-radius: 8px;">
-   </div>
-      `,
-      showCancelButton: true,
-      confirmButtonText: 'Guardar y Cerrar',
-      confirmButtonColor: '#56212f',
-      cancelButtonText: 'Cancelar',
-      cancelButtonColor: '#000000',
-      width: '650px',
-didOpen: () => {
+        <label style="font-weight: 800; color: #56212f; font-size: 0.9rem; display: block; margin-top: 15px;">Evidencia Fotográfica (Opcional):</label>
+        <input type="file" id="evidencia-file" class="swal2-file" accept="image/*" style="width: 100%; margin: 5px 0 0 0; font-size: 0.8rem; padding: 5px; border-radius: 8px;">
+      </div>
+    `,
+    showCancelButton: true,
+    confirmButtonText: 'Guardar y Cerrar',
+    confirmButtonColor: '#56212f',
+    cancelButtonText: 'Cancelar',
+    cancelButtonColor: '#000000',
+    width: '650px',
 
-  canvas = document.getElementById('firma-canvas') as HTMLCanvasElement;
-  ctx = canvas.getContext('2d');
-  const contenedor = document.getElementById('contenedor-firma');
+    didOpen: () => {
+      canvas = document.getElementById('firma-canvas') as HTMLCanvasElement;
+      ctx = canvas.getContext('2d');
+      const contenedor = document.getElementById('contenedor-firma');
 
-  const resizeCanvas = () => {
-    const rect = contenedor!.getBoundingClientRect();
-    const tempImg = canvas.toDataURL();
+      resizeCanvas = () => {
+        const rect = contenedor!.getBoundingClientRect();
+        const tempImg = canvas.toDataURL();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+        if (!isEmpty && ctx) {
+          const img = new Image();
+          img.onload = () => ctx?.drawImage(img, 0, 0);
+          img.src = tempImg;
+        }
+      };
+      resizeCanvas();
+      window.addEventListener('resize', resizeCanvas);
 
-    canvas.width = rect.width;
-    canvas.height = rect.height;
-
-    if (!isEmpty && ctx) {
-      const img = new Image();
-      img.onload = () => ctx?.drawImage(img, 0, 0);
-      img.src = tempImg;
-    }
-  };
-
-  resizeCanvas();
-  window.addEventListener('resize', resizeCanvas);
-
-  const getPos = (evt: any) => {
-    const rectInfo = canvas.getBoundingClientRect();
-    const clientX = evt.clientX || evt.touches[0].clientX;
-    const clientY = evt.clientY || evt.touches[0].clientY;
-
-    return {
-      x: clientX - rectInfo.left,
-      y: clientY - rectInfo.top
-    };
-  };
-
-  const startDrawing = (e: any) => {
-    if (e.type === 'touchstart') e.preventDefault();
-
-    isDrawing = true;
-    isEmpty = false;
-
-    const pos = getPos(e);
-    ctx?.beginPath();
-    ctx?.moveTo(pos.x, pos.y);
-  };
-
-  const draw = (e: any) => {
-
-    if (e.type === 'touchmove') e.preventDefault();
-    if (!isDrawing || !ctx) return;
-
-    const pos = getPos(e);
-
-    ctx.lineTo(pos.x, pos.y);
-    ctx.strokeStyle = '#000';
-    ctx.lineWidth = 3;
-    ctx.lineCap = 'round';
-    ctx.stroke();
-  };
-
-  const stopDrawing = () => {
-    isDrawing = false;
-    ctx?.closePath();
-  };
-
-  canvas.addEventListener('mousedown', startDrawing);
-  canvas.addEventListener('mousemove', draw);
-  canvas.addEventListener('mouseup', stopDrawing);
-
-  canvas.addEventListener('touchstart', startDrawing, { passive: false });
-  canvas.addEventListener('touchmove', draw, { passive: false });
-  canvas.addEventListener('touchend', stopDrawing);
-
-  document.getElementById('btn-limpiar-firma')?.addEventListener('click', () => {
-    ctx?.clearRect(0, 0, canvas.width, canvas.height);
-    isEmpty = true;
-  });
-
-
-  const checkboxSinFirma = document.getElementById('sin-firma') as HTMLInputElement;
-
-  if (checkboxSinFirma) {
-
-    checkboxSinFirma.addEventListener('change', () => {
-
-      if (checkboxSinFirma.checked) {
-
-        ctx?.clearRect(0, 0, canvas.width, canvas.height);
-        isEmpty = true;
-
-        canvas.style.pointerEvents = "none";
-        canvas.style.opacity = "0.4";
-
-      } else {
-
-        canvas.style.pointerEvents = "auto";
-        canvas.style.opacity = "1";
-
-      }
-
-    });
-
-  }
-
-},
-preConfirm: async () => {
-
-  const descripcionResolucion =
-    (document.getElementById('solucion-text') as HTMLTextAreaElement).value;
-
-  const archivoEvidenciaOriginal =
-    (document.getElementById('evidencia-file') as HTMLInputElement).files?.[0];
-
-  const sinFirma =
-    (document.getElementById('sin-firma') as HTMLInputElement)?.checked;
-
-  if (!descripcionResolucion || descripcionResolucion.trim() === '') {
-    Swal.showValidationMessage('⚠️ Debes escribir la resolución.');
-    return false;
-  }
-
-  if (!sinFirma && isEmpty) {
-    Swal.showValidationMessage('⚠️ El usuario debe firmar o marcar "Cerrar sin firma".');
-    return false;
-  }
-
-  if (archivoEvidenciaOriginal && archivoEvidenciaOriginal.size > 5000000) {
-    Swal.showValidationMessage('⚠️ La imagen es demasiado grande (máx 5MB).');
-    return false;
-  }
-
-  try {
-
-    let base64Evidencia = null;
-
-    if (archivoEvidenciaOriginal) {
-
-      Swal.showLoading();
-
-      const opciones: any = {
-        maxSizeMB: 0.08,
-        maxWidthOrHeight: 720,
-        useWebWorker: true,
-        initialQuality: 0.55
+      const getPos = (evt: any) => {
+        const r = canvas.getBoundingClientRect();
+        const clientX = evt.clientX ?? evt.touches?.[0]?.clientX ?? 0;
+        const clientY = evt.clientY ?? evt.touches?.[0]?.clientY ?? 0;
+        return { x: clientX - r.left, y: clientY - r.top };
       };
 
-      const compressed =
-        await imageCompression(archivoEvidenciaOriginal, opciones);
+      const startDrawing = (e: any) => {
+        if (e.type === 'touchstart') e.preventDefault();
+        isDrawing = true; isEmpty = false;
+        const pos = getPos(e);
+        ctx?.beginPath(); ctx?.moveTo(pos.x, pos.y);
+      };
+      const draw = (e: any) => {
+        if (e.type === 'touchmove') e.preventDefault();
+        if (!isDrawing || !ctx) return;
+        const pos = getPos(e);
+        ctx.lineTo(pos.x, pos.y);
+        ctx.strokeStyle = '#000'; ctx.lineWidth = 3; ctx.lineCap = 'round';
+        ctx.stroke();
+      };
+      const stopDrawing = () => { isDrawing = false; ctx?.closePath(); };
 
-      base64Evidencia =
-        await imageCompression.getDataUrlFromFile(compressed);
+      canvas.addEventListener('mousedown', startDrawing);
+      canvas.addEventListener('mousemove', draw);
+      canvas.addEventListener('mouseup', stopDrawing);
+      canvas.addEventListener('touchstart', startDrawing, { passive: false });
+      canvas.addEventListener('touchmove', draw, { passive: false });
+      canvas.addEventListener('touchend', stopDrawing);
 
+      document.getElementById('btn-limpiar-firma')?.addEventListener('click', () => {
+        ctx?.clearRect(0, 0, canvas.width, canvas.height);
+        isEmpty = true;
+      });
+
+      const checkboxSinFirma = document.getElementById('sin-firma') as HTMLInputElement;
+      checkboxSinFirma?.addEventListener('change', () => {
+        if (checkboxSinFirma.checked) {
+          ctx?.clearRect(0, 0, canvas.width, canvas.height);
+          isEmpty = true;
+          canvas.style.pointerEvents = 'none';
+          canvas.style.opacity = '0.4';
+          const ov = document.getElementById('overlay-abrir-firma');
+          if (ov) ov.style.display = 'none';
+        } else {
+          canvas.style.pointerEvents = 'auto';
+          canvas.style.opacity = '1';
+          if (window.innerWidth < 768) {
+            const ov = document.getElementById('overlay-abrir-firma');
+            if (ov) ov.style.display = 'flex';
+          }
+        }
+      });
+
+
+     if (window.innerWidth < 900 || 'ontouchstart' in window) {
+        const overlayAbrirFirma = document.getElementById('overlay-abrir-firma')!;
+        const firmaFullscreen = document.getElementById('firma-fullscreen-overlay')!;
+        const canvasFS = document.getElementById('firma-canvas-fullscreen') as HTMLCanvasElement;
+        const ctxFS = canvasFS?.getContext('2d');
+        const previewContainer = document.getElementById('firma-preview-container')!;
+        const previewImg = document.getElementById('firma-preview-img') as HTMLImageElement;
+        let isDrawingFS = false;
+        let isEmptyFS = true;
+
+        overlayAbrirFirma.style.display = 'flex';
+        canvas.style.pointerEvents = 'none';
+
+        document.body.appendChild(firmaFullscreen);
+
+        const abrirFullscreen = () => {
+          const cbSinFirma = document.getElementById('sin-firma') as HTMLInputElement;
+          if (cbSinFirma?.checked) return;
+
+          firmaFullscreen.style.display = 'flex';
+          document.body.style.overflow = 'hidden';
+
+          setTimeout(() => {
+            const rect = canvasFS.getBoundingClientRect();
+            canvasFS.width = rect.width;
+            canvasFS.height = rect.height;
+
+            if (!isEmpty) {
+              const dataUrl = canvas.toDataURL();
+              const img = new Image();
+              img.onload = () => ctxFS?.drawImage(img, 0, 0, canvasFS.width, canvasFS.height);
+              img.src = dataUrl;
+              isEmptyFS = false;
+            }
+          }, 50);
+        };
+
+        overlayAbrirFirma.addEventListener('click', abrirFullscreen);
+
+        const getPosFS = (evt: any) => {
+          const r = canvasFS.getBoundingClientRect();
+          const clientX = evt.clientX ?? evt.touches?.[0]?.clientX ?? 0;
+          const clientY = evt.clientY ?? evt.touches?.[0]?.clientY ?? 0;
+          return { x: clientX - r.left, y: clientY - r.top };
+        };
+
+        const startFS = (e: any) => {
+          if (e.type === 'touchstart') e.preventDefault();
+          isDrawingFS = true; isEmptyFS = false;
+          const p = getPosFS(e);
+          ctxFS?.beginPath(); ctxFS?.moveTo(p.x, p.y);
+        };
+        const drawFS = (e: any) => {
+          if (e.type === 'touchmove') e.preventDefault();
+          if (!isDrawingFS || !ctxFS) return;
+          const p = getPosFS(e);
+          ctxFS.lineTo(p.x, p.y);
+          ctxFS.strokeStyle = '#000'; ctxFS.lineWidth = 3; ctxFS.lineCap = 'round';
+          ctxFS.stroke();
+        };
+        const stopFS = () => { isDrawingFS = false; ctxFS?.closePath(); };
+
+        canvasFS.addEventListener('mousedown', startFS);
+        canvasFS.addEventListener('mousemove', drawFS);
+        canvasFS.addEventListener('mouseup', stopFS);
+        canvasFS.addEventListener('touchstart', startFS, { passive: false });
+        canvasFS.addEventListener('touchmove', drawFS, { passive: false });
+        canvasFS.addEventListener('touchend', stopFS);
+
+        document.getElementById('btn-limpiar-fullscreen')?.addEventListener('click', () => {
+          ctxFS?.clearRect(0, 0, canvasFS.width, canvasFS.height);
+          isEmptyFS = true;
+        });
+
+        document.getElementById('btn-cancelar-fullscreen')?.addEventListener('click', () => {
+          firmaFullscreen.style.display = 'none';
+          document.body.style.overflow = '';
+        });
+
+        document.getElementById('btn-confirmar-fullscreen')?.addEventListener('click', () => {
+          if (!isEmptyFS) {
+            const dataUrl = canvasFS.toDataURL();
+
+            const img = new Image();
+            img.onload = () => {
+              ctx?.clearRect(0, 0, canvas.width, canvas.height);
+              ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
+              isEmpty = false;
+            };
+            img.src = dataUrl;
+
+            previewImg.src = dataUrl;
+            previewContainer.style.display = 'block';
+
+            overlayAbrirFirma.innerHTML = `
+              <span style="font-size: 1.5rem;">✅</span>
+              <span style="font-weight: 800; color: #27ae60; font-size: 0.9rem;">Firma capturada</span>
+              <span style="font-size: 0.75rem; color: #64748b;">Toca para volver a firmar</span>
+            `;
+            overlayAbrirFirma.addEventListener('click', abrirFullscreen);
+          }
+
+          firmaFullscreen.style.display = 'none';
+          document.body.style.overflow = '';
+        });
+      }
+    },
+
+    willClose: () => {
+      document.getElementById('firma-fullscreen-overlay')?.remove();
+      document.body.style.overflow = '';
+      window.removeEventListener('resize', resizeCanvas);
+    },
+
+    preConfirm: async () => {
+      const descripcionResolucion =
+        (document.getElementById('solucion-text') as HTMLTextAreaElement).value;
+      const archivoEvidenciaOriginal =
+        (document.getElementById('evidencia-file') as HTMLInputElement).files?.[0];
+      const sinFirma =
+        (document.getElementById('sin-firma') as HTMLInputElement)?.checked;
+
+      if (!descripcionResolucion || descripcionResolucion.trim() === '') {
+        Swal.showValidationMessage('⚠️ Debes escribir la resolución.');
+        return false;
+      }
+      if (!sinFirma && isEmpty) {
+        Swal.showValidationMessage('⚠️ El usuario debe firmar o marcar "Cerrar sin firma".');
+        return false;
+      }
+      if (archivoEvidenciaOriginal && archivoEvidenciaOriginal.size > 5000000) {
+        Swal.showValidationMessage('⚠️ La imagen es demasiado grande (máx 5MB).');
+        return false;
+      }
+
+      try {
+        let base64Evidencia = null;
+        if (archivoEvidenciaOriginal) {
+          Swal.showLoading();
+          const opciones: any = {
+            maxSizeMB: 0.08, maxWidthOrHeight: 720,
+            useWebWorker: true, initialQuality: 0.55
+          };
+          const compressed = await imageCompression(archivoEvidenciaOriginal, opciones);
+          base64Evidencia = await imageCompression.getDataUrlFromFile(compressed);
+        }
+
+        let firmaFinal = null;
+        if (!sinFirma) {
+          const tempCanvas = document.createElement('canvas');
+          tempCanvas.width = canvas.width;
+          tempCanvas.height = canvas.height;
+          const tempCtx = tempCanvas.getContext('2d');
+          if (tempCtx) {
+            tempCtx.fillStyle = '#ffffff';
+            tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+            tempCtx.drawImage(canvas, 0, 0);
+          }
+          firmaFinal = tempCanvas.toDataURL('image/jpeg', 0.7);
+        }
+
+        return { resolucion: descripcionResolucion, archivo: base64Evidencia, firma: firmaFinal };
+
+      } catch (error) {
+        Swal.showValidationMessage('⚠️ Error al procesar la foto.');
+        return false;
+      }
     }
 
-    let firmaFinal = null;
-
-if (!sinFirma) {
-  const tempCanvas = document.createElement("canvas");
-  tempCanvas.width = canvas.width;
-  tempCanvas.height = canvas.height;
-
-  const tempCtx = tempCanvas.getContext("2d");
-
-  if (tempCtx) {
-    tempCtx.fillStyle = "#ffffff";
-    tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-    tempCtx.drawImage(canvas, 0, 0);
-  }
-
-  firmaFinal = tempCanvas.toDataURL("image/jpeg", 0.7);
+  }).then((resultadoModal) => {
+    if (resultadoModal.isConfirmed && resultadoModal.value) {
+      this.procesarCierreDeTicket(
+        ticketSeleccionado.id,
+        resultadoModal.value.resolucion,
+        resultadoModal.value.firma,
+        resultadoModal.value.archivo
+      );
+    }
+  });
 }
-
-return {
-  resolucion: descripcionResolucion,
-  archivo: base64Evidencia,
-  firma: firmaFinal
-};
-
-  } catch (error) {
-
-    Swal.showValidationMessage('⚠️ Error al procesar la foto.');
-    return false;
-
-  }
-
-}
-    
-}).then((resultadoModal) => {
-
-  if (resultadoModal.isConfirmed && resultadoModal.value) {
-
-    this.procesarCierreDeTicket(
-      ticketSeleccionado.id,
-      resultadoModal.value.resolucion,
-      resultadoModal.value.firma,
-      resultadoModal.value.archivo
-    );
-
-  }
-
-});
-} 
 procesarCierreDeTicket(
   idTicket: number,
   resolucionTexto: string,
@@ -487,4 +592,76 @@ procesarCierreDeTicket(
       }
     });
   }
+
+  mostrarNovedades() {
+  const claveVista = 'novedad_firma_v3';
+
+  if (localStorage.getItem(claveVista)) return; 
+
+  Swal.fire({
+    title: '',
+html: `
+  <div style="text-align: left; font-family: 'Segoe UI', sans-serif; padding: 4px 0;">
+
+    <!-- Header -->
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+        <span class="material-symbols-outlined" style="color: #56212f; font-size: 1.4rem;">new_releases</span>
+        <div>
+          <p style="margin: 0; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8;">Actualización</p>
+          <h3 style="margin: 0; font-size: 1rem; font-weight: 700; color: #0f172a;">Nueva función de firma</h3>
+        </div>
+      </div>
+
+      <!-- Descripción -->
+      <p style="margin: 0 0 16px 0; font-size: 0.8rem; color: #64748b; line-height: 1.5; padding-left: 2px;">
+        Al momento de <strong style="color: #1e293b;">cerrar un ticket</strong>, ahora puedes capturar la firma del solicitante de forma más cómoda.
+      </p>
+
+    <!-- Items -->
+    <div style="display: flex; flex-direction: column; gap: 1px; border-radius: 10px; overflow: hidden; border: 1px solid #f1f5f9; margin-bottom: 16px;">
+      
+      <div style="display: flex; align-items: flex-start; gap: 14px; padding: 14px 16px; background: #fafafa;">
+        <span class="material-symbols-outlined" style="color: #56212f; font-size: 1.2rem; flex-shrink: 0; margin-top: 1px;">smartphone</span>
+        <div>
+          <p style="margin: 0; font-weight: 700; color: #1e293b; font-size: 0.85rem;">En móvil</p>
+          <p style="margin: 3px 0 0 0; color: #64748b; font-size: 0.8rem; line-height: 1.5;">
+            Toca el área de firma para abrirla en pantalla completa, evitando rayones accidentales al guardar.
+          </p>
+        </div>
+      </div>
+
+      <div style="height: 1px; background: #f1f5f9;"></div>
+
+      <div style="display: flex; align-items: flex-start; gap: 14px; padding: 14px 16px; background: #fafafa;">
+        <span class="material-symbols-outlined" style="color: #56212f; font-size: 1.2rem; flex-shrink: 0; margin-top: 1px;">computer</span>
+        <div>
+          <p style="margin: 0; font-weight: 700; color: #1e293b; font-size: 0.85rem;">En desktop</p>
+          <p style="margin: 3px 0 0 0; color: #64748b; font-size: 0.8rem; line-height: 1.5;">
+            Firma directamente en el área del modal como siempre.
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Nota -->
+    <div style="display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; background: rgba(86,33,47,0.04); border-radius: 8px; border-left: 2px solid #56212f;">
+      <span class="material-symbols-outlined" style="color: #56212f; font-size: 1rem; flex-shrink: 0; margin-top: 1px;">info</span>
+      <p style="margin: 0; font-size: 0.78rem; color: #56212f; line-height: 1.5;">
+        Si el solicitante no está presente, marca <strong>"Cerrar ticket sin firma"</strong> para cerrarlo igualmente.
+      </p>
+    </div>
+
+  </div>
+`,
+    confirmButtonText: 'Entendido',
+    confirmButtonColor: '#56212f',
+    width: window.innerWidth < 600 ? '92vw' : '480px',
+    showClass: {
+      popup: 'animate__animated animate__fadeInDown'
+    }
+  }).then(() => {
+    localStorage.setItem(claveVista, 'true');
+  });
+}
 }

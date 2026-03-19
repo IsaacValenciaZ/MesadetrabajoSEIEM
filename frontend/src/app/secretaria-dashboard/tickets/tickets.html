@@ -149,7 +149,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let reporte of reportesDelDia">
+          <tr *ngFor="let reporte of reportesDelDia"  (click)="confirmarEliminarTicket(reporte)"  style="cursor: pointer;">
             <td class="id-col">#{{ reporte.id }}</td>
             <td class="time-col">{{ reporte.fecha | date:'hh:mm a' }}</td>
 

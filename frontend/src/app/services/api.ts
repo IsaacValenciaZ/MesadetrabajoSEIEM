@@ -21,6 +21,10 @@ private baseUrl = environment.apiUrl;
   createTicket(ticketData: any): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/create_tickets.php`, ticketData);
   }
+
+  deleteTicket(id: number) {
+  return this.http.delete<any>(`${this.baseUrl}/delete_ticket.php`, { body: { id } });
+}
  
   getMisTickets(nombreUsuario: string): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/get_tickets_personal.php?personal=${nombreUsuario}`);
@@ -55,8 +59,10 @@ actualizarEstadoTicket(id: number, nuevoEstado: string): Observable<any> {
     return this.http.get<any[]>(`${this.baseUrl}/get_secretaria_users.php`);
   }
 
-getSupervisorDataTickets(): Observable<any[]> {
-  return this.http.get<any[]>(`${this.baseUrl}/get_supervisor_data_tickets.php`);
+
+getSupervisorDataTickets(mes?: string) {
+  const params = mes ? `?mes=${mes}` : '';
+  return this.http.get<any[]>(`${this.baseUrl}/get_supervisor_data_tickets.php${params}`);
 }
 
 getSupervisorEvidencia(id: number): Observable<any> {

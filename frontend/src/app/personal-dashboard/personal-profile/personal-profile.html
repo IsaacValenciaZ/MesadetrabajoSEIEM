@@ -2,64 +2,63 @@
   <div class="profile-card">
     <div class="profile-header-bg">
       <div class="avatar-container">
-         <div class="big-avatar">{{ usuarioActual.nombre?.charAt(0) }}</div>
+        <div class="big-avatar">{{ usuarioActual.nombre?.charAt(0) }}</div>
       </div>
-      
     </div>
 
     <div class="profile-body">
-     <div class="header-text">
-          <h2>{{ usuarioActual.nombre }}</h2>
-          <p class="role-badge">Personal Administrativo</p>
-          
-          <div style="margin-top: 15px; display: flex; align-items: center; justify-content: center; gap: 10px;">
-              <label style="font-weight: bold; color: #64748b; font-size: 0.9rem;">Mi Disponibilidad:</label>
-              <select [(ngModel)]="usuarioActual.estado_disponibilidad" (change)="cambiarMiEstado()" 
-                      style="padding: 6px 6px; border-radius: 20px; border: 2px solid #e2e8f0; font-weight: 700; cursor: pointer; outline: none; background-color: #fff; width: 140px;"
-                      [ngStyle]="{'color': usuarioActual.estado_disponibilidad === 'disponible' ? '#166534' : (usuarioActual.estado_disponibilidad === 'ocupado' ? '#b45309' : '#b91c1c')}">
-                  <option value="disponible">🟢 Disponible</option>
-                  <option value="ocupado">🟠 Ocupado</option>
-                  <option value="ausente">🔴 Ausente</option>
-              </select>
-          </div>
-          </div>
+      <div class="header-text">
+        <h2>{{ usuarioActual.nombre }}</h2>
+        <p class="role-badge">Personal Administrativo</p>
+
+        <div style="margin-top: 15px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+          <label style="font-weight: bold; color: #64748b; font-size: 0.9rem;">Mi Disponibilidad:</label>
+          <select [(ngModel)]="usuarioActual.estado_disponibilidad" (change)="cambiarMiEstado()"
+            style="padding: 6px; border-radius: 20px; border: 2px solid #e2e8f0; font-weight: 700; cursor: pointer; outline: none; background-color: #fff; width: 140px;"
+            [ngStyle]="{'color': usuarioActual.estado_disponibilidad === 'disponible' ? '#166534' : (usuarioActual.estado_disponibilidad === 'ocupado' ? '#b45309' : '#b91c1c')}">
+            <option value="disponible">🟢 Disponible</option>
+            <option value="ocupado">🟠 Ocupado</option>
+            <option value="ausente">🔴 Ausente</option>
+          </select>
+        </div>
+      </div>
 
       <div class="form-content">
         <div class="form-row">
-            <div class="form-group">
-              <label>Nombre Completo</label>
-              <div class="input-wrapper">
-                  <span class="material-symbols-outlined icon">person</span>
-                  <input type="text" [(ngModel)]="usuarioActual.nombre">
-              </div>
+          <div class="form-group">
+            <label>Nombre Completo</label>
+            <div class="input-wrapper">
+              <span class="material-symbols-outlined icon">person</span>
+              <input type="text" [(ngModel)]="usuarioActual.nombre">
             </div>
-            <div class="form-group">
-              <label>Correo Electrónico</label>
-              <div class="input-wrapper">
-                  <span class="material-symbols-outlined icon">mail</span>
-                  <input type="email" [(ngModel)]="usuarioActual.email">
-              </div>
+          </div>
+          <div class="form-group">
+            <label>Correo Electrónico</label>
+            <div class="input-wrapper">
+              <span class="material-symbols-outlined icon">mail</span>
+              <input type="email" [(ngModel)]="usuarioActual.email">
             </div>
+          </div>
         </div>
 
         <hr class="divider">
         <p class="section-title">Seguridad</p>
 
         <div class="form-row">
-            <div class="form-group">
-              <label>Nueva Contraseña</label>
-              <div class="input-wrapper">
-                  <span class="material-symbols-outlined icon">lock</span>
-                  <input type="password" [(ngModel)]="nuevaContrasena" placeholder="Solo si deseas cambiarla">
-              </div>
+          <div class="form-group">
+            <label>Nueva Contraseña</label>
+            <div class="input-wrapper">
+              <span class="material-symbols-outlined icon">lock</span>
+              <input type="password" [(ngModel)]="nuevaContrasena" placeholder="Solo si deseas cambiarla">
             </div>
-            <div class="form-group">
-              <label>Confirmar</label>
-              <div class="input-wrapper">
-                  <span class="material-symbols-outlined icon">lock_reset</span>
-                  <input type="password" [(ngModel)]="confirmarContrasena" placeholder="Confirma nueva contraseña">
-              </div>
+          </div>
+          <div class="form-group">
+            <label>Confirmar</label>
+            <div class="input-wrapper">
+              <span class="material-symbols-outlined icon">lock_reset</span>
+              <input type="password" [(ngModel)]="confirmarContrasena" placeholder="Confirma nueva contraseña">
             </div>
+          </div>
         </div>
 
         <button class="btn-update" (click)="guardarCambiosPerfil()">
@@ -69,59 +68,158 @@
     </div>
   </div>
 
-  <h3 class="section-divider">Métricas de Desempeño</h3>
 
-  <div class="stats-grid">
-      <div class="stats-card">
-          <div class="stats-header">
-              <h3>Rendimiento General</h3>
-              <p>Mes de {{ etiquetaMesActual }}</p>
-          </div>
-          <div class="stats-content">
-              <div class="chart-wrapper">
-                  <canvas id="profileChart"></canvas>
-                  <div class="chart-center-text">
-                      <span class="big-number">{{ totalTickets }}</span>
-                      <span class="label">Total</span>
-                  </div>
-              </div>
-              <div class="stats-legend">
-                  <div class="legend-item"><div class="dot green"></div> <span class="count">{{ ticketsCompletados }}</span> Completos</div>
-                  <div class="legend-item"><div class="dot red"></div> <span class="count">{{ ticketsIncompletos }}</span> Incompletos</div>
-                  <div class="efficiency-box">Eficiencia: <strong>{{ porcentajeEficiencia }}%</strong></div>
-              </div>
-          </div>
-      </div>
+    <div style="display: flex; justify-content: space-between; align-items: baseline;">
+    <h3 class="section-divider">Resumen del Turno (Hoy)</h3>
+    <span style="color: #64748b; font-weight: 600; font-size: 0.95rem;">
+        <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 1.1rem; margin-right: 4px;">today</span>
+        {{ etiquetaHoy }}
+    </span>
+</div>
 
-      <div class="stats-card">
-          <div class="stats-header">
-              <h3>Evolución Mensual</h3>
-              <p>Tu efectividad en el año</p>
-          </div>
-          <div class="evolution-chart-wrapper">
-              <canvas id="monthlyChart"></canvas>
-          </div>
-      </div>
+<div class="kpi-grid fade-in" *ngIf="kpisCalculados">
+
+  <div class="kpi-card">
+    <div class="kpi-icon icon-blue">
+      <span class="material-symbols-outlined">star</span>
+    </div>
+    <div class="kpi-data">
+      <h4>Especialidad Principal</h4>
+      <h2>{{ kpiEspecialidad }}</h2>
+    </div>
   </div>
 
-    <h3 class="section-divider">Análisis detallado</h3>
+<div class="kpi-card">
+  <div class="kpi-icon icon-purple">
+    <span class="material-symbols-outlined">percent</span>
+  </div>
+  <div class="kpi-data">
+    <h4>Eficiencia de Hoy</h4>
+    <h2>{{ kpiRanking }}%</h2>
+  </div>
+</div>
 
-  <div class="stats-grid">
-    <div class="stats-card" style="justify-content: center;">
-        <h4 style="margin: 10px 0; color: #56212f;">Tiempo Medio de Solución</h4>
-        <span class="material-symbols-outlined" style="font-size: 3rem; color: #ba9156;">timer</span>
-        <h2 style="font-size: 2.5rem; margin: 0; color: #333;">{{ tiempoPromedioTexto }}</h2>
-        <p style="color: #64748b; font-size: 0.85rem; text-align: center; margin-top: 5px;">Tiempo promedio que tardas en resolver un reporte este mes.</p>
+  <div class="kpi-card">
+    <div class="kpi-icon icon-blue">
+      <span class="material-symbols-outlined">apartment</span>
+    </div>
+    <div class="kpi-data">
+      <h4>Depto. más Ayudado</h4>
+      <h2 style="font-size: 1.2rem;">{{ kpiDepartamento }}</h2>
+    </div>
+  </div>
+
+</div>
+
+
+  <div style="display: flex; justify-content: space-between; align-items: baseline;">
+    <h3 class="section-divider">Actividad de Hoy</h3>
+    <span style="color: #64748b; font-weight: 600; font-size: 0.95rem;">
+      <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 1.1rem; margin-right: 4px;">today</span>
+      {{ etiquetaHoy }}
+    </span>
+  </div>
+
+  <div class="stats-grid" style="grid-template-columns: 1fr 1fr; margin-top: 20px;">
+    <div class="stats-card">
+      <div class="stats-header">
+        <h3>Actividad del Día</h3>
+        <p>Distribución de tickets</p>
+      </div>
+      <div class="stats-content">
+        <div class="chart-wrapper">
+          <canvas id="chartDia"></canvas>
+          <div class="chart-center-text">
+            <span class="big-number">{{ diaTotalTickets }}</span>
+            <span class="label">Hoy</span>
+          </div>
+        </div>
+        <div class="stats-legend">
+          <div class="stats-legend">
+  <div class="legend-item"><div class="dot green"></div><span class="count">{{ ticketsCompletados }}</span> Completos</div>
+  <div class="legend-item"><div class="dot yellow"></div><span class="count">{{ totalTickets - ticketsCompletados - ticketsIncompletos }}</span> En Espera</div>
+  <div class="efficiency-box">Eficiencia: <strong>{{ porcentajeEficiencia }}%</strong></div>
+</div>
+</div>
+      </div>
     </div>
 
     <div class="stats-card">
-        <h4 style="margin: 0 0 15px 0; color: #56212f; width: 100%; text-align: center;">Problemas más resueltos</h4>
-        <div style="width: 100%; display: flex; flex-direction: column; gap: 12px;">
-            <div *ngFor="let cat of topCategorias" style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 10px; border-radius: 8px;">
-                <span style="font-weight: 600; color: #333;">{{ cat.nombre }}</span>
-                <span class="role-badge" style="background: #56212f; color: white; border: none;">{{ cat.cantidad }} tickets</span>
-            </div>
+      <div class="stats-header">
+        <h3>Problemas Resueltos Hoy</h3>
+        <p>Por categoría</p>
+      </div>
+      <div style="width: 100%; display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
+        <div *ngFor="let cat of diaTopCategorias"
+          style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 10px 14px; border-radius: 8px;">
+          <span style="font-weight: 600; color: #334155; font-size: 0.9rem;">{{ cat.nombre }}</span>
+          <span class="role-badge" style="background: #56212f; color: white; border: none;">{{ cat.cantidad }}</span>
         </div>
+        <div *ngIf="diaTopCategorias.length === 0"
+          style="text-align: center; color: #94a3b8; font-style: italic; padding: 20px;">
+          Sin tickets resueltos hoy.
+        </div>
+      </div>
     </div>
+  </div>
+
+  <div style="display: flex; justify-content: space-between; align-items: baseline;">
+    <h3 class="section-divider">Balance del Mes</h3>
+    <span style="color: #64748b; font-weight: 600; font-size: 0.95rem;">
+      <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 1.1rem; margin-right: 4px;">calendar_month</span>
+      {{ etiquetaMesActual }}
+    </span>
+  </div>
+
+
+
+  <div class="stats-grid" style="margin-top: 20px;">
+    <div class="stats-card">
+      <div class="stats-header">
+        <h3>Rendimiento del Mes</h3>
+        <p>Completados vs Incompletos</p>
+      </div>
+      <div class="stats-content">
+        <div class="chart-wrapper">
+          <canvas id="chartMes"></canvas>
+          <div class="chart-center-text">
+            <span class="big-number">{{ totalTickets }}</span>
+            <span class="label">Total</span>
+          </div>
+        </div>
+        <div class="stats-legend">
+          <div class="stats-legend">
+  <div class="legend-item"><div class="dot green"></div><span class="count">{{ ticketsCompletados }}</span> Completos</div>
+  <div class="legend-item"><div class="dot yellow"></div><span class="count">{{ totalTickets - ticketsCompletados - ticketsIncompletos }}</span> En Espera</div>
+  <div class="legend-item"><div class="dot red"></div><span class="count">{{ ticketsIncompletos }}</span> Incompletos</div>
+  <div class="efficiency-box">Eficiencia: <strong>{{ porcentajeEficiencia }}%</strong></div>
 </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-card" style="justify-content: center; align-items: center;">
+      <span class="material-symbols-outlined" style="font-size: 3rem; color: #ba9156;">timer</span>
+      <h4 style="margin: 10px 0 4px 0; color: #56212f;">Tiempo Medio de Solución</h4>
+      <h2 style="font-size: 2.5rem; margin: 0; color: #333;">{{ tiempoPromedioTexto }}</h2>
+      <p style="color: #64748b; font-size: 0.85rem; text-align: center; margin-top: 8px;">
+        Tiempo promedio para resolver un reporte este mes.
+      </p>
+    </div>
+  </div>
+
+  <h3 class="section-divider">Estadísticas Anuales</h3>
+
+  <div class="stats-grid" style="grid-template-columns: 1fr;">
+    <div class="stats-card">
+      <div class="stats-header">
+        <h3>Evolución Anual</h3>
+        <p>Tickets completados por mes en {{ anioActual }}</p>
+      </div>
+      <div class="evolution-chart-wrapper">
+        <canvas id="monthlyChart"></canvas>
+      </div>
+    </div>
+  </div>
+
 </div>

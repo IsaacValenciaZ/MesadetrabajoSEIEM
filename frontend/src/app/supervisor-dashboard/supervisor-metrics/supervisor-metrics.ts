@@ -76,10 +76,10 @@ export class SupervisorMetricsComponent implements OnInit {
 
     this.totalTicketsMes = ticketsDelMes.length;
     const completadosMes = ticketsDelMes.filter(t => t.estado?.toLowerCase() === 'completo' || t.estado?.toLowerCase() === 'completado');
-    const pendientesDelMes = ticketsDelMes.filter(t => t.estado?.toLowerCase() !== 'completo' && t.estado?.toLowerCase() !== 'completado');
+    const enEsperaMes = ticketsDelMes.filter(t => t.estado?.toLowerCase() === 'en espera');
     
     this.resueltosMes = completadosMes.length;
-    this.pendientesMes = pendientesDelMes.length;
+    this.pendientesMes = enEsperaMes.length;
     this.eficienciaMes = this.totalTicketsMes > 0 ? ((this.resueltosMes / this.totalTicketsMes) * 100).toFixed(1) : '0';
 
     const conteoTecnicos: { [key: string]: number } = {};
@@ -92,9 +92,9 @@ export class SupervisorMetricsComponent implements OnInit {
       .map(k => ({ nombre: k, cantidad: conteoTecnicos[k] }))
       .sort((a, b) => b.cantidad - a.cantidad).slice(0, 5);
 
-    const todosPendientes = this.allTickets.filter(t => t.estado?.toLowerCase() !== 'completo' && t.estado?.toLowerCase() !== 'completado');
+    const soloIncompletos = this.allTickets.filter(t => t.estado?.toLowerCase() === 'incompleto');
     const conteoAtrasos: { [key: string]: number } = {};
-    todosPendientes.forEach(t => {
+    soloIncompletos.forEach(t => {
       if (t.personal && t.personal.trim() !== '') {
         conteoAtrasos[t.personal] = (conteoAtrasos[t.personal] || 0) + 1;
       }

@@ -20,7 +20,29 @@ if (!isset($_GET['personal'])) {
 $nombre_personal = htmlspecialchars(trim($_GET['personal']));
 
 try {
-    $query = "
+    $checkUpdate = $conn->query("
+        SELECT valor FROM config_sistema 
+        WHERE clave = 'ultima_actualizacion_vencidos_diario'
+    ")->fetch(PDO::FETCH_ASSOC);
+
+    $ultimaVez = $checkUpdate ? strtotime($checkUpdate['valor']) : 0;
+
+    if ((time() - $ultimaVez) > 86400) {
+        $conn->exec("
+            UPDATE tickets 
+            SET estado = 'Incompleto' 
+            WHERE estado NOT IN ('Completo', 'Completado', 'Incompleto')
+            AND fecha_limite < NOW()
+            AND fecha_limite >= DATE_SUB(NOW(), INTERVAL 1 DAY)
+        ");
+        $conn->exec("
+            INSERT INTO config_sistema (clave, valor) 
+            VALUES ('ultima_actualizacion_vencidos_diario', NOW())
+            ON DUPLICATE KEY UPDATE valor = NOW()
+        ");
+    }
+
+    $stmt = $conn->prepare("
         SELECT 
             t.id,
             t.nombre_usuario,
@@ -40,21 +62,14 @@ try {
             IF(e.evidencia_archivo IS NOT NULL AND e.evidencia_archivo != '', true, false) AS tiene_foto,
             IF(e.firma_base64 IS NOT NULL AND e.firma_base64 != '', true, false) AS tiene_firma
         FROM tickets t
-        LEFT JOIN evidencias_tickets e
-            ON t.id = e.ticket_id
+        LEFT JOIN evidencias_tickets e ON t.id = e.ticket_id
         WHERE t.personal = :personal
         ORDER BY t.fecha DESC
-    ";
+        LIMIT 500
+    ");
+    $stmt->execute([':personal' => $nombre_personal]);
 
-    $stmt = $conn->prepare($query);
-
-    $stmt->execute([
-        ':personal' => $nombre_personal
-    ]);
-
-    $tickets = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    echo json_encode($tickets ? $tickets : []);
+    echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC) ?: []);
 
 } catch (PDOException $e) {
     http_response_code(500);

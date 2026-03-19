@@ -174,6 +174,8 @@ export class TicketsComponent implements OnInit, OnDestroy {
     this.pollingTecnicos = interval(15000).subscribe(() => {
         this.obtenerTecnicos();
     });
+
+    this.mostrarNovedades();
   }
 
   ngOnDestroy() {
@@ -396,4 +398,149 @@ obtenerReportesDelDia() {
       }
     });
   }
+
+confirmarEliminarTicket(reporte: any) {
+  Swal.fire({
+    title: `¿Eliminar ticket #${reporte.id}?`,
+    html: `
+      <p style="color: #64748b; margin: 0;">
+        Técnico: <strong>${reporte.personal}</strong><br>
+        Categoría: <strong>${reporte.descripcion}</strong>
+      </p>
+      <p style="color: #e74c3c; font-size: 0.85rem; margin-top: 10px;">
+        Esta acción no se puede deshacer.
+      </p>
+    `,
+    icon: 'warning',
+    iconColor: '#e74c3c',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, eliminar',
+    confirmButtonColor: '#56212f',
+    cancelButtonText: 'Cancelar',
+    cancelButtonColor: '#000000'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      this.apiService.deleteTicket(reporte.id).subscribe({
+        next: (res) => {
+          if (res.status) {
+            const toast = Swal.mixin({
+              toast: true, position: 'top-end',
+              showConfirmButton: false, timer: 2500
+            });
+            toast.fire({ icon: 'success', title: 'Ticket eliminado' });
+            this.obtenerReportesDelDia();
+          } else {
+            Swal.fire({
+              icon: 'info',
+              iconColor: '#56212f',
+              title: 'No se puede eliminar',
+              html: `
+                <p style="color: #64748b; margin: 0;">
+                  El ticket <strong>#${reporte.id}</strong> no puede eliminarse porque
+                  ya fue <strong style="color: #27ae60;">Completado</strong>
+                </p>
+                <p style="color: #94a3b8; font-size: 0.8rem; margin-top: 10px;">
+                  Solo se pueden eliminar tickets que estén  <strong style="color: #cebe35;">En Espera</strong>.
+                </p>
+              `,
+              confirmButtonText: 'Entendido',
+              confirmButtonColor: '#56212f'
+            });
+          }
+        },
+        error: (err) => {
+          if (err.status === 403) {
+            Swal.fire({
+              icon: 'info',
+              iconColor: '#56212f',
+              title: 'No se puede eliminar',
+              html: `
+                <p style="color: #64748b; margin: 0;">
+                  El ticket <strong>#${reporte.id}</strong> no puede eliminarse porque
+                  ya fue <strong style="color: #27ae60;">Completado</strong>
+                </p>
+                <p style="color: #94a3b8; font-size: 0.8rem; margin-top: 10px;">
+                  Solo se pueden eliminar tickets que estén  <strong style="color: #cebe35;">En Espera</strong>.
+                </p>
+              `,
+              confirmButtonText: 'Entendido',
+              confirmButtonColor: '#56212f'
+            });
+          } else {
+            Swal.fire('Error', 'No se pudo conectar con el servidor', 'error');
+          }
+        }
+      });
+    }
+  });
 }
+
+mostrarNovedades() {
+  const claveVista = 'novedad_eliminar_ticket_v3';
+  if (localStorage.getItem(claveVista)) return;
+
+  Swal.fire({
+    title: '',
+    html: `
+      <div style="text-align: left; font-family: 'Segoe UI', sans-serif; padding: 4px 0;">
+
+        <!-- Header -->
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+          <span class="material-symbols-outlined" style="color: #56212f; font-size: 1.4rem;">new_releases</span>
+          <div>
+            <p style="margin: 0; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8;">Actualización</p>
+            <h3 style="margin: 0; font-size: 1rem; font-weight: 700; color: #0f172a;">Eliminar tickets del día</h3>
+          </div>
+        </div>
+
+        <!-- Descripción -->
+        <p style="margin: 0 0 16px 0; font-size: 0.8rem; color: #64748b; line-height: 1.5; padding-left: 2px;">
+          En la tabla de reportes del día, ahora puedes <strong style="color: #1e293b;">tocar cualquier fila</strong> para eliminar ese ticket si aún no ha sido atendido.
+        </p>
+
+        <!-- Items -->
+        <div style="display: flex; flex-direction: column; gap: 1px; border-radius: 10px; overflow: hidden; border: 1px solid #f1f5f9; margin-bottom: 16px;">
+
+          <div style="display: flex; align-items: flex-start; gap: 14px; padding: 14px 16px; background: #fafafa;">
+            <span class="material-symbols-outlined" style="color: #27ae60; font-size: 1.2rem; flex-shrink: 0; margin-top: 1px;">check_circle</span>
+            <div>
+              <p style="margin: 0; font-weight: 700; color: #1e293b; font-size: 0.85rem;">Tickets en espera</p>
+              <p style="margin: 3px 0 0 0; color: #64748b; font-size: 0.8rem; line-height: 1.5;">
+                Si el ticket está <strong>En Espera</strong>, al tocarlo aparecerá una confirmación para eliminarlo.
+              </p>
+            </div>
+          </div>
+
+          <div style="height: 1px; background: #f1f5f9;"></div>
+
+          <div style="display: flex; align-items: flex-start; gap: 14px; padding: 14px 16px; background: #fafafa;">
+            <span class="material-symbols-outlined" style="color: #94a3b8; font-size: 1.2rem; flex-shrink: 0; margin-top: 1px;">block</span>
+            <div>
+              <p style="margin: 0; font-weight: 700; color: #1e293b; font-size: 0.85rem;">Tickets completados</p>
+              <p style="margin: 3px 0 0 0; color: #64748b; font-size: 0.8rem; line-height: 1.5;">
+                Si el ticket ya fue <strong>Completado</strong> o marcado como <strong>Incompleto</strong>, no podrá eliminarse.
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Nota -->
+        <div style="display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; background: rgba(86,33,47,0.04); border-radius: 8px; border-left: 2px solid #56212f;">
+          <span class="material-symbols-outlined" style="color: #56212f; font-size: 1rem; flex-shrink: 0; margin-top: 1px;">info</span>
+          <p style="margin: 0; font-size: 0.78rem; color: #56212f; line-height: 1.5;">
+            Esta acción es <strong>permanente</strong> y no se puede deshacer. Solo elimina tickets del día actual <strong>si hubo un error o inconsistencia al crearlo. </strong>
+          </p>
+        </div>
+
+      </div>
+    `,
+    confirmButtonText: 'Entendido',
+    confirmButtonColor: '#56212f',
+    width: window.innerWidth < 600 ? '92vw' : '460px',
+  }).then(() => {
+    localStorage.setItem(claveVista, 'true');
+  });
+}
+}
+    

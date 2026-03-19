@@ -15,37 +15,33 @@
              <span class="material-symbols-outlined">bar_chart</span>
         </button>
         
-        <div class="calendar-popup fade-in" *ngIf="mostrarCalendario && diasCalendario.length > 0">
-            <div class="calendar-wrapper">
-                <div class="calendar-header">
-                    <span>Dom</span><span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span>
-                </div>
-                <div class="calendar-grid">
-                    <div *ngFor="let dia of diasCalendario" 
-                         class="calendar-day" 
-                         [ngClass]="{ 
-                             'empty': !dia.dia, 
-                             'has-tickets': dia.tieneTickets, 
-                             'selected': dia.dia === diaSeleccionado, 
-                             'no-tickets': dia.dia && !dia.tieneTickets 
-                         }"
-                         (click)="seleccionarDia(dia)">
-                         <span *ngIf="dia.dia">{{ dia.dia }}</span>
-                         <div *ngIf="dia.tieneTickets" class="dot-indicator"></div>
-                         <div *ngIf="dia.dia && !dia.tieneTickets" class="empty-mark">-</div>
-                    </div>
-                </div>
-                <div class="calendar-legend">
-                    <small *ngIf="diaSeleccionado" (click)="seleccionarDia({dia: diaSeleccionado})" style="cursor: pointer; color: #56212f; font-weight: bold; text-decoration: underline;">Mostrar todo el mes</small>
-                    <small *ngIf="!diaSeleccionado">Selecciona un día en el calendario</small>
-                </div>
+        <div class="calendar-overlay" *ngIf="mostrarCalendario" (click)="mostrarCalendario = false"></div>
+      <div class="calendar-popup fade-in" *ngIf="mostrarCalendario">
+        <div class="calendar-wrapper">
+          <div class="calendar-header"><span>Dom</span><span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span></div>
+          <div class="calendar-grid">
+            <div *ngFor="let dia of diasCalendario" class="calendar-day" 
+                 [ngClass]="{'has-tickets': dia.tieneTickets, 'selected': dia.dia === diaSeleccionado, 'empty': !dia.dia}"
+                 (click)="seleccionarDia(dia)">
+              {{ dia.dia }}
+              <div *ngIf="dia.tieneTickets && dia.dia !== diaSeleccionado" class="dot-indicator"></div>
             </div>
+          </div>
+          <div style="margin-top: 15px; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 10px;">
+              <button class="btn-text" (click)="limpiarFiltroDia()" style="padding: 5px 10px; font-size: 0.8rem;">Ver todo el mes</button>
+          </div>
         </div>
+      </div>
     </div>
   </div>
 
-  <div *ngIf="gruposPorDia.length === 0 && !cargando" class="empty-general">
-      <div class="empty-state">No hay reportes finalizados para el período seleccionado.</div>
+
+    <div *ngIf="gruposPorDia.length === 0 && !cargando" class="empty-state fade-in">
+    <div class="empty-content">
+      <span class="material-symbols-outlined" style="font-size: 4rem; color: #cbd5e1;">Inbox</span>
+      <h3>Por el momento no hay tickets</h3>
+      <p>No se encontraron reportes para los filtros seleccionados en este periodo.</p>
+    </div>
   </div>
 
   <div *ngFor="let grupo of gruposPorDia" class="day-group fade-in">

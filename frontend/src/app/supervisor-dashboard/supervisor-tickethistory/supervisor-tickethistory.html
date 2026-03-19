@@ -13,7 +13,7 @@
       </select>
       <input type="text" class="month-select" placeholder="Escribe para buscar..." [(ngModel)]="textoBusqueda" (input)="aplicarFiltros()" style="min-width: 220px;">
 
-      <select class="month-select" [(ngModel)]="mesSeleccionado" (change)="aplicarFiltros()">
+      <select class="month-select" [(ngModel)]="mesSeleccionado" (ngModelChange)="cambiarMes()">
         <option *ngFor="let mes of mesesDisponibles" [value]="mes">{{ obtenerNombreMes(mes) }}</option>
       </select>
 
@@ -31,6 +31,11 @@
               <div *ngIf="dia.tieneTickets && dia.dia !== diaSeleccionado" class="dot-indicator"></div>
             </div>
           </div>
+          
+          <div style="margin-top: 15px; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 10px;">
+              <button class="btn-text" (click)="limpiarFiltroDia()" style="padding: 5px 10px; font-size: 0.8rem;">Ver todo el mes</button>
+          </div>
+          
         </div>
       </div>
     </div>

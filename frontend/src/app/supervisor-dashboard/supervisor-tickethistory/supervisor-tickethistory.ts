@@ -32,36 +32,73 @@ export class SupervisorTickethistoryComponent implements OnInit {
   diaSeleccionado: number | null = null;
   cargando: boolean = false;
 
+  private cacheMeses: { [mes: string]: any[] } = {};
+
   ngOnInit() {
+    const hoy = new Date();
+    this.mesSeleccionado = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}`;
+    this.generarOpcionesMeses();
     this.solicitarDatosHistorial();
   }
 
   solicitarDatosHistorial() {
-    this.cargando = true;
-    this.apiService.getSupervisorDataTickets().subscribe({
-      next: (respuestaApi) => {
-        this.listaHistorialCompleto = respuestaApi || [];
-        this.generarOpcionesMeses();
+  this.cargando = true;
 
-        const hoy = new Date();
-        const mesActualStr = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}`;
-        
-        this.mesSeleccionado = this.mesesDisponibles.includes(mesActualStr) ? mesActualStr : (this.mesesDisponibles[0] || '');
-        this.diaSeleccionado = hoy.getDate();
-
-        this.aplicarFiltros(false); 
-        this.cargando = false;
-        this.cdr.detectChanges();
-      },
-      error: () => { this.cargando = false; }
-    });
+  if (this.cacheMeses[this.mesSeleccionado]) {
+    this.listaHistorialCompleto = this.cacheMeses[this.mesSeleccionado];
+    this.generarOpcionesMeses(); 
+    this.diaSeleccionado = null;
+    this.aplicarFiltros(false);
+    this.cargando = false;
+    this.cdr.detectChanges();
+    return;
   }
 
-  generarOpcionesMeses() {
-    const meses = new Set<string>();
-    this.listaHistorialCompleto.forEach(t => { if(t.fecha) meses.add(t.fecha.substring(0, 7)); });
-    this.mesesDisponibles = Array.from(meses).sort().reverse();
+  this.apiService.getSupervisorDataTickets(this.mesSeleccionado).subscribe({
+    next: (respuestaApi) => {
+      this.listaHistorialCompleto = respuestaApi || [];
+      this.cacheMeses[this.mesSeleccionado] = this.listaHistorialCompleto;
+      this.generarOpcionesMeses();
+      this.diaSeleccionado = null;
+      this.aplicarFiltros(false);
+      this.cargando = false;
+      this.cdr.detectChanges();
+    },
+    error: (err) => { 
+      console.log('Error:', err);
+      this.cargando = false; 
+    }
+  });
+}
+
+  cambiarMes() {
+    this.diaSeleccionado = null;
+    this.textoBusqueda = '';
+    this.solicitarDatosHistorial();
   }
+
+generarOpcionesMeses() {
+  const meses = new Set<string>();
+
+  const fechaInicio = new Date(2026, 2, 1); 
+  const hoy = new Date();
+
+  const cursor = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+  while (cursor >= fechaInicio) {
+    meses.add(`${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}`);
+    cursor.setMonth(cursor.getMonth() - 1);
+  }
+
+  this.listaHistorialCompleto.forEach(t => {
+    if (t.fecha) meses.add(t.fecha.substring(0, 7));
+  });
+
+  this.mesesDisponibles = Array.from(meses).sort().reverse();
+
+  if (!this.mesesDisponibles.includes(this.mesSeleccionado)) {
+    this.mesSeleccionado = this.mesesDisponibles[0] || '';
+  }
+}
 
   aplicarFiltros(reiniciarFiltroDia: boolean = true) {
     if (reiniciarFiltroDia) this.diaSeleccionado = null; 
@@ -80,7 +117,7 @@ export class SupervisorTickethistoryComponent implements OnInit {
         });
     }
 
-    this.listaTicketsFiltrados = resultado; // Mantiene la integridad de tu lógica
+    this.listaTicketsFiltrados = resultado; 
     this.construirMatrizCalendario(); 
     
     if (this.diaSeleccionado !== null) {
@@ -90,6 +127,7 @@ export class SupervisorTickethistoryComponent implements OnInit {
     } else {
         this.organizarTicketsPorFecha(this.listaTicketsFiltrados);
     }
+
   }
 
   organizarTicketsPorFecha(lista: any[]) {
@@ -125,7 +163,17 @@ export class SupervisorTickethistoryComponent implements OnInit {
 
   seleccionarDia(diaCalendario: any) {
     if (!diaCalendario.dia) return; 
-    this.diaSeleccionado = (this.diaSeleccionado === diaCalendario.dia) ? null : diaCalendario.dia;
+    if (this.diaSeleccionado === diaCalendario.dia) {
+        this.limpiarFiltroDia(); 
+    } else {
+        this.diaSeleccionado = diaCalendario.dia;
+        this.mostrarCalendario = false;
+        this.aplicarFiltros(false);
+    }
+  }
+  
+  limpiarFiltroDia() {
+    this.diaSeleccionado = null;
     this.mostrarCalendario = false;
     this.aplicarFiltros(false);
   }
@@ -138,7 +186,6 @@ export class SupervisorTickethistoryComponent implements OnInit {
     return new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' }).format(new Date(parseInt(y), parseInt(m) - 1));
   }
 
-  
   private getDetallesExtra(ticket: any, color: string): string {
     if (ticket.descripcion === 'Dictaminar' && ticket.cantidad_dicta) 
       return `<span style="color: #cbd5e1; margin: 0 10px;">|</span> <span style="font-size: 0.9rem; font-weight: 800; color: ${color};">Equipos: ${ticket.cantidad_dicta}</span>`;
@@ -156,9 +203,7 @@ export class SupervisorTickethistoryComponent implements OnInit {
     
     const htmlModal = `
       <div style="text-align: left; font-family: 'Segoe UI', sans-serif; color: #1e293b;">
-        
-        <h1 style="font-size: 2.2rem; font-weight: 900; margin: 0 0 20px 0; color: #0f172a; font-style: italic;">Ticket:  #${ticket.id}</h1>
-
+        <h1 style="font-size: 2.2rem; font-weight: 900; margin: 0 0 20px 0; color: #0f172a; font-style: italic;">Ticket: #${ticket.id}</h1>
         <div style="display: flex; gap: 40px; margin-bottom: 25px;">
           <div>
             <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Fecha de Solicitud</p>
@@ -169,9 +214,7 @@ export class SupervisorTickethistoryComponent implements OnInit {
             <p style="margin: 4px 0 0 0; font-size: 0.95rem; font-weight: 600; color: #d97706;">${ticket.fecha_limite || 'N/A'}</p>
           </div>
         </div>
-
         <hr style="border: 0; border-top: 1px solid #f1f5f9; margin: 20px 0;">
-
         <div style="display: flex; gap: 40px; margin-bottom: 25px;">
           <div>
             <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Solicitante</p>
@@ -182,27 +225,19 @@ export class SupervisorTickethistoryComponent implements OnInit {
             <p style="margin: 4px 0 0 0; font-weight: 800; font-size: 1.1rem; color: #0f172a;">${ticket.extension_tel || '-'}</p>
           </div>
         </div>
-
         <div style="margin-bottom: 30px;">
           <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Departamento</p>
           <p style="margin: 4px 0 0 0; font-weight: 500; font-size: 1.05rem; color: #334155;">${ticket.departamento}</p>
         </div>
-
-        <p style="margin: 0 0 8px 0; font-size: 0.75rem; color: 64748b; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;  display: inline-block; padding: 4px 8px; border-radius: 4px;">Clasificación del Problema</p>
-        
+        <p style="margin: 0 0 8px 0; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; display: inline-block; padding: 4px 8px; border-radius: 4px;">Clasificación del Problema</p>
         <div style="display: flex; align-items: center; justify-content: space-between; border: 1px solid #e2e8f0; border-left: 6px solid ${colorFondoCategoria}; border-radius: 8px; padding: 15px; margin-bottom: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
           <div style="display: flex; align-items: center; flex-wrap: wrap;">
-            <span style="background-color: ${colorFondoCategoria}; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700;">
-              ${ticket.descripcion}
-            </span>
+            <span style="background-color: ${colorFondoCategoria}; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700;">${ticket.descripcion}</span>
             ${detallesExtraHtml}
           </div>
           <p style="color: #64748b; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700; white-space: nowrap;">Prio:</p>
-          <span style="background-color: ${colorPrioridad}; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700; white-space: nowrap;">
-            ${ticket.prioridad}
-          </span>
+          <span style="background-color: ${colorPrioridad}; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700; white-space: nowrap;">${ticket.prioridad}</span>
         </div>
-
         <div>
           <p style="margin: 0 0 8px 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Notas Adicionales</p>
           <div style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 8px; padding: 15px;">
@@ -211,7 +246,6 @@ export class SupervisorTickethistoryComponent implements OnInit {
             </p>
           </div>
         </div>
-
       </div>
     `;
 
@@ -224,9 +258,7 @@ export class SupervisorTickethistoryComponent implements OnInit {
       confirmButtonColor: '#56212f',
       showConfirmButton: ticket.estado === 'Completo' || ticket.estado === 'Completado'
     }).then((result) => {
-      if (result.isConfirmed) {
-        this.verEvidenciaFinal(ticket);
-      }
+      if (result.isConfirmed) this.verEvidenciaFinal(ticket);
     });
   }
 
@@ -239,7 +271,12 @@ export class SupervisorTickethistoryComponent implements OnInit {
         const resolucion = evidencia.descripcion_resolucion || 'Sin descripción detallada.';
         Swal.fire({
           title: `Resolución #${ticket.id}`,
-          html: `<div style="text-align: left; padding: 5px;"><p style="font-weight: bold; color: #56212f;">Solución:</p><div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 5px solid #27ae60; margin-bottom: 15px;">${resolucion}</div>${firmaData ? `<div style="text-align:center; background:white; padding:10px; border-radius:8px; border:1px solid #eee; margin-bottom:15px;"><img src="${firmaData}" style="max-height:100px;"></div>` : ''}${imagenData ? `<div style="text-align: center; background: #1a1a1a; padding: 10px; border-radius: 8px;"><img id="img-zoom" src="${imagenData}" style="width: 100%; max-height: 400px; object-fit: contain; cursor: zoom-in;"></div>` : '<p style="text-align:center; color:#999;">Sin evidencia fotográfica.</p>'}</div>`,
+          html: `<div style="text-align: left; padding: 5px;">
+            <p style="font-weight: bold; color: #56212f;">Solución:</p>
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 5px solid #27ae60; margin-bottom: 15px;">${resolucion}</div>
+            ${firmaData ? `<div style="text-align:center; background:white; padding:10px; border-radius:8px; border:1px solid #eee; margin-bottom:15px;"><img src="${firmaData}" style="max-height:100px;"></div>` : ''}
+            ${imagenData ? `<div style="text-align: center; background: #1a1a1a; padding: 10px; border-radius: 8px;"><img id="img-zoom" src="${imagenData}" style="width: 100%; max-height: 400px; object-fit: contain; cursor: zoom-in;"></div>` : '<p style="text-align:center; color:#999;">Sin evidencia fotográfica.</p>'}
+          </div>`,
           confirmButtonText: 'Cerrar', confirmButtonColor: '#56212f', width: '650px',
           didOpen: () => {
             const img = document.getElementById('img-zoom');
@@ -278,15 +315,13 @@ export class SupervisorTickethistoryComponent implements OnInit {
       didOpen: () => {
         new Chart('gEstatus', { 
           type: 'doughnut', 
-          data: { 
-            labels: ['Completados', 'En espera', 'Incumplidos'], 
+          data: { labels: ['Completados', 'En espera', 'Incumplidos'], 
             datasets: [{ data: [stats.completos, stats.enEspera, stats.vencidos], backgroundColor: ['#27ae60', '#f39c12', '#c0392b'] }] 
           } 
         });
         new Chart('gPunto', { 
           type: 'pie', 
-          data: { 
-            labels: ['A tiempo', 'Atrasado'], 
+          data: { labels: ['A tiempo', 'Atrasado'], 
             datasets: [{ data: [stats.aTiempo, stats.tarde], backgroundColor: ['#2ecc71', '#e67e22'] }] 
           } 
         });
@@ -303,9 +338,11 @@ export class SupervisorTickethistoryComponent implements OnInit {
         if (t.fecha_fin && t.fecha_limite) {
           if (t.fecha_fin <= t.fecha_limite) s.aTiempo++; else s.tarde++;
         } else { s.aTiempo++; }
-      } 
-      else if (estado === 'en espera' || estado === '' || !t.estado) { s.enEspera++; }
-      else if (estado === 'incompleto') { s.vencidos++; }
+      } else if (estado === 'en espera' || estado === '' || !t.estado) { 
+        s.enEspera++; 
+      } else if (estado === 'incompleto') { 
+        s.vencidos++; 
+      }
     });
     return s;
   }

@@ -1,11 +1,11 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { ApiService } from '../../services/api'; 
-import Swal from 'sweetalert2'; 
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core'; 
+import { CommonModule } from '@angular/common'; 
+import { FormsModule } from '@angular/forms'; 
+import { ApiService } from '../../services/api';
+import Swal from 'sweetalert2';
 import { Chart, registerables } from 'chart.js';
 
-Chart.register(...registerables); 
+Chart.register(...registerables);
 
 @Component({
   selector: 'app-personal-history',
@@ -75,7 +75,6 @@ export class PersonalHistoryComponent implements OnInit {
         const dia = String(hoy.getDate()).padStart(2, '0');
         
         const mesActual = `${anio}-${mes}`; 
-        const fechaHoy = `${anio}-${mes}-${dia}`; 
 
         if (this.mesesDisponibles.includes(mesActual)) {
             this.mesSeleccionado = mesActual;
@@ -84,20 +83,9 @@ export class PersonalHistoryComponent implements OnInit {
         } else {
             this.mesSeleccionado = '';
         }
-
+        
+        this.diaSeleccionado = null;
         this.aplicarFiltroMes(false); 
-
-        const ticketsDeHoy = this.ticketsFiltrados.filter(ticket => 
-            ticket.fecha && ticket.fecha.startsWith(fechaHoy)
-        );
-
-        if (ticketsDeHoy.length > 0) {
-            this.diaSeleccionado = parseInt(dia);
-            this.organizarTicketsPorFecha(ticketsDeHoy);
-        } else {
-            this.diaSeleccionado = null;
-            this.organizarTicketsPorFecha(this.ticketsFiltrados);
-        }
 
         this.cargando = false;
         this.cdr.detectChanges(); 
@@ -138,8 +126,12 @@ export class PersonalHistoryComponent implements OnInit {
       
       this.construirMatrizCalendario(); 
       
-      if (limpiarSeleccion) {
-          this.organizarTicketsPorFecha(this.ticketsFiltrados);
+      if (this.diaSeleccionado !== null) {
+        const diaPad = this.diaSeleccionado.toString().padStart(2, '0');
+        const fechaBusqueda = `${this.mesSeleccionado}-${diaPad}`;
+        this.organizarTicketsPorFecha(this.ticketsFiltrados.filter(t => t.fecha.startsWith(fechaBusqueda)));
+      } else {
+        this.organizarTicketsPorFecha(this.ticketsFiltrados);
       }
   }
 
@@ -178,13 +170,18 @@ export class PersonalHistoryComponent implements OnInit {
     if (!diaCalendario.dia) return; 
     
     if (this.diaSeleccionado === diaCalendario.dia) {
-        this.diaSeleccionado = null;
-        this.organizarTicketsPorFecha(this.ticketsFiltrados); 
+        this.limpiarFiltroDia();
     } else {
         this.diaSeleccionado = diaCalendario.dia;
-        this.organizarTicketsPorFecha(diaCalendario.tickets); 
-        this.mostrarCalendario = false; 
+        this.mostrarCalendario = false;
+        this.aplicarFiltroMes(false);
     }
+  }
+  
+  limpiarFiltroDia() {
+    this.diaSeleccionado = null;
+    this.mostrarCalendario = false;
+    this.aplicarFiltroMes(false);
   }
 
   organizarTicketsPorFecha(listaTickets: any[]) {
@@ -247,7 +244,7 @@ export class PersonalHistoryComponent implements OnInit {
     return '#dcfce7'; 
   }
 
-abrirModalTicket(ticketSeleccionado: any) {
+  abrirModalTicket(ticketSeleccionado: any) {
     let detallesExtraHtml = '';
     let colorFondoCategoria = '#64748b'; 
 
@@ -387,7 +384,7 @@ abrirModalTicket(ticketSeleccionado: any) {
     });
   }
 
-verEvidenciaFinal(ticket: any) {
+  verEvidenciaFinal(ticket: any) {
       Swal.fire({
           title: 'Cargando evidencia...',
           text: 'Descargando imágenes de la base de datos',
@@ -461,7 +458,7 @@ verEvidenciaFinal(ticket: any) {
       });
   }
 
-abrirImagenCompleta(imagenBase64: string, idTicket: number, ticket: any) {
+  abrirImagenCompleta(imagenBase64: string, idTicket: number, ticket: any) {
       const resolucionTexto = ticket.descripcion_resolucion ? ticket.descripcion_resolucion : 'No se agregó descripción de resolución.';
 
       Swal.fire({
