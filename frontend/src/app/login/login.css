@@ -225,7 +225,6 @@ h2 {
   color: #ba9156; 
   text-decoration: underline;
 }
-
 .fondo-pattern {
   width: 100%;
   height: 180px;
@@ -237,10 +236,26 @@ h2 {
       rgba(255,255,255,0.3) 55%,
       rgba(255,255,255,0) 100%
     ),
-  url("/soporteSEIEM/MesadetrabajoSEIEM/mesatrabajo/icons/Flores.png");
+    url("/soporteSEIEM/MesadetrabajoSEIEM/mesatrabajo/icons/Flores.png");
   background-repeat: no-repeat;
   background-position: center bottom;
   background-size: 100% auto;
+}
+@media (max-width: 768px) {
+  .fondo-pattern {
+    height: 150px;
+    background-image:
+      linear-gradient(
+        to bottom,
+        rgba(255,255,255,1) 0%,
+        rgba(255,255,255,1) 20%,
+        rgba(255,255,255,0.5) 50%,
+        rgba(255,255,255,0) 100%
+      ),
+      url("/soporteSEIEM/MesadetrabajoSEIEM/mesatrabajo/icons/Flores.png");
+    background-size: cover;
+    background-position: center bottom;
+  }
 }
 
 @media (max-width: 1024px) {

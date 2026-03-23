@@ -280,6 +280,11 @@
     border-bottom: none;
 }
 
+
+.cards-movil {
+    display: none;
+}
+
 @media (max-width: 768px) {
     .view-section {
         width: 100%;
@@ -304,10 +309,77 @@
     .table-card {
         padding: 10px;
         border-radius: 8px;
+        box-shadow: none;
+        background: transparent;
+        border: none;
     }
 
-    .table-responsive {
-        overflow-x: auto;
+    .table-responsive { display: none; }
+    .cards-movil { display: flex; flex-direction: column; gap: 10px; }
+
+    .ticket-card-movil {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid #f1f1f1;
+        padding: 14px 16px;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .ticket-card-movil:active { background: #fff9f0; }
+    .ticket-card-movil.vencido { border-top: 3px solid #c0392b; }
+  .ticket-card-movil.vencido { border-top: 3px solid #c0392b; }
+    .tcm-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
         margin-bottom: 10px;
+    }
+
+    .tcm-id {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #9ca3af;
+        font-family: 'Consolas', monospace;
+    }
+
+    .tcm-name {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 2px 0;
+    }
+
+    .tcm-dept {
+        font-size: 0.8rem;
+        color: #64748b;
+    }
+
+    .tcm-vence {
+        text-align: right;
+        font-size: 0.75rem;
+        color: #56212f;
+        font-weight: 600;
+        font-family: 'Consolas', monospace;
+    }
+
+    .tcm-vence .vence-label {
+        display: block;
+        font-size: 0.65rem;
+        color: #94a3b8;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin-bottom: 2px;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .tcm-badges {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid #f1f5f9;
+        align-items: center;
     }
 }

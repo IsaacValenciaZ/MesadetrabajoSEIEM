@@ -206,6 +206,7 @@ abrirModalFinalizacion(ticketSeleccionado: any) {
   let isDrawing = false;
   let isEmpty = true;
   let resizeCanvas: () => void;
+ let archivoEvidencia: File | null = null;
 
   Swal.fire({
     title: `Finalizar Ticket #${ticketSeleccionado.id}`,
@@ -250,10 +251,15 @@ abrirModalFinalizacion(ticketSeleccionado: any) {
         </div>
 
         <!--  VISTA PREVIA TRAS CONFIRMAR -->
-        <div id="firma-preview-container" style="display: none; margin-top: 6px;">
-          <img id="firma-preview-img" style="width: 100%; border-radius: 8px; border: 1px solid #cbd5e1; max-height: 80px; object-fit: contain; background: #fff;">
-          <p style="font-size: 0.75rem; color: #27ae60; font-weight: 700; margin: 4px 0 0 0;"> <span class="material-symbols-outlined" style="  font-size: 2rem;">check</span>Firma capturada correctamente</p>
-        </div>
+          <div id="firma-preview-container" style="display: none; margin-top: 6px;">
+            <img id="firma-preview-img" style="width: 100%; border-radius: 8px; border: 1px solid #cbd5e1; max-height: 80px; object-fit: contain; background: #fff;">
+            
+            <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px; padding: 10px 12px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px;">
+              <span class="material-symbols-outlined" style="font-size: 1.2rem; color: #16a085;">check_circle</span>
+              <p style="font-size: 0.75rem; font-weight: 700; color: #16a085; margin: 0;">Firma capturada correctamente</p>
+            </div>
+
+          </div>
 
         <!-- PANTALLA COMPLETA DE FIRMA  -->
         <div id="firma-fullscreen-overlay" style="
@@ -277,12 +283,41 @@ abrirModalFinalizacion(ticketSeleccionado: any) {
           </div>
         </div>
 
-        <label style="font-weight: 800; color: #56212f; font-size: 0.9rem; display: block; margin-top: 15px;">Evidencia Fotográfica (Opcional):</label>
-        <input type="file" id="evidencia-file" class="swal2-file" accept="image/*" style="width: 100%; margin: 5px 0 0 0; font-size: 0.8rem; padding: 5px; border-radius: 8px;">
-      </div>
+          <label style="font-weight: 800; color: #56212f; font-size: 0.9rem; display: block; margin-top: 15px;">Evidencia Fotográfica (Opcional):</label>
+
+          <input type="file" id="camera-input" accept="image/*" capture="environment" style="display: none;">
+          <input type="file" id="gallery-input" accept="image/*" style="display: none;">
+
+          <button type="button" id="btn-camera"
+            onclick="document.getElementById('camera-input').click()"
+            style="margin-top: 8px; padding: 8px; border-radius: 8px; color: black; background: #f1f5f9; border: 1px solid #ccc; width: 100%; font-weight: 600;">
+            <span class="material-symbols-outlined" style="color: #56212f; font-size: 1.4rem;">add_a_photo</span>
+            Tomar foto
+          </button>
+
+          <button type="button" id="btn-gallery"
+            onclick="document.getElementById('gallery-input').click()"
+            style="margin-top: 5px; padding: 8px; border-radius: 8px; color: black; background: #f1f5f9; border: 1px solid #ccc; width: 100%; font-weight: 600;">
+            <span class="material-symbols-outlined" style="color: #56212f; font-size: 1.4rem;">add_photo_alternate</span>
+            Elegir en galería
+          </button>
+
+          <!-- VISTA DE FOTO ADJUNTA  -->
+          <div id="badge-foto" style="
+            display: none;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            padding: 10px 12px;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+          ">
+          </div>
+                        </div>
     `,
     showCancelButton: true,
-    confirmButtonText: 'Guardar y Cerrar',
+    confirmButtonText: 'Guardar',
     confirmButtonColor: '#56212f',
     cancelButtonText: 'Cancelar',
     cancelButtonColor: '#000000',
@@ -292,6 +327,69 @@ abrirModalFinalizacion(ticketSeleccionado: any) {
       canvas = document.getElementById('firma-canvas') as HTMLCanvasElement;
       ctx = canvas.getContext('2d');
       const contenedor = document.getElementById('contenedor-firma');
+
+        const esMovil = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 768;
+
+        const btnCamera = document.getElementById('btn-camera') as HTMLElement;
+        const btnGallery = document.getElementById('btn-gallery') as HTMLElement;
+
+        if (!esMovil && btnCamera) {
+          btnCamera.style.display = 'none';
+        }
+
+        if (btnCamera) {
+          btnCamera.style.background = '#f1f5f9';
+          btnCamera.style.color = '#000000';
+          btnCamera.style.border = '1px solid #ccc';
+          btnCamera.style.width = '100%';
+          btnCamera.style.fontWeight = '600';
+        }
+
+        if (btnGallery) {
+          btnGallery.style.background = '#f1f5f9';
+          btnCamera.style.color = '#000000';
+          btnGallery.style.border = '1px solid #ccc';
+          btnGallery.style.width = '100%';
+          btnGallery.style.fontWeight = '600';
+        }
+
+const cameraInput = document.getElementById('camera-input') as HTMLInputElement;
+const galleryInput = document.getElementById('gallery-input') as HTMLInputElement;
+
+const manejarArchivo = (e: Event) => {
+  const file = (e.target as HTMLInputElement).files?.[0];
+  if (file) {
+    archivoEvidencia = file; 
+
+    const btnCamera = document.getElementById('btn-camera') as HTMLElement;
+    const btnGallery = document.getElementById('btn-gallery') as HTMLElement;
+    const badge = document.getElementById('badge-foto') as HTMLElement;
+
+    if (btnCamera) { btnCamera.style.borderColor = '#16a085'; btnCamera.style.color = '#16a085'; }
+    if (btnGallery) { btnGallery.style.borderColor = '#16a085'; btnGallery.style.color = '#16a085'; }
+    if (badge) {
+      badge.style.display = 'flex';
+      badge.innerHTML = `
+        <span class="material-symbols-outlined" style="font-size: 1rem; color: #16a085;">check_circle</span>
+        <span style="font-size: 0.8rem; font-weight: 700; color: #16a085;">${file.name}</span>
+        <button type="button" id="btn-quitar-foto" style="background:none; border:none; cursor:pointer; padding:0; margin-left:auto;">
+          <span class="material-symbols-outlined" style="font-size: 1rem; color: #94a3b8;">close</span>
+        </button>
+      `;
+      document.getElementById('btn-quitar-foto')?.addEventListener('click', () => {
+        archivoEvidencia = null;
+        cameraInput.value = '';
+        galleryInput.value = '';
+        badge.style.display = 'none';
+        if (btnCamera) { btnCamera.style.borderColor = '#ccc'; btnCamera.style.color = '#000'; }
+        if (btnGallery) { btnGallery.style.borderColor = '#ccc'; btnGallery.style.color = '#000'; }
+      });
+    }
+  }
+};
+
+cameraInput?.addEventListener('change', manejarArchivo);
+galleryInput?.addEventListener('change', manejarArchivo);
 
       resizeCanvas = () => {
         const rect = contenedor!.getBoundingClientRect();
@@ -457,7 +555,6 @@ abrirModalFinalizacion(ticketSeleccionado: any) {
             previewContainer.style.display = 'block';
 
             overlayAbrirFirma.innerHTML = `
-              <span style="font-size: 1.5rem;">✅</span>
               <span style="font-weight: 800; color: #27ae60; font-size: 0.9rem;">Firma capturada</span>
               <span style="font-size: 0.75rem; color: #64748b;">Toca para volver a firmar</span>
             `;
@@ -477,23 +574,24 @@ abrirModalFinalizacion(ticketSeleccionado: any) {
     },
 
     preConfirm: async () => {
+      
       const descripcionResolucion =
         (document.getElementById('solucion-text') as HTMLTextAreaElement).value;
-      const archivoEvidenciaOriginal =
-        (document.getElementById('evidencia-file') as HTMLInputElement).files?.[0];
+      const archivoEvidenciaOriginal = archivoEvidencia;
+      
       const sinFirma =
         (document.getElementById('sin-firma') as HTMLInputElement)?.checked;
 
       if (!descripcionResolucion || descripcionResolucion.trim() === '') {
-        Swal.showValidationMessage('⚠️ Debes escribir la resolución.');
+        Swal.showValidationMessage('Debes escribir la resolución.');
         return false;
       }
       if (!sinFirma && isEmpty) {
-        Swal.showValidationMessage('⚠️ El usuario debe firmar o marcar "Cerrar sin firma".');
+        Swal.showValidationMessage('El usuario debe firmar o marcar "Cerrar sin firma".');
         return false;
       }
       if (archivoEvidenciaOriginal && archivoEvidenciaOriginal.size > 5000000) {
-        Swal.showValidationMessage('⚠️ La imagen es demasiado grande (máx 5MB).');
+        Swal.showValidationMessage(' La imagen es demasiado grande (máx 5MB).');
         return false;
       }
 
@@ -526,7 +624,7 @@ abrirModalFinalizacion(ticketSeleccionado: any) {
         return { resolucion: descripcionResolucion, archivo: base64Evidencia, firma: firmaFinal };
 
       } catch (error) {
-        Swal.showValidationMessage('⚠️ Error al procesar la foto.');
+        Swal.showValidationMessage(' Error al procesar la foto.');
         return false;
       }
     }
@@ -594,65 +692,77 @@ procesarCierreDeTicket(
   }
 
   mostrarNovedades() {
-  const claveVista = 'novedad_firma_v3';
+  const claveVista = 'novedad_firma_v4';
 
   if (localStorage.getItem(claveVista)) return; 
 
   Swal.fire({
     title: '',
 html: `
-  <div style="text-align: left; font-family: 'Segoe UI', sans-serif; padding: 4px 0;">
+<div style="text-align: left; font-family: 'Segoe UI', sans-serif; padding: 4px 0;">
 
-    <!-- Header -->
-      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-        <span class="material-symbols-outlined" style="color: #56212f; font-size: 1.4rem;">new_releases</span>
-        <div>
-          <p style="margin: 0; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8;">Actualización</p>
-          <h3 style="margin: 0; font-size: 1rem; font-weight: 700; color: #0f172a;">Nueva función de firma</h3>
-        </div>
+  <!-- HEADER -->
+  <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+    <span class="material-symbols-outlined" style="color: #56212f; font-size: 1.4rem;">new_releases</span>
+    <div>
+      <p style="margin: 0; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8;">Actualización</p>
+      <h3 style="margin: 0; font-size: 1rem; font-weight: 700; color: #0f172a;">Mejoras en móvil y  botones para evidencia.</h3>
+    </div>
+  </div>
+
+  <!-- DESCRIPCION -->
+  <p style="margin: 0 0 16px 0; font-size: 0.8rem; color: #64748b; line-height: 1.5; padding-left: 2px;">
+    Dos mejoras nuevas: una <strong style="color: #1e293b;">vista nueva</strong> de tickets en móvil y la opción de <strong style="color: #1e293b;">adjuntar evidencia mediante dos botones</strong> al cerrar un ticket.
+  </p>
+
+  <!-- ITEMS -->
+  <div style="display: flex; flex-direction: column; gap: 1px; border-radius: 10px; overflow: hidden; border: 1px solid #f1f5f9; margin-bottom: 16px;">
+
+    <div style="display: flex; align-items: flex-start; gap: 14px; padding: 14px 16px; background: #fafafa;">
+      <span class="material-symbols-outlined" style="color: #56212f; font-size: 1.2rem; flex-shrink: 0; margin-top: 1px;">view_agenda</span>
+      <div>
+        <p style="margin: 0; font-weight: 700; color: #1e293b; font-size: 0.85rem;">Nueva vista de tickets en móvil</p>
+        <p style="margin: 3px 0 0 0; color: #64748b; font-size: 0.8rem; line-height: 1.5;">
+          Los tickets ahora se muestran en <strong style="color: #1e293b;">tarjetas</strong> en lugar de tabla, con toda la información visible sin necesidad de hacer scroll.
+        </p>
       </div>
-
-      <!-- Descripción -->
-      <p style="margin: 0 0 16px 0; font-size: 0.8rem; color: #64748b; line-height: 1.5; padding-left: 2px;">
-        Al momento de <strong style="color: #1e293b;">cerrar un ticket</strong>, ahora puedes capturar la firma del solicitante de forma más cómoda.
-      </p>
-
-    <!-- Items -->
-    <div style="display: flex; flex-direction: column; gap: 1px; border-radius: 10px; overflow: hidden; border: 1px solid #f1f5f9; margin-bottom: 16px;">
-      
-      <div style="display: flex; align-items: flex-start; gap: 14px; padding: 14px 16px; background: #fafafa;">
-        <span class="material-symbols-outlined" style="color: #56212f; font-size: 1.2rem; flex-shrink: 0; margin-top: 1px;">smartphone</span>
-        <div>
-          <p style="margin: 0; font-weight: 700; color: #1e293b; font-size: 0.85rem;">En móvil</p>
-          <p style="margin: 3px 0 0 0; color: #64748b; font-size: 0.8rem; line-height: 1.5;">
-            Toca el área de firma para abrirla en pantalla completa, evitando rayones accidentales al guardar.
-          </p>
-        </div>
-      </div>
-
-      <div style="height: 1px; background: #f1f5f9;"></div>
-
-      <div style="display: flex; align-items: flex-start; gap: 14px; padding: 14px 16px; background: #fafafa;">
-        <span class="material-symbols-outlined" style="color: #56212f; font-size: 1.2rem; flex-shrink: 0; margin-top: 1px;">computer</span>
-        <div>
-          <p style="margin: 0; font-weight: 700; color: #1e293b; font-size: 0.85rem;">En desktop</p>
-          <p style="margin: 3px 0 0 0; color: #64748b; font-size: 0.8rem; line-height: 1.5;">
-            Firma directamente en el área del modal como siempre.
-          </p>
-        </div>
-      </div>
-
     </div>
 
-    <!-- Nota -->
-    <div style="display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; background: rgba(86,33,47,0.04); border-radius: 8px; border-left: 2px solid #56212f;">
-      <span class="material-symbols-outlined" style="color: #56212f; font-size: 1rem; flex-shrink: 0; margin-top: 1px;">info</span>
-      <p style="margin: 0; font-size: 0.78rem; color: #56212f; line-height: 1.5;">
-        Si el solicitante no está presente, marca <strong>"Cerrar ticket sin firma"</strong> para cerrarlo igualmente.
-      </p>
+    <div style="height: 1px; background: #f1f5f9;"></div>
+
+    <div style="display: flex; align-items: flex-start; gap: 14px; padding: 14px 16px; background: #fafafa;">
+      <span class="material-symbols-outlined" style="color: #56212f; font-size: 1.2rem; flex-shrink: 0; margin-top: 1px;">smartphone</span>
+      <div>
+        <p style="margin: 0; font-weight: 700; color: #1e293b; font-size: 0.85rem;">Evidencia en móvil</p>
+        <p style="margin: 3px 0 0 0; color: #64748b; font-size: 0.8rem; line-height: 1.5;">
+          Aparecen dos botones: <strong style="color: #1e293b;">Tomar foto</strong> para usar la cámara en ese momento, o <strong style="color: #1e293b;">Elegir en galería</strong> para adjuntar una imagen en galería.
+        </p>
+      </div>
+    </div>
+
+    <div style="height: 1px; background: #f1f5f9;"></div>
+
+    <div style="display: flex; align-items: flex-start; gap: 14px; padding: 14px 16px; background: #fafafa;">
+      <span class="material-symbols-outlined" style="color: #56212f; font-size: 1.2rem; flex-shrink: 0; margin-top: 1px;">computer</span>
+      <div>
+        <p style="margin: 0; font-weight: 700; color: #1e293b; font-size: 0.85rem;">Evidencia en PC</p>
+        <p style="margin: 3px 0 0 0; color: #64748b; font-size: 0.8rem; line-height: 1.5;">
+          Solo aparece el botón <strong style="color: #1e293b;">Elegir en galería</strong> para seleccionar una imagen desde tu equipo.
+        </p>
+      </div>
     </div>
 
   </div>
+
+  <!-- NOTAS -->
+  <div style="display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; background: rgba(86,33,47,0.04); border-radius: 8px; border-left: 2px solid #56212f;">
+    <span class="material-symbols-outlined" style="color: #56212f; font-size: 1rem; flex-shrink: 0; margin-top: 1px;">info</span>
+    <p style="margin: 0; font-size: 0.78rem; color: #56212f; line-height: 1.5;">
+      La evidencia fotográfica es <strong>opcional</strong>. En PC la vista de tickets permanece igual que antes.
+    </p>
+  </div>
+
+</div>
 `,
     confirmButtonText: 'Entendido',
     confirmButtonColor: '#56212f',

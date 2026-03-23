@@ -165,6 +165,71 @@
 
     </tbody>
   </table>
+
+
 </div>
   </div>
+
+  
+  <!-- VISTA MOVIL-->
+<div class="cards-movil">
+  <div
+    *ngFor="let ticket of listaTicketsPendientes"
+    class="ticket-card-movil"
+    [class.vencido]="verificarVencimiento(ticket.fecha_limite)"
+    (click)="abrirModalTicket(ticket)"
+  >
+    <div class="tcm-header">
+      <div>
+        <div class="tcm-id">#{{ ticket.id }}</div>
+        <div class="tcm-name">{{ ticket.nombre_usuario }}</div>
+        <div class="tcm-dept">{{ ticket.departamento }} · {{ ticket.extension_tel || 'sin ext.' }}</div>
+      </div>
+      <div class="tcm-vence">
+        <span class="vence-label">Vence</span>
+        {{ ticket.fecha_limite ? (ticket.fecha_limite | date:'dd/MM HH:mm') : 'N/A' }}
+      </div>
+    </div>
+
+    <div class="tcm-badges">
+      <span
+        class="badge"
+        [ngClass]="{
+          'cat-internet':   ticket.descripcion === 'Internet',
+          'cat-office':     ticket.descripcion === 'Office',
+          'cat-telefonia':  ticket.descripcion === 'Telefonia',
+          'cat-tecnico':    ticket.descripcion === 'Tecnico',
+          'cat-dictaminar': ticket.descripcion === 'Dictaminar',
+          'cat-extension':  ticket.descripcion === 'Extension/Telefono',
+          'cat-correo':     ticket.descripcion === 'Correo'
+        }"
+      >{{ ticket.descripcion }}</span>
+
+      <span
+        class="badge"
+        [ngClass]="{
+          'prio-alta':  ticket.prioridad === 'Alta',
+          'prio-media': ticket.prioridad === 'Media',
+          'prio-baja':  ticket.prioridad === 'Baja'
+        }"
+      >{{ ticket.prioridad }}</span>
+
+      <span
+        *ngIf="verificarVencimiento(ticket.fecha_limite)"
+        class="badge-status late"
+      >Vencido</span>
+
+      <span
+        *ngIf="ticket.fecha_limite && !verificarVencimiento(ticket.fecha_limite)"
+        class="badge-status pending"
+      >En Espera</span>
+    </div>
+
+  </div>
+
+  <div *ngIf="listaTicketsPendientes.length === 0 && !cargandoDatos" class="empty-state">
+    No tienes tickets pendientes en este momento.
+  </div>
+</div>
+
 </div>
