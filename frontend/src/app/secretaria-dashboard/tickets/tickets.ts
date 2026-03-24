@@ -145,6 +145,7 @@ export class TicketsComponent implements OnInit, OnDestroy {
     "Depto. Técnico",
     "Depto. de Desarrollo de Sistemas",
     "Depto. de Producción",
+    "Oficina de Escuelas Particulares",
   ];
 
   departamentosSugeridos: string[] = [...this.listaDepartamentosBase];
@@ -163,7 +164,8 @@ export class TicketsComponent implements OnInit, OnDestroy {
       impresora: false,
       escaner: false,
       software: false,
-      hardware: false
+      hardware: false,
+      garantias: false,
     }
   };
 
@@ -298,6 +300,7 @@ obtenerReportesDelDia() {
         if (this.nuevoTicket.soporte.escaner) elementosSeleccionados.push('Escáner');
         if (this.nuevoTicket.soporte.software) elementosSeleccionados.push('Software');
         if (this.nuevoTicket.soporte.hardware) elementosSeleccionados.push('Hardware');
+         if (this.nuevoTicket.soporte.garantias) elementosSeleccionados.push('Garantías');
 
         if (elementosSeleccionados.length === 0) {
             camposVacios.push('Opciones de Soporte (Selecciona al menos una)');
@@ -382,7 +385,7 @@ obtenerReportesDelDia() {
             cantidad_dicta: null, 
             extension_tel: '', 
             correo_tipo: '',
-            soporte: { impresora: false, escaner: false, software: false, hardware: false }
+            soporte: { impresora: false, escaner: false, software: false, hardware: false, garantias: false }
           };
           
           setTimeout(() => {
