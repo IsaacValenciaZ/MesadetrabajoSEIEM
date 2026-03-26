@@ -33,6 +33,11 @@
       </div>
 
       <div class="form-group">
+        <label>Municipio:</label>
+        <input type="text" [(ngModel)]="nuevoTicket.municipio" class="simple-input" placeholder="Ingresa el municipio" required>
+      </div>
+
+      <div class="form-group">
         <label>Número de Extensión o Teléfono:</label>
         <input type="tel" [(ngModel)]="nuevoTicket.extension_tel" name="extension_tel" placeholder="Escribe la extensión o número de teléfono" class="simple-input" maxlength="12" (keypress)="validarSoloNumeros($event)" required>
       </div>
@@ -135,7 +140,7 @@
       <div class="counter-badge">{{ reportesDelDia ? reportesDelDia.length : 0 }} reportes</div>
     </div>
 
-    <div class="table-responsive">
+<div class="table-responsive">
       <table class="modern-table">
         <thead>
           <tr>
@@ -143,7 +148,7 @@
             <th class="time-col">Hora</th>
             <th class="solicitante-col">Solicitante</th>
             <th class="depto-col">Depto</th>
-            <th class="ext-col">Ext/Tel</th>
+            <th class="muni-col">Municipio</th> <th class="ext-col">Ext/Tel</th>
             <th class="cat-col">Categoría</th>
             <th class="prio-col">Prioridad</th>
              <th class="tech-col">Técnico</th>
@@ -158,6 +163,9 @@
 
             <td class="solicitante-col">{{ reporte.nombre_usuario }}</td>
             <td class="depto-col">{{ reporte.departamento }}</td>
+            
+            <td class="muni-col">{{ reporte.municipio || '-' }}</td> 
+
             <td class="ext-col">{{ reporte.extension_tel }}</td>
             
             <td>
@@ -206,11 +214,9 @@
           </tr>
           
           <tr *ngIf="!reportesDelDia || reportesDelDia.length === 0">
-            <td colspan="9" class="empty-row">No hay reportes registrados hoy.</td>
+            <td colspan="11" class="empty-row">No hay reportes registrados hoy.</td>
           </tr>
 
-      
-          
         </tbody>
       </table>
     </div>

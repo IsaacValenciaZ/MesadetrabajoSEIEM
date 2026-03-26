@@ -6,6 +6,11 @@
       <p>Consulta tus tickets organizados por mes.</p>
     </div>
 
+        <button class="btn-excel" (click)="descargarExcelMensual()" title="Descargar datos del mes actual">
+    <span class="material-symbols-outlined">download</span>
+     Reporte  del Mes
+  </button>
+
     <div class="filters-container" style="position: relative; display: flex; flex-wrap: wrap; gap: 15px; align-items: center;"> 
         
         <select class="month-select" [(ngModel)]="tipoBusqueda" (change)="aplicarFiltros()" style="min-width: 150px;">
@@ -77,7 +82,7 @@
           </button>
       </div>
 
-      <div class="table-card">
+<div class="table-card">
         <div class="table-responsive">
           <table class="simple-table">
             <thead>
@@ -86,7 +91,7 @@
                 <th>Hora</th>
                 <th>Solicitante</th>
                 <th>Depto</th>
-                <th>Técnico</th>
+                <th class="muni-col">Municipio</th> <th>Técnico</th>
                 <th>Ext / Tel</th>
                 <th>Categoría</th>
                 <th>Prioridad</th>
@@ -100,6 +105,9 @@
                 <td class="time-col">{{ ticket.fecha | date:'hh:mm a' }}</td>
                 <td><strong>{{ ticket.nombre_usuario }}</strong></td>
                 <td class="depto-col">{{ ticket.departamento }}</td>
+                
+                <td class="muni-col">{{ ticket.municipio || '-' }}</td>
+
                 <td>{{ ticket.personal }}</td>
                 <td class="tech-col">{{ ticket.extension_tel || '-' }}</td>
                 

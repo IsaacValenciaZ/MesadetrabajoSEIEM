@@ -391,4 +391,9 @@ aplicarFiltros(reiniciarFiltroDia: boolean = true) {
       width: '500px' 
     });
   }
+
+    descargarExcelMensual() {
+    const urlDescarga = 'http://10.15.10.46/soporteSEIEM/MesadetrabajoSEIEM/backend/excel.php';
+    window.open(urlDescarga, '_blank');
+  }
 }

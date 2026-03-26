@@ -248,10 +248,7 @@ textarea.simple-input {
     background-color: #fafafa;
 }
 
-
 .id-col { width: 55px; color: #94a3b8; font-weight: 600; }
-
-.time-col { width: 85px; font-weight: 700; color: #56212f; }
 
 .time-col {
     font-weight: 800;
@@ -259,6 +256,7 @@ textarea.simple-input {
     font-family: 'Segoe UI', sans-serif;
     width: 85px; 
 }
+
 .solicitante-col { 
     width: 120px !important; 
     font-weight: 700;
@@ -272,6 +270,17 @@ textarea.simple-input {
 .depto-col { 
     width: 120px !important; 
     color: #64748b;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    word-break: break-word;
+    line-height: 1.2;
+}
+
+.muni-col { 
+    width: 100px !important; 
+    color: #64748b;
+    font-weight: 600;
     white-space: normal !important;
     overflow: visible !important;
     text-overflow: clip !important;

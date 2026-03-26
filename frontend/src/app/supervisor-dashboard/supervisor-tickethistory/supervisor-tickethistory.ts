@@ -346,7 +346,6 @@ generarOpcionesMeses() {
     });
     return s;
   }
-
   private getProblemaColor(d: string): string { const c:any={'Internet':'#2980b9','Office':'#d35400','Telefonia':'#2c3e50','Tecnico':'#16a085','Dictaminar':'#6c5ce7','Correo':'#96241c'}; return c[d]||'#64748b'; }
   private getPrioridadColor(p: string): string { const c:any={'Alta':'#c0392b','Media':'#f39c12','Baja':'#27ae60'}; return c[p]||'#64748b'; }
 }

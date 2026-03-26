@@ -19,6 +19,7 @@ try {
                 t.id,
                 t.nombre_usuario,
                 t.departamento,
+                t.municipio,
                 t.descripcion,
                 t.prioridad,
                 t.personal,

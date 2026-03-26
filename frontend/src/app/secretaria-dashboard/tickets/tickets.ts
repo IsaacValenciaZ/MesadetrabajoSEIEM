@@ -153,6 +153,7 @@ export class TicketsComponent implements OnInit, OnDestroy {
   nuevoTicket: any = { 
     nombre_usuario: '', 
     departamento: '',
+    municipio: '',
     personalId: '',     
     descripcion: '',    
     prioridad: '',
@@ -284,6 +285,7 @@ obtenerReportesDelDia() {
 
     if (!this.nuevoTicket.nombre_usuario) camposVacios.push('Solicitante');
     if (!this.nuevoTicket.departamento)   camposVacios.push('Departamento');
+    if (!this.nuevoTicket.municipio)      camposVacios.push('Municipio');
     if (!this.nuevoTicket.extension_tel)  camposVacios.push('Extensión o Teléfono');
     if (!this.nuevoTicket.personalId)     camposVacios.push('Técnico');
     if (!this.nuevoTicket.descripcion)    camposVacios.push('Categoría');
@@ -338,6 +340,7 @@ obtenerReportesDelDia() {
       secretaria_id: datosSecretaria.id || null,
       nombre_usuario: this.nuevoTicket.nombre_usuario,
       departamento: this.nuevoTicket.departamento,
+      municipio: this.nuevoTicket.municipio,
       descripcion: this.nuevoTicket.descripcion, 
       prioridad: this.nuevoTicket.prioridad,
       notas: this.nuevoTicket.notas || '',
@@ -378,6 +381,7 @@ obtenerReportesDelDia() {
           this.nuevoTicket = { 
             nombre_usuario: '', 
             departamento: '', 
+            municipio: "",
             personalId: '', 
             descripcion: '', 
             prioridad: '', 
@@ -479,37 +483,34 @@ confirmarEliminarTicket(reporte: any) {
 }
 
 mostrarNovedades() {
-  const claveVista = 'novedad_eliminar_ticket_v3';
+  const claveVista = 'novedad_eliminar_ticket_v4';
   if (localStorage.getItem(claveVista)) return;
 
   Swal.fire({
     title: '',
     html: `
-      <div style="text-align: left; font-family: 'Segoe UI', sans-serif; padding: 4px 0;">
+ <div style="text-align: left; font-family: 'Segoe UI', sans-serif; padding: 4px 0;">
 
-        <!-- Header -->
         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
           <span class="material-symbols-outlined" style="color: #56212f; font-size: 1.4rem;">new_releases</span>
           <div>
             <p style="margin: 0; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8;">Actualización</p>
-            <h3 style="margin: 0; font-size: 1rem; font-weight: 700; color: #0f172a;">Eliminar tickets del día</h3>
+            <h3 style="margin: 0; font-size: 1rem; font-weight: 700; color: #0f172a;">Nuevas funciones disponibles</h3>
           </div>
         </div>
 
-        <!-- Descripción -->
         <p style="margin: 0 0 16px 0; font-size: 0.8rem; color: #64748b; line-height: 1.5; padding-left: 2px;">
-          En la tabla de reportes del día, ahora puedes <strong style="color: #1e293b;">tocar cualquier fila</strong> para eliminar ese ticket si aún no ha sido atendido.
+          Se han añadido un campo nuevo en el formulario de registro y una nueva herramientas para facilitar la exportación de datos.
         </p>
 
-        <!-- Items -->
         <div style="display: flex; flex-direction: column; gap: 1px; border-radius: 10px; overflow: hidden; border: 1px solid #f1f5f9; margin-bottom: 16px;">
 
           <div style="display: flex; align-items: flex-start; gap: 14px; padding: 14px 16px; background: #fafafa;">
-            <span class="material-symbols-outlined" style="color: #27ae60; font-size: 1.2rem; flex-shrink: 0; margin-top: 1px;">check_circle</span>
+            <span class="material-symbols-outlined" style="color: #2980b9; font-size: 1.2rem; flex-shrink: 0; margin-top: 1px;">location_on</span>
             <div>
-              <p style="margin: 0; font-weight: 700; color: #1e293b; font-size: 0.85rem;">Tickets en espera</p>
+              <p style="margin: 0; font-weight: 700; color: #1e293b; font-size: 0.85rem;">Nuevo campo: Municipio</p>
               <p style="margin: 3px 0 0 0; color: #64748b; font-size: 0.8rem; line-height: 1.5;">
-                Si el ticket está <strong>En Espera</strong>, al tocarlo aparecerá una confirmación para eliminarlo.
+                Al registrar un nuevo ticket, ahora encontrarás el campo <strong>Municipio</strong>.
               </p>
             </div>
           </div>
@@ -517,22 +518,21 @@ mostrarNovedades() {
           <div style="height: 1px; background: #f1f5f9;"></div>
 
           <div style="display: flex; align-items: flex-start; gap: 14px; padding: 14px 16px; background: #fafafa;">
-            <span class="material-symbols-outlined" style="color: #94a3b8; font-size: 1.2rem; flex-shrink: 0; margin-top: 1px;">block</span>
+            <span class="material-symbols-outlined" style="color: #10b981; font-size: 1.2rem; flex-shrink: 0; margin-top: 1px;">download</span>
             <div>
-              <p style="margin: 0; font-weight: 700; color: #1e293b; font-size: 0.85rem;">Tickets completados</p>
+              <p style="margin: 0; font-weight: 700; color: #1e293b; font-size: 0.85rem;">Exportar Historial a Excel</p>
               <p style="margin: 3px 0 0 0; color: #64748b; font-size: 0.8rem; line-height: 1.5;">
-                Si el ticket ya fue <strong>Completado</strong> o marcado como <strong>Incompleto</strong>, no podrá eliminarse.
+                Dentro de la pestaña de <strong>Historial</strong>, se agregó un nuevo botón que te permite descargar todos los reportes a Excel.
               </p>
             </div>
           </div>
 
         </div>
 
-        <!-- Nota -->
         <div style="display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; background: rgba(86,33,47,0.04); border-radius: 8px; border-left: 2px solid #56212f;">
           <span class="material-symbols-outlined" style="color: #56212f; font-size: 1rem; flex-shrink: 0; margin-top: 1px;">info</span>
           <p style="margin: 0; font-size: 0.78rem; color: #56212f; line-height: 1.5;">
-            Esta acción es <strong>permanente</strong> y no se puede deshacer. Solo elimina tickets del día actual <strong>si hubo un error o inconsistencia al crearlo. </strong>
+            Toma en cuenta que la descarga a Excel generará un archivo iCSV el cual debes filtrar en excel para obtener correctamente los datos sin caracteres corrompidos por los asentos o signos.
           </p>
         </div>
 

@@ -25,6 +25,7 @@ if (isset($data->nombre_usuario) && isset($data->personal) && isset($data->descr
     try {
         $nombre_usuario = htmlspecialchars(trim($data->nombre_usuario));
         $departamento   = htmlspecialchars(trim($data->departamento ?? ''));
+        $municipio      = htmlspecialchars(trim($data->municipio ?? ''));
         $descripcion    = htmlspecialchars(trim($data->descripcion));
         $prioridad      = htmlspecialchars(trim($data->prioridad ?? 'Normal'));
         $personal       = htmlspecialchars(trim($data->personal));
@@ -38,19 +39,20 @@ if (isset($data->nombre_usuario) && isset($data->personal) && isset($data->descr
         $soporte_tipo = ($descripcion === 'Tecnico' && isset($data->soporte_tipo)) ? htmlspecialchars(trim($data->soporte_tipo)) : null;
         $extension_tel = isset($data->extension_tel) ? htmlspecialchars(trim($data->extension_tel)) : null;
 
-        $sql = "INSERT INTO tickets (
-                    nombre_usuario, departamento, descripcion, prioridad, personal, 
-                    notas, fecha_limite, fecha_fin, secretaria_id, cantidad_dicta, 
-                    extension_tel, correo_tipo, soporte_tipo, estado
-                ) VALUES (
-                    :user, :depto, :desc, :prio, :pers, :notas, :limite, NULL, 
-                    :secretariaId, :cant, :ext_tel, :correo_tipo, :soporte_tipo, :estado
-                )";
+                $sql = "INSERT INTO tickets (
+                                    nombre_usuario, departamento, municipio, descripcion, prioridad, personal, 
+                                    notas, fecha_limite, fecha_fin, secretaria_id, cantidad_dicta, 
+                                    extension_tel, correo_tipo, soporte_tipo, estado
+                                ) VALUES (
+                                    :user, :depto, :muni, :desc, :prio, :pers, :notas, :limite, NULL, 
+                                    :secretariaId, :cant, :ext_tel, :correo_tipo, :soporte_tipo, :estado
+                                )";
 
         $stmt = $conn->prepare($sql);
         $stmt->execute([
             ':user'         => $nombre_usuario,
             ':depto'        => $departamento,
+            ':muni'         => $municipio,
             ':desc'         => $descripcion,
             ':prio'         => $prioridad,
             ':pers'         => $personal,

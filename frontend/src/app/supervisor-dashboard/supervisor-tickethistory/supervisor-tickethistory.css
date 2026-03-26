@@ -399,19 +399,25 @@ table tbody tr:hover {
 }
 
 .badge-incomplete { 
-    background-color: #ef4444; 
-    color: white; 
+    background-color: #facbcb; 
+    color: #651616; 
     padding: 5px 10px; 
     border-radius: 20px; 
     font-weight: 700; 
     font-size: 0.7rem; 
-    border: 1px solid #b91c1c; 
+    border: 1px solid #f5afaf; 
     display: inline-block; 
 }
 
 .badge-waiting { 
-    color: #d97706; 
+    background-color: #f7f6d0; 
+    color: #75741e;
+    padding: 5px 10px; 
+    border-radius: 20px; 
     font-weight: 700; 
+    font-size: 0.7rem; 
+    border: 1px solid #f8f1b4; 
+    display: inline-block; 
 }
 
 .stat-card {
@@ -602,3 +608,4 @@ table tbody tr:hover {
         gap: 5px;
     }
 }
+
