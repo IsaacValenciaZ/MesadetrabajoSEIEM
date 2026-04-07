@@ -164,6 +164,7 @@
 <app-performance-user *ngIf="showPerformance" [user]="selectedUser" (close)="closeModals()"></app-performance-user>
 <app-performance-secretaria *ngIf="showSecretariaPerf" [user]="selectedUser" (close)="closeModals()"></app-performance-secretaria>
 <app-delete-user *ngIf="showDelete" [user]="selectedUser" (close)="closeModals()" (delete)="onUserDeleted()"></app-delete-user>
+
 <div class="modal-overlay" *ngIf="showReportModal">
   <div class="modal-card modal-lg fade-in">
     
@@ -238,7 +239,8 @@
           </div>
 
           <div class="right-table-column">
-            <div class="table-box h-100">
+            
+            <div class="table-box" style="margin-bottom: 20px;">
               <h4 class="chart-title">Rendimiento del Personal</h4>
               <table class="report-table">
                 <thead>
@@ -258,6 +260,33 @@
                 </tbody>
               </table>
             </div>
+
+            <div class="chart-box">
+              <h4 class="chart-title">Vía de Atención</h4>
+              
+              <div class="canvas-container" style="position: relative; height: 160px; width: 100%; display: flex; justify-content: center;">
+                <canvas id="reportMetodoChart"></canvas>
+              </div>
+              
+              <div style="display: flex; justify-content: space-around; margin-top: 15px; font-size: 0.85rem; font-weight: 700; color: #334155; border-top: 1px solid #f1f5f9; padding-top: 10px;">
+                  
+                  <div *ngFor="let metodo of reportData?.metodos" style="display: flex; align-items: center; gap: 5px;">
+                     <span class="material-symbols-outlined" 
+                           [ngStyle]="{'color': metodo.nombre === 'Presencial' ? '#16a085' : '#2980b9'}" 
+                           style="font-size: 1.2rem;">
+                        {{ metodo.nombre === 'Presencial' ? 'engineering' : 'support_agent' }}
+                     </span>
+                     <span>{{ metodo.nombre || 'Sin definir' }}:</span> 
+                     <span style="color: #56212f; font-size: 1rem;">{{ metodo.cantidad }}</span>
+                  </div>
+                  
+                  <div *ngIf="!reportData?.metodos?.length" style="color: #94a3b8; font-style: italic;">
+                    Sin datos de vía de atención
+                  </div>
+
+              </div>
+            </div>
+            
           </div>
 
         </div>

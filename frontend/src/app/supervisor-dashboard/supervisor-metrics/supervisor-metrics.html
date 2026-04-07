@@ -12,10 +12,26 @@
       <span class="stat-number">{{ totalTicketsMes }}</span>
       <div class="indicator"></div>
     </div>
-    <div class="stat-card success">
+<div class="stat-card success" style="display: flex; flex-direction: column;">
+      
       <span class="stat-label">Resueltos</span>
       <span class="stat-number green">{{ resueltosMes }}</span>
+      
+      <div style="display: flex; gap: 8px; margin-top: auto; border-top: 1px dashed #dcfce7; padding-top: 12px;">
+        
+        <div style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; background: rgba(41, 128, 185, 0.1); color: #2980b9; padding: 6px 8px; border-radius: 8px; font-size: 0.85rem; font-weight: 700; transition: background 0.2s;" title="Llamada / Remoto">
+          <span class="material-symbols-outlined" style="font-size: 1.1rem;">support_agent</span>
+          <span>{{ resueltosLlamada }}</span>
+        </div>
+
+        <div style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; background: rgba(22, 160, 133, 0.1); color: #16a085; padding: 6px 8px; border-radius: 8px; font-size: 0.85rem; font-weight: 700; transition: background 0.2s;" title="Presencial">
+          <span class="material-symbols-outlined" style="font-size: 1.1rem;">engineering</span>
+          <span>{{ resueltosPresencial }}</span>
+        </div>
+
+      </div>
     </div>
+    
     <div class="stat-card warning">
       <span class="stat-label">Pendientes</span>
       <span class="stat-number orange">{{ pendientesMes }}</span>

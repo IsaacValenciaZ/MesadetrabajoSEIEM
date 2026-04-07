@@ -151,9 +151,27 @@ export class PersonalPendingComponent implements OnInit, OnDestroy {
           </div>
         </div>
 
+        <div style="display: flex; gap: 40px; margin-bottom: 25px;">
+          <div style="flex: 1;">
+            <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Departamento</p>
+            <p style="margin: 4px 0 0 0; font-weight: 500; font-size: 1.05rem; color: #334155;">${ticketSeleccionado.departamento}</p>
+          </div>
+          <div style="flex: 1;">
+            <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Municipio</p>
+            <p style="margin: 4px 0 0 0; font-weight: 500; font-size: 1.05rem; color: #334155;">${ticketSeleccionado.municipio || '-'}</p>
+          </div>
+        </div>
+
         <div style="margin-bottom: 30px;">
-          <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Departamento</p>
-          <p style="margin: 4px 0 0 0; font-weight: 500; font-size: 1.05rem; color: #334155;">${ticketSeleccionado.departamento}</p>
+          <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Vía de Atención</p>
+          <div style="display: flex; align-items: center; gap: 8px; margin-top: 6px;">
+            <span class="material-symbols-outlined" style="font-size: 1.3rem; color: ${ticketSeleccionado.metodo_resolucion === 'Presencial' ? '#16a085' : (ticketSeleccionado.metodo_resolucion === 'Llamada / Remoto' ? '#2980b9' : '#94a3b8')};">
+              ${ticketSeleccionado.metodo_resolucion === 'Presencial' ? 'engineering' : (ticketSeleccionado.metodo_resolucion === 'Llamada / Remoto' ? 'support_agent' : 'help_outline')}
+            </span>
+            <span style="font-weight: 700; font-size: 1rem; color: #334155;">
+              ${ticketSeleccionado.metodo_resolucion || 'No especificada por la asignadora'}
+            </span>
+          </div>
         </div>
 
          <p style="margin: 0 0 8px 0; font-size: 0.75rem; color: 64748b; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;  display: inline-block; padding: 4px 8px; border-radius: 4px;">Clasificación del Problema</p>
@@ -228,11 +246,9 @@ abrirModalFinalizacion(ticketSeleccionado: any) {
           <span style="font-size: 0.85rem; color: #334155; font-weight: 700; user-select: none;">Cerrar ticket sin firma (Ausencia del solicitante)</span>
         </label>
 
-        <!-- TOCA PARA FIRMAR EN MOVIL-->
         <div id="contenedor-firma" style="border: 2px dashed #cbd5e1; border-radius: 8px; background: #fff; touch-action: none; position: relative;">
           <canvas id="firma-canvas" style="width: 100%; height: 220px; cursor: crosshair; display: block;"></canvas>
           
-          <!-- TOCA PARA FIRMAR -->
           <div id="overlay-abrir-firma" style="
             display: none;
             position: absolute; inset: 0;
@@ -242,7 +258,7 @@ abrirModalFinalizacion(ticketSeleccionado: any) {
             justify-content: center;
             flex-direction: column;
             gap: 8px;
-            cursor: pointer;Overlay existe
+            cursor: pointer;
           ">
             <span class="material-symbols-outlined" style=" color: #56212f; font-size: 2rem;">stylus_note</span>
             <span style="font-weight: 800; color: #56212f; font-size: 0.95rem;">Toca para firmar</span>
@@ -250,8 +266,7 @@ abrirModalFinalizacion(ticketSeleccionado: any) {
           </div>
         </div>
 
-        <!--  VISTA PREVIA TRAS CONFIRMAR -->
-          <div id="firma-preview-container" style="display: none; margin-top: 6px;">
+        <div id="firma-preview-container" style="display: none; margin-top: 6px;">
             <img id="firma-preview-img" style="width: 100%; border-radius: 8px; border: 1px solid #cbd5e1; max-height: 80px; object-fit: contain; background: #fff;">
             
             <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px; padding: 10px 12px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px;">
@@ -261,7 +276,6 @@ abrirModalFinalizacion(ticketSeleccionado: any) {
 
           </div>
 
-        <!-- PANTALLA COMPLETA DE FIRMA  -->
         <div id="firma-fullscreen-overlay" style="
           display: none;
           position: fixed; inset: 0;
@@ -302,7 +316,6 @@ abrirModalFinalizacion(ticketSeleccionado: any) {
             Elegir en galería
           </button>
 
-          <!-- VISTA DE FOTO ADJUNTA  -->
           <div id="badge-foto" style="
             display: none;
             align-items: center;
@@ -701,7 +714,6 @@ procesarCierreDeTicket(
 html: `
 <div style="text-align: left; font-family: 'Segoe UI', sans-serif; padding: 4px 0;">
 
-  <!-- HEADER -->
   <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
     <span class="material-symbols-outlined" style="color: #56212f; font-size: 1.4rem;">new_releases</span>
     <div>
@@ -710,12 +722,10 @@ html: `
     </div>
   </div>
 
-  <!-- DESCRIPCION -->
   <p style="margin: 0 0 16px 0; font-size: 0.8rem; color: #64748b; line-height: 1.5; padding-left: 2px;">
     Dos mejoras nuevas: una <strong style="color: #1e293b;">vista nueva</strong> de tickets en móvil y la opción de <strong style="color: #1e293b;">adjuntar evidencia mediante dos botones</strong> al cerrar un ticket.
   </p>
 
-  <!-- ITEMS -->
   <div style="display: flex; flex-direction: column; gap: 1px; border-radius: 10px; overflow: hidden; border: 1px solid #f1f5f9; margin-bottom: 16px;">
 
     <div style="display: flex; align-items: flex-start; gap: 14px; padding: 14px 16px; background: #fafafa;">
@@ -754,7 +764,6 @@ html: `
 
   </div>
 
-  <!-- NOTAS -->
   <div style="display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; background: rgba(86,33,47,0.04); border-radius: 8px; border-left: 2px solid #56212f;">
     <span class="material-symbols-outlined" style="color: #56212f; font-size: 1rem; flex-shrink: 0; margin-top: 1px;">info</span>
     <p style="margin: 0; font-size: 0.78rem; color: #56212f; line-height: 1.5;">

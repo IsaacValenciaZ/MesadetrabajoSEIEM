@@ -202,8 +202,10 @@ generarOpcionesMeses() {
     const detallesExtraHtml = this.getDetallesExtra(ticket, colorFondoCategoria);
     
     const htmlModal = `
-      <div style="text-align: left; font-family: 'Segoe UI', sans-serif; color: #1e293b;">
-        <h1 style="font-size: 2.2rem; font-weight: 900; margin: 0 0 20px 0; color: #0f172a; font-style: italic;">Ticket: #${ticket.id}</h1>
+            <div style="text-align: left; font-family: 'Segoe UI', sans-serif; color: #1e293b;">
+        
+        <h1 style="font-size: 2.2rem; font-weight: 900; margin: 0 0 20px 0; color: #0f172a; font-style: italic;">Ticket:  #${ticket.id}</h1>
+
         <div style="display: flex; gap: 40px; margin-bottom: 25px;">
           <div>
             <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Fecha de Solicitud</p>
@@ -214,7 +216,9 @@ generarOpcionesMeses() {
             <p style="margin: 4px 0 0 0; font-size: 0.95rem; font-weight: 600; color: #d97706;">${ticket.fecha_limite || 'N/A'}</p>
           </div>
         </div>
+
         <hr style="border: 0; border-top: 1px solid #f1f5f9; margin: 20px 0;">
+
         <div style="display: flex; gap: 40px; margin-bottom: 25px;">
           <div>
             <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Solicitante</p>
@@ -225,19 +229,47 @@ generarOpcionesMeses() {
             <p style="margin: 4px 0 0 0; font-weight: 800; font-size: 1.1rem; color: #0f172a;">${ticket.extension_tel || '-'}</p>
           </div>
         </div>
-        <div style="margin-bottom: 30px;">
-          <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Departamento</p>
-          <p style="margin: 4px 0 0 0; font-weight: 500; font-size: 1.05rem; color: #334155;">${ticket.departamento}</p>
+
+        <div style="display: flex; gap: 40px; margin-bottom: 25px;">
+          <div style="flex: 1;">
+            <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Departamento</p>
+            <p style="margin: 4px 0 0 0; font-weight: 500; font-size: 1.05rem; color: #334155;">${ticket.departamento}</p>
+          </div>
+          <div style="flex: 1;">
+            <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Municipio</p>
+            <p style="margin: 4px 0 0 0; font-weight: 500; font-size: 1.05rem; color: #334155;">${ticket.municipio || '-'}</p>
+          </div>
         </div>
-        <p style="margin: 0 0 8px 0; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; display: inline-block; padding: 4px 8px; border-radius: 4px;">Clasificación del Problema</p>
-        <div style="display: flex; align-items: center; justify-content: space-between; border: 1px solid #e2e8f0; border-left: 6px solid ${colorFondoCategoria}; border-radius: 8px; padding: 15px; margin-bottom: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+
+        <div style="margin-bottom: 30px;">
+          <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Vía de Atención</p>
+          <div style="display: flex; align-items: center; gap: 8px; margin-top: 6px;">
+            <span class="material-symbols-outlined" style="font-size: 1.3rem; color: ${ticket.metodo_resolucion === 'Presencial' ? '#16a085' : (ticket.metodo_resolucion === 'Llamada / Remoto' ? '#2980b9' : '#94a3b8')};">
+              ${ticket.metodo_resolucion === 'Presencial' ? 'engineering' : (ticket.metodo_resolucion === 'Llamada / Remoto' ? 'support_agent' : 'help_outline')}
+            </span>
+            <span style="font-weight: 700; font-size: 1rem; color: #334155;">
+              ${ticket.metodo_resolucion || 'No especificada por la asignadora'}
+            </span>
+          </div>
+        </div>
+
+         <p style="margin: 0 0 8px 0; font-size: 0.75rem; color: 64748b; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;  display: inline-block; padding: 4px 8px; border-radius: 4px;">Clasificación del Problema</p>
+        
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; border: 1px solid #e2e8f0; border-left: 6px solid ${colorFondoCategoria}; border-radius: 8px; padding: 15px; margin-bottom: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); gap: 10px;">
           <div style="display: flex; align-items: center; flex-wrap: wrap;">
-            <span style="background-color: ${colorFondoCategoria}; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700;">${ticket.descripcion}</span>
+            <span style="background-color: ${colorFondoCategoria}; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700; display: inline-block;">
+              ${ticket.descripcion}
+            </span>
             ${detallesExtraHtml}
           </div>
-          <p style="color: #64748b; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700; white-space: nowrap;">Prio:</p>
-          <span style="background-color: ${colorPrioridad}; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700; white-space: nowrap;">${ticket.prioridad}</span>
+          <div style="display: flex; align-items: center; gap: 5px; flex-wrap: wrap;">
+             <p style="margin:0; color: #64748b; font-size: 0.85rem; font-weight: 700;">Prio:</p>
+             <span style="background-color: ${colorPrioridad}; color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: 700; display: inline-block;">
+               ${ticket.prioridad}
+             </span>
+          </div>
         </div>
+
         <div>
           <p style="margin: 0 0 8px 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Notas Adicionales</p>
           <div style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 8px; padding: 15px;">
@@ -246,6 +278,7 @@ generarOpcionesMeses() {
             </p>
           </div>
         </div>
+
       </div>
     `;
 

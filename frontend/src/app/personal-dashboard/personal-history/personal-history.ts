@@ -317,23 +317,41 @@ export class PersonalHistoryComponent implements OnInit {
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px;">
+        <div style="display: flex; gap: 40px; margin-bottom: 25px;">
           <div>
             <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Solicitante</p>
-            <p style="margin: 4px 0 0 0; font-weight: 800; font-size: 1.1rem; color: #0f172a; word-break: break-word;">${ticketSeleccionado.nombre_usuarios || ticketSeleccionado.nombre_usuario}</p>
+            <p style="margin: 4px 0 0 0; font-weight: 800; font-size: 1.1rem; color: #0f172a;">${ticketSeleccionado.nombre_usuario}</p>
           </div>
           <div>
             <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Ext / Teléfono</p>
-            <p style="margin: 4px 0 0 0; font-weight: 800; font-size: 1.1rem; color: #0f172a; word-break: break-word;">${ticketSeleccionado.extension_tel || '-'}</p>
+            <p style="margin: 4px 0 0 0; font-weight: 800; font-size: 1.1rem; color: #0f172a;">${ticketSeleccionado.extension_tel || '-'}</p>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 40px; margin-bottom: 25px;">
+          <div style="flex: 1;">
+            <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Departamento</p>
+            <p style="margin: 4px 0 0 0; font-weight: 500; font-size: 1.05rem; color: #334155;">${ticketSeleccionado.departamento}</p>
+          </div>
+          <div style="flex: 1;">
+            <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Municipio</p>
+            <p style="margin: 4px 0 0 0; font-weight: 500; font-size: 1.05rem; color: #334155;">${ticketSeleccionado.municipio || '-'}</p>
           </div>
         </div>
 
         <div style="margin-bottom: 30px;">
-          <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Departamento</p>
-          <p style="margin: 4px 0 0 0; font-weight: 500; font-size: 1.05rem; color: #334155; word-break: break-word;">${ticketSeleccionado.departamento}</p>
+          <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Vía de Atención</p>
+          <div style="display: flex; align-items: center; gap: 8px; margin-top: 6px;">
+            <span class="material-symbols-outlined" style="font-size: 1.3rem; color: ${ticketSeleccionado.metodo_resolucion === 'Presencial' ? '#16a085' : (ticketSeleccionado.metodo_resolucion === 'Llamada / Remoto' ? '#2980b9' : '#94a3b8')};">
+              ${ticketSeleccionado.metodo_resolucion === 'Presencial' ? 'engineering' : (ticketSeleccionado.metodo_resolucion === 'Llamada / Remoto' ? 'support_agent' : 'help_outline')}
+            </span>
+            <span style="font-weight: 700; font-size: 1rem; color: #334155;">
+              ${ticketSeleccionado.metodo_resolucion || 'No especificada por la asignadora'}
+            </span>
+          </div>
         </div>
 
-        <p style="margin: 0 0 8px 0; font-size: 0.75rem; color: 64748b; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;  display: inline-block; padding: 4px 8px; border-radius: 4px;">Clasificación del Problema</p>
+         <p style="margin: 0 0 8px 0; font-size: 0.75rem; color: 64748b; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;  display: inline-block; padding: 4px 8px; border-radius: 4px;">Clasificación del Problema</p>
         
         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; border: 1px solid #e2e8f0; border-left: 6px solid ${colorFondoCategoria}; border-radius: 8px; padding: 15px; margin-bottom: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); gap: 10px;">
           <div style="display: flex; align-items: center; flex-wrap: wrap;">
@@ -553,9 +571,9 @@ export class PersonalHistoryComponent implements OnInit {
       const estadisticas = {
           total: listaTickets.length,
           completos: 0,
-          vencidos: 0,
+          caducados: 0,
           aTiempo: 0,
-          tarde: 0,
+          conRetraso: 0,
           rapido: 0,
           normal: 0,
           lento: 0,
@@ -569,16 +587,17 @@ export class PersonalHistoryComponent implements OnInit {
          if (ticket.estado === 'Completo' || ticket.estado === 'Completado') {
             estadisticas.completos++;
             
-            if (ticket.fecha_fin && ticket.fecha_limite) { 
+if (ticket.fecha_fin && ticket.fecha_limite) { 
                 if (ticket.fecha_fin <= ticket.fecha_limite) {
                     estadisticas.aTiempo++; 
                 } else {
-                    estadisticas.tarde++; 
+                    estadisticas.conRetraso++; 
                 }
             } else { 
-                estadisticas.tarde++; 
+              
+                estadisticas.conRetraso++; 
             }
-            
+
             if (ticket.fecha && ticket.fecha_fin) {
                const tiempoInicio = new Date(ticket.fecha).getTime(); 
                const tiempoFin = new Date(ticket.fecha_fin).getTime(); 
@@ -595,7 +614,7 @@ export class PersonalHistoryComponent implements OnInit {
                }
             }
          } else if (ticket.estado === 'Incompleto') { 
-             estadisticas.vencidos++; 
+             estadisticas.caducados++; 
          }
       });
       
@@ -706,9 +725,9 @@ export class PersonalHistoryComponent implements OnInit {
           new Chart(contextoEstatus, { 
               type: 'doughnut', 
               data: { 
-                  labels: ['Completados', 'Vencidos'], 
+                  labels: ['Completados', 'Caducados'], 
                   datasets: [{ 
-                      data: [metricas.completos, metricas.vencidos], 
+                      data: [metricas.completos, metricas.caducados], 
                       backgroundColor: ['#28f328', '#f32828'], 
                       hoverOffset: 4 
                   }] 
@@ -724,7 +743,7 @@ export class PersonalHistoryComponent implements OnInit {
               data: { 
                   labels: ['A tiempo', 'Con retraso', 'Caducado'], 
                   datasets: [{ 
-                      data: [metricas.aTiempo, metricas.tarde, metricas.vencidos], 
+                      data: [metricas.aTiempo, metricas.conRetraso, metricas.caducados], 
                       backgroundColor: ['#28f328', '#f3f028', '#f32828'], 
                       hoverOffset: 4 
                   }] 

@@ -26,6 +26,8 @@ export class SupervisorMetricsComponent implements OnInit {
 
   totalTicketsMes: number = 0;
   resueltosMes: number = 0;
+  resueltosLlamada: number = 0;    
+  resueltosPresencial: number = 0; 
   pendientesMes: number = 0;
   eficienciaMes: string = '0';
 
@@ -79,6 +81,8 @@ export class SupervisorMetricsComponent implements OnInit {
     const enEsperaMes = ticketsDelMes.filter(t => t.estado?.toLowerCase() === 'en espera');
     
     this.resueltosMes = completadosMes.length;
+    this.resueltosLlamada = completadosMes.filter(t => t.metodo_resolucion === 'Llamada / Remoto').length;
+    this.resueltosPresencial = completadosMes.filter(t => t.metodo_resolucion === 'Presencial').length;
     this.pendientesMes = enEsperaMes.length;
     this.eficienciaMes = this.totalTicketsMes > 0 ? ((this.resueltosMes / this.totalTicketsMes) * 100).toFixed(1) : '0';
 

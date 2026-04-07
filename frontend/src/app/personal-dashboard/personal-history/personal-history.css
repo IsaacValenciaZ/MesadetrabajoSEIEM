@@ -272,8 +272,8 @@ input[type="text"].month-select {
     white-space: nowrap;
 }
 
-.simple-table th:nth-child(9),
-.simple-table td:nth-child(9) {
+.simple-table th:nth-child(10),
+.simple-table td:nth-child(10) {
     width: 110px !important;
     min-width: 110px !important;
     max-width: 110px !important;
@@ -281,7 +281,7 @@ input[type="text"].month-select {
     vertical-align: middle;
 }
 
-.simple-table td:nth-child(9) div {
+.simple-table td:nth-child(10) div {
     display: inline-flex;
     justify-content: center;
     align-items: center;
@@ -303,6 +303,12 @@ input[type="text"].month-select {
     font-family: 'Consolas', monospace; 
     font-weight: 600; 
     white-space: nowrap;
+}
+
+.muni-col {
+    white-space: normal !important;
+    word-break: break-word;
+    min-width: 100px;
 }
 
 .text-center { text-align: center; }
@@ -627,3 +633,92 @@ input[type="text"].month-select {
         z-index: 1000; 
     }
 }
+
+.cards-movil-historial {
+    display: none;
+}
+
+@media (max-width: 768px) {
+
+ .table-card { display: none; }
+    .cards-movil-historial { display: flex; flex-direction: column; gap: 10px; }
+
+    .ticket-card-historial {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid #f1f1f1;
+        padding: 14px 16px;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .ticket-card-historial:active { background: #fff9f0; }
+
+    .tch-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 10px;
+    }
+
+    .tch-id {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #9ca3af;
+        font-family: 'Consolas', monospace;
+        margin-bottom: 3px;
+    }
+
+    .tch-name {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 2px 0;
+    }
+
+    .tch-dept {
+        font-size: 0.8rem;
+        color: #64748b;
+    }
+
+    .tch-horas {
+        text-align: right;
+    }
+
+    .tch-horas .hora-label {
+        display: block;
+        font-size: 0.62rem;
+        color: #94a3b8;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin-bottom: 2px;
+        letter-spacing: 0.5px;
+    }
+
+    .tch-horas .hora-val {
+        font-size: 0.78rem;
+        color: #56212f;
+        font-weight: 700;
+        font-family: 'Consolas', monospace;
+        display: block;
+    }
+
+    .tch-horas .hora-fin {
+        font-size: 0.75rem;
+        color: #64748b;
+        font-family: 'Consolas', monospace;
+        display: block;
+        margin-top: 2px;
+    }
+
+    .tch-badges {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid #f1f5f9;
+        align-items: center;
+    }
+}
+

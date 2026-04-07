@@ -157,6 +157,7 @@ export class TicketsComponent implements OnInit, OnDestroy {
     personalId: '',     
     descripcion: '',    
     prioridad: '',
+    metodo_resolucion: '',
     notas: '',
     cantidad_dicta: null,
     extension_tel: '',
@@ -289,6 +290,7 @@ obtenerReportesDelDia() {
     if (!this.nuevoTicket.extension_tel)  camposVacios.push('Extensión o Teléfono');
     if (!this.nuevoTicket.personalId)     camposVacios.push('Técnico');
     if (!this.nuevoTicket.descripcion)    camposVacios.push('Categoría');
+    if (!this.nuevoTicket.metodo_resolucion) camposVacios.push('Vía de atención esperada');
     if (!this.nuevoTicket.prioridad)      camposVacios.push('Prioridad');
     
     if (this.nuevoTicket.descripcion === 'Correo' && !this.nuevoTicket.correo_tipo) {
@@ -342,6 +344,7 @@ obtenerReportesDelDia() {
       departamento: this.nuevoTicket.departamento,
       municipio: this.nuevoTicket.municipio,
       descripcion: this.nuevoTicket.descripcion, 
+      metodo_resolucion: this.nuevoTicket.metodo_resolucion,
       prioridad: this.nuevoTicket.prioridad,
       notas: this.nuevoTicket.notas || '',
       cantidad: this.nuevoTicket.cantidad_dicta, 
@@ -385,6 +388,7 @@ obtenerReportesDelDia() {
             personalId: '', 
             descripcion: '', 
             prioridad: '', 
+            metodo_resolucion: '',
             notas: '', 
             cantidad_dicta: null, 
             extension_tel: '', 

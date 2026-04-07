@@ -376,8 +376,8 @@ input:focus, select:focus {
 
     .header-text h2  { font-size: 1.4rem; }
     .section-divider { font-size: 1rem; margin-top: 30px; }
-
-    .stats-card  { padding: 20px 15px; }
+    .stats-grid { grid-template-columns: 1fr !important; gap: 15px;  }
+    .stats-card  { padding: 20px 15px; width: 100%; box-sizing: border-box; overflow: hidden; }
     .chart-wrapper { width: 200px; height: 200px; }
     .chart-center-text .big-number { font-size: 2.2rem; }
     .evolution-chart-wrapper { height: 220px; }

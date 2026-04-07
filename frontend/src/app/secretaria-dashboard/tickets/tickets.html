@@ -7,7 +7,7 @@
       
       <div class="form-group">
         <label>Nombre del Usuario:</label>
-        <input type="text" [(ngModel)]="nuevoTicket.nombre_usuario" class="simple-input" placeholder="Nombre completo">
+        <input type="text" [(ngModel)]="nuevoTicket.nombre_usuario" class="simple-input" name="nombre_usuario" placeholder="Nombre completo">
       </div>
 
       <div class="form-group" style="position: relative;">
@@ -34,7 +34,7 @@
 
       <div class="form-group">
         <label>Municipio:</label>
-        <input type="text" [(ngModel)]="nuevoTicket.municipio" class="simple-input" placeholder="Ingresa el municipio" required>
+        <input type="text" [(ngModel)]="nuevoTicket.municipio" name="municipio" class="simple-input" placeholder="Ingresa el municipio" required>
       </div>
 
       <div class="form-group">
@@ -44,7 +44,7 @@
 
         <div class="form-group">
         <label>Técnico Asignado:</label>
-        <select class="simple-input" [(ngModel)]="nuevoTicket.personalId" required>
+        <select class="simple-input" [(ngModel)]="nuevoTicket.personalId" name="personalId" required>
           <option value="" disabled selected>-- Selecciona Técnico --</option>
           <option *ngFor="let tecnico of listaTecnicos" 
                   [value]="tecnico.id" 
@@ -92,26 +92,26 @@
         <label>Especifica el tipo de soporte (puedes elegir varios):</label>
         <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 10px;">
           <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
-            <input type="checkbox" [(ngModel)]="nuevoTicket.soporte.impresora"> <span>Impresora</span>
+            <input type="checkbox" [(ngModel)]="nuevoTicket.soporte.impresora" name="soporte_impresora"> <span>Impresora</span>
           </label>
           <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
-            <input type="checkbox" [(ngModel)]="nuevoTicket.soporte.escaner"> <span>Escáner</span>
+            <input type="checkbox" [(ngModel)]="nuevoTicket.soporte.escaner" name="soporte_escaner"> <span>Escáner</span>
           </label>
           <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
-            <input type="checkbox" [(ngModel)]="nuevoTicket.soporte.software"> <span>Software</span>
+            <input type="checkbox" [(ngModel)]="nuevoTicket.soporte.software" name="soporte_software"> <span>Software</span>
           </label>
           <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
-            <input type="checkbox" [(ngModel)]="nuevoTicket.soporte.hardware"> <span>Hardware</span>
+            <input type="checkbox" [(ngModel)]="nuevoTicket.soporte.hardware" name="soporte_hardware"> <span>Hardware</span>
           </label>
                     <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
-            <input type="checkbox" [(ngModel)]="nuevoTicket.soporte.garantias"> <span>Garantías</span>
+            <input type="checkbox" [(ngModel)]="nuevoTicket.soporte.garantias" name="soporte_garantias"> <span>Garantías</span>
           </label>
         </div>
       </div>
 
       <div class="form-group">
         <label>Prioridad:</label>
-        <select [(ngModel)]="nuevoTicket.prioridad" class="simple-input">
+        <select [(ngModel)]="nuevoTicket.prioridad" name="prioridad" class="simple-input">
           <option value="" disabled selected>-- Selecciona --</option>
           <option value="Alta">Alta</option>
           <option value="Media">Media</option>
@@ -121,7 +121,25 @@
 
       <div class="form-group full-width">
         <label>Detalles del Problema (Notas):</label>
-        <textarea [(ngModel)]="nuevoTicket.notas" rows="4" placeholder="Describe la falla..." class="simple-input"></textarea>
+        <textarea [(ngModel)]="nuevoTicket.notas" rows="4"   name="notas" placeholder="Describe la falla..." class="simple-input"></textarea>
+      </div>
+
+      <div class="form-group full-width method-container">
+        <label class="method-title">Vía de atención esperada</label>
+        
+        <div class="method-options">
+          <label class="method-option-label">
+            <input type="radio" [(ngModel)]="nuevoTicket.metodo_resolucion" name="metodo_resolucion" value="Llamada / Remoto">
+            <span class="material-symbols-outlined icon-llamada">support_agent</span>
+             Llamada / Remoto
+          </label>
+          
+          <label class="method-option-label">
+            <input type="radio" [(ngModel)]="nuevoTicket.metodo_resolucion" name="metodo_resolucion" value="Presencial">
+            <span class="material-symbols-outlined icon-presencial">engineering</span>
+            Servicio Presencial
+          </label>
+        </div>
       </div>
 
       <div class="full-width">

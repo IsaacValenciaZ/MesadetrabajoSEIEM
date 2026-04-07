@@ -372,12 +372,78 @@ textarea.simple-input {
     font-style: italic;
 }
 
+
+
+.method-container {
+    margin-top: 15px;
+    background-color: #ffffff; 
+    padding: 12px 15px;
+    border-radius: 8px; 
+    border: 1px solid #e2e8f0;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.method-container:hover {
+    border-color: #cbd5e1;
+}
+
+.method-title {
+    color: #5f6c7b !important;
+    font-weight: 600 !important;
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+    display: block;
+}
+
+.method-options {
+    display: flex;
+    gap: 30px;
+    margin-top: 5px;
+}
+
+.method-option-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    color: #334155;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.method-option-label:hover {
+    color: #56212f; 
+}
+
+.method-option-label input[type="radio"] {
+    accent-color: #56212f;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.icon-llamada {
+    font-size: 1.3rem;
+    color: #d4a055; 
+}
+
+.icon-presencial {
+    font-size: 1.3rem;
+    color: #56212f; 
+}
+
+
 @media (max-width: 768px) {
     .central-form-card {
         padding: 20px;
     }
     .form-content {
         grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+        .method-options {
+        flex-direction: column;
         gap: 15px;
     }
 }

@@ -12,6 +12,7 @@ import { PerformanceUserComponent } from '../performance-user/performance-user.c
 import { PerformanceSecretariaComponent } from '../performance-secretaria/performance-secretaria.component'; 
 import { CreateUserComponent } from '../create-user/create-user.component'; 
 import { DeleteUserComponent } from '../delete-user/delete-user.component'; 
+
 Chart.register(...registerables);
 
 @Component({
@@ -55,9 +56,11 @@ export class GestionUsuariosComponent implements OnInit {
   showReportModal: boolean = false;
   periodoReporte: string = 'semana';
   reportData: any = {};
+  
   reportChart: any;
   priorityChart: any;
   deptChart: any;
+  metodoChart: any; 
 
   ngOnInit() {
     this.cargarDatos();
@@ -74,7 +77,8 @@ export class GestionUsuariosComponent implements OnInit {
       error: (err) => console.error("Error cargando usuarios:", err)
     });
   }
-abrirModalReporte() {
+
+  abrirModalReporte() {
     this.showReportModal = true;
     this.cargarDatosReporte();
   }
@@ -88,6 +92,7 @@ abrirModalReporte() {
     if (this.reportChart) { this.reportChart.destroy(); this.reportChart = null; }
     if (this.priorityChart) { this.priorityChart.destroy(); this.priorityChart = null; }
     if (this.deptChart) { this.deptChart.destroy(); this.deptChart = null; }
+    if (this.metodoChart) { this.metodoChart.destroy(); this.metodoChart = null; } 
   }
 
   cargarDatosReporte() {
@@ -106,83 +111,106 @@ abrirModalReporte() {
     });
   }
   
-dibujarGraficas() {
-  this.destruirGraficas();
+  dibujarGraficas() {
+    this.destruirGraficas();
 
-  const ctxPie = document.getElementById('reportPieChart') as HTMLCanvasElement;
-  if (ctxPie && this.reportData.categorias) {
-    const coloresCategorias: { [key: string]: string } = {
-      'Internet':           '#2980b9',
-      'Office':             '#d35400',
-      'Telefonia':          '#2c3e50',
-      'Tecnico':            '#16a085',
-      'Dictaminar':         '#6c5ce7',
-      'Extension/Telefono': '#94961c',
-      'Correo':             '#96241c'
-    };
+    const ctxPie = document.getElementById('reportPieChart') as HTMLCanvasElement;
+    if (ctxPie && this.reportData.categorias) {
+      const coloresCategorias: { [key: string]: string } = {
+        'Internet':           '#2980b9',
+        'Office':             '#d35400',
+        'Telefonia':          '#2c3e50',
+        'Tecnico':            '#16a085',
+        'Dictaminar':         '#6c5ce7',
+        'Extension/Telefono': '#94961c',
+        'Correo':             '#96241c'
+      };
 
-    this.reportChart = new Chart(ctxPie, {
-      type: 'doughnut',
-      data: {
-        labels: this.reportData.categorias.map((c: any) => c.nombre),
-        datasets: [{
-          data: this.reportData.categorias.map((c: any) => c.cantidad),
-          backgroundColor: this.reportData.categorias.map((c: any) => 
-            coloresCategorias[c.nombre] || '#64748b'
-          ),
-          borderWidth: 1
-        }]
-      },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
-    });
+      this.reportChart = new Chart(ctxPie, {
+        type: 'doughnut',
+        data: {
+          labels: this.reportData.categorias.map((c: any) => c.nombre),
+          datasets: [{
+            data: this.reportData.categorias.map((c: any) => c.cantidad),
+            backgroundColor: this.reportData.categorias.map((c: any) => 
+              coloresCategorias[c.nombre] || '#64748b'
+            ),
+            borderWidth: 1
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+      });
+    }
+
+    const ctxPrio = document.getElementById('reportPriorityChart') as HTMLCanvasElement;
+    if (ctxPrio && this.reportData.prioridades) {
+      const coloresPrioridad: { [key: string]: string } = {
+        'Alta':  '#c0392b',
+        'Media': '#f39c12',
+        'Baja':  '#27ae60'
+      };
+
+      this.priorityChart = new Chart(ctxPrio, {
+        type: 'pie',
+        data: {
+          labels: this.reportData.prioridades.map((p: any) => p.nombre),
+          datasets: [{
+            data: this.reportData.prioridades.map((p: any) => p.cantidad),
+            backgroundColor: this.reportData.prioridades.map((p: any) =>
+              coloresPrioridad[p.nombre] || '#64748b'
+            ),
+            borderWidth: 1
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+      });
+    }
+
+    const ctxDept = document.getElementById('reportDeptChart') as HTMLCanvasElement;
+    if (ctxDept && this.reportData.departamentos) {
+      this.deptChart = new Chart(ctxDept, {
+        type: 'bar',
+        data: {
+          labels: this.reportData.departamentos.map((d: any) => d.nombre.substring(0, 25)),
+          datasets: [{
+            label: 'Tickets',
+            data: this.reportData.departamentos.map((d: any) => d.cantidad),
+            backgroundColor: '#c3b08f',
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+        }
+      });
+    }
+
+    const ctxMetodo = document.getElementById('reportMetodoChart') as HTMLCanvasElement;
+    if (ctxMetodo && this.reportData.metodos) {
+      const coloresMetodo: { [key: string]: string } = {
+        'Llamada / Remoto': '#2980b9',
+        'Presencial': '#16a085'     
+      };
+
+      this.metodoChart = new Chart(ctxMetodo, {
+        type: 'doughnut',
+        data: {
+          labels: this.reportData.metodos.map((m: any) => m.nombre || 'No especificado'),
+          datasets: [{
+            data: this.reportData.metodos.map((m: any) => m.cantidad),
+            backgroundColor: this.reportData.metodos.map((m: any) =>
+              coloresMetodo[m.nombre] || '#94a3b8'
+            ),
+            borderWidth: 1
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+      });
+    }
   }
-
-  const ctxPrio = document.getElementById('reportPriorityChart') as HTMLCanvasElement;
-  if (ctxPrio && this.reportData.prioridades) {
-    const coloresPrioridad: { [key: string]: string } = {
-      'Alta':  '#c0392b',
-      'Media': '#f39c12',
-      'Baja':  '#27ae60'
-    };
-
-    this.priorityChart = new Chart(ctxPrio, {
-      type: 'pie',
-      data: {
-        labels: this.reportData.prioridades.map((p: any) => p.nombre),
-        datasets: [{
-          data: this.reportData.prioridades.map((p: any) => p.cantidad),
-          backgroundColor: this.reportData.prioridades.map((p: any) =>
-            coloresPrioridad[p.nombre] || '#64748b'
-          ),
-          borderWidth: 1
-        }]
-      },
-      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
-    });
-  }
-
-  const ctxDept = document.getElementById('reportDeptChart') as HTMLCanvasElement;
-  if (ctxDept && this.reportData.departamentos) {
-    this.deptChart = new Chart(ctxDept, {
-      type: 'bar',
-      data: {
-        labels: this.reportData.departamentos.map((d: any) => d.nombre.substring(0, 25)),
-        datasets: [{
-          label: 'Tickets',
-          data: this.reportData.departamentos.map((d: any) => d.cantidad),
-          backgroundColor: '#c3b08f',
-          borderRadius: 4
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
-      }
-    });
-  }
-}
 
   descargarPDF() {
     const data = document.getElementById('pdf-capture-area');
@@ -318,5 +346,5 @@ dibujarGraficas() {
       }
     });
   }
-}
+ }
 }

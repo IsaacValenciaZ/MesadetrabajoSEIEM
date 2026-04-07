@@ -54,8 +54,7 @@
               <span class="material-symbols-outlined">donut_large</span>
           </button>
       </div>
-
-      <div class="table-card">
+<div class="table-card">
         <div class="table-responsive">
           <table class="simple-table history-table">
             <thead>
@@ -65,7 +64,7 @@
                 <th>Hora Término</th> 
                 <th>Solicitante</th>
                 <th>Departamento</th>
-                <th>Ext / Tel</th>
+                <th class="muni-col">Municipio</th> <th>Ext / Tel</th>
                 <th>Clasificación</th>
                 <th class="text-center">Estatus</th>
                 <th class="text-center">Métrica</th>
@@ -74,44 +73,33 @@
             <tbody>
               <tr *ngFor="let ticket of grupo.tickets" class="row-clickable" (click)="abrirModalTicket(ticket)">
                 <td class="text-muted"><strong>#{{ ticket.id }}</strong></td>
-                
                 <td class="time-col">{{ ticket.fecha | date:'HH:mm' }} hrs</td>
-                
                 <td class="time-col" style="color: #555;">
                   {{ ticket.fecha_fin ? (ticket.fecha_fin | date:'HH:mm') + ' hrs' : '-' }}
                 </td>
-                
                 <td><strong>{{ ticket.nombre_usuarios || ticket.nombre_usuario }}</strong></td>
-                
                 <td>{{ ticket.departamento }}</td>
-
-                <td style="font-weight: 600; color: #475569;">{{ ticket.extension_tel || '-' }}</td>
                 
+                <td class="muni-col">{{ ticket.municipio || '-' }}</td> <td style="font-weight: 600; color: #475569;">{{ ticket.extension_tel || '-' }}</td>
                 <td>
                     <span class="badge" [ngClass]="'cat-' + ticket.descripcion.toLowerCase().split('/')[0]">
                         {{ ticket.descripcion }}
                     </span>
-
                      <span *ngIf="ticket.descripcion === 'Dictaminar' && ticket.cantidad_dicta" class="qty-badge" style="margin-top: 5px; display: block;">
                      EQ: {{ ticket.cantidad_dicta }}
                  </span>
-
                  <span *ngIf="ticket.descripcion === 'Correo' && ticket.correo_tipo" class="qty-badge" style="margin-top: 5px; display: block;">
                      Dom: {{ ticket.correo_tipo }}
                  </span>
-
                  <span *ngIf="ticket.descripcion === 'Tecnico' && ticket.soporte_tipo" class="qty-badge" style="margin-top: 5px; display: block; white-space: normal; line-height: 1.2;">
                      {{ ticket.soporte_tipo }}
                  </span>
-
                 </td>
-                
                 <td class="text-center">
                    <span [class]="ticket.estado === 'Incompleto' ? 'badge-incomplete' : 'badge-completed'">
                      {{ ticket.estado === 'Completo' ? 'Completado' : 'Incumplido' }}
                    </span>
                 </td>
-                
                 <td class="text-center">
                     <div *ngIf="ticket.estado !== 'Incompleto'">
                         <span *ngIf="ticket.fecha_fin <= ticket.fecha_limite" class="badge-status success">A Tiempo</span>
@@ -119,11 +107,57 @@
                     </div>
                     <span *ngIf="ticket.estado === 'Incompleto'" class="badge-status late">Caducado</span>
                 </td>
-
               </tr>
             </tbody>
           </table>
         </div>
       </div>
-  </div>
-</div>
+
+  </div> 
+  <div class="cards-movil-historial">
+      <ng-container *ngFor="let grupo of gruposPorDia">
+        <div
+          *ngFor="let ticket of grupo.tickets"
+          class="ticket-card-historial"
+          (click)="abrirModalTicket(ticket)"
+        >
+          <div class="tch-header">
+            <div>
+              <div class="tch-id">#{{ ticket.id }}</div>
+              <div class="tch-name">{{ ticket.nombre_usuarios || ticket.nombre_usuario }}</div>
+              <div class="tch-dept">{{ ticket.departamento }} · {{ ticket.municipio || 'Sin muni.' }} · {{ ticket.extension_tel || 'sin ext.' }}</div>
+            </div>
+            <div class="tch-horas">
+              <span class="hora-label">Asignación</span>
+              <span class="hora-val">{{ ticket.fecha | date:'HH:mm' }} hrs</span>
+              <span class="hora-fin">
+                Fin: {{ ticket.fecha_fin ? (ticket.fecha_fin | date:'HH:mm') + ' hrs' : '-' }}
+              </span>
+            </div>
+          </div>
+
+          <div class="tch-badges">
+            <span class="badge" [ngClass]="'cat-' + ticket.descripcion.toLowerCase().split('/')[0]">
+              {{ ticket.descripcion }}
+            </span>
+            <span *ngIf="ticket.descripcion === 'Dictaminar' && ticket.cantidad_dicta" class="qty-badge">
+              EQ: {{ ticket.cantidad_dicta }}
+            </span>
+            <span *ngIf="ticket.descripcion === 'Correo' && ticket.correo_tipo" class="qty-badge">
+              Dom: {{ ticket.correo_tipo }}
+            </span>
+            <span *ngIf="ticket.descripcion === 'Tecnico' && ticket.soporte_tipo" class="qty-badge">
+              {{ ticket.soporte_tipo }}
+            </span>
+            <span [class]="ticket.estado === 'Incompleto' ? 'badge-incomplete' : 'badge-completed'">
+              {{ ticket.estado === 'Completo' ? 'Completado' : 'Incumplido' }}
+            </span>
+            <ng-container *ngIf="ticket.estado !== 'Incompleto'">
+              <span *ngIf="ticket.fecha_fin <= ticket.fecha_limite" class="badge-status success">A tiempo</span>
+              <span *ngIf="ticket.fecha_fin > ticket.fecha_limite" class="badge-status lateT">Atrasado</span>
+            </ng-container>
+            <span *ngIf="ticket.estado === 'Incompleto'" class="badge-status late">Caducado</span>
+          </div>
+        </div>
+      </ng-container>
+    </div>
