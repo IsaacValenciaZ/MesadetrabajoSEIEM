@@ -37,7 +37,9 @@ export class UsersListComponent implements OnInit {
     return (this.listaUsuariosGeneral || []).filter(usuario => usuario.rol === 'personal');
   }
 
-  navegarAFormularioTickets(idUsuario: any) {
-    this.enrutador.navigate(['/secretaria/tickets']);
+navegarAFormularioTickets(idTecnico: any) {
+    this.enrutador.navigate(['/secretaria/tickets'], { 
+        queryParams: { tecnico: idTecnico } 
+    });
   }
 }

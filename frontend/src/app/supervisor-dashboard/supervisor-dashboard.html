@@ -26,11 +26,11 @@
 
       <div class="spacer"></div>
 
-      <div class="user-info-sidebar">
+      <div class="user-info-sidebar" routerLink="perfil">
         <div class="avatar-circle">{{ usuarioActual?.nombre?.charAt(0) || 'S' }}</div>
         <div class="user-details">
           <span class="user-name">{{ usuarioActual?.nombre || 'Administrador' }}</span>
-          <span class="user-role">Control Total</span> 
+          <span class="user-role">Supervisor</span> 
         </div>
       </div>
 

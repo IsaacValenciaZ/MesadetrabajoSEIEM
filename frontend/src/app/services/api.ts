@@ -38,9 +38,18 @@ actualizarEstadoTicket(id: number, nuevoEstado: string): Observable<any> {
     return this.http.get<any>(`${this.baseUrl}/get_evidencia_personal.php?id=${id}`);
   }
 
-  getTicketsCreadosPorSecretaria(idSecretaria: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/get_secretaria_tickets.php?id=${idSecretaria}`);
+  getTicketsCreadosPorSecretaria(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/get_secretaria_tickets.php`);
   }
+
+  getMesesDisponibles(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.baseUrl}/get_meses_disponibles.php`);
+}
+
+getTodosLosTickets(mes: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/get_secretaria_tickets.php?mes=${mes}`);
+}
+
 
   getMetricasPorSecretaria(id: number): Observable<any[]> {
   return this.http.get<any[]>(`${this.baseUrl}/get_secretaria_metrics.php?id=${id}`);

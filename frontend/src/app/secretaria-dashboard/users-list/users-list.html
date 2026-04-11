@@ -8,9 +8,10 @@
     <table class="simple-table">
       <thead>
         <tr>
-          <th>Nombre del Técnico</th>
+          <th>Técnico</th>
+          <th>Tickets hoy</th>
+          <th>Último ticket</th>
           <th>Email</th>
-          <th>Rol</th>
           <th>Acciones</th>
         </tr>
       </thead>
@@ -18,29 +19,55 @@
         <tr *ngFor="let tecnico of listaTecnicos">
           <td>
             <div class="user-info-cell">
-              <div class="status-indicator" 
-                   [ngClass]="{
-                     'status-green': tecnico.estado_disponibilidad === 'disponible' || !tecnico.estado_disponibilidad, 
-                     'status-orange': tecnico.estado_disponibilidad === 'ocupado', 
-                     'status-red': tecnico.estado_disponibilidad === 'ausente'
-                   }">
+              <div class="avatar-initials">
+{{ tecnico.nombre ? (tecnico.nombre | slice:0:1) : '' }}
               </div>
               <div class="user-details">
                 <strong>{{ tecnico.nombre }}</strong>
-                <span class="status-text">{{ tecnico.estado_disponibilidad || 'disponible' | titlecase }}</span>
+                <span class="status-text">
+                  <span class="status-indicator" [ngClass]="{
+                    'status-green': tecnico.estado_disponibilidad === 'disponible' || !tecnico.estado_disponibilidad, 
+                    'status-orange': tecnico.estado_disponibilidad === 'ocupado', 
+                    'status-red': tecnico.estado_disponibilidad === 'ausente'
+                  }"></span>
+                  {{ tecnico.estado_disponibilidad || 'disponible' | titlecase }}
+                </span>
               </div>
             </div>
           </td>
-          <td>{{ tecnico.email }}</td>
-          <td><span class="role-badge">{{ tecnico.rol | uppercase }}</span></td>
+
           <td>
-            <button class="btn-icon" (click)="navegarAFormularioTickets(tecnico.id)">
+            <div class="ticket-carga">
+              <span class="ticket-pill" [ngClass]="{
+                'pill-green': tecnico.tickets_hoy == 0 || tecnico.tickets_hoy <= 2,
+                'pill-orange': tecnico.tickets_hoy > 2 && tecnico.tickets_hoy <= 5,
+                'pill-red': tecnico.tickets_hoy > 5
+              }">{{ tecnico.tickets_hoy || 0 }} hoy</span>
+              <div class="mini-bar">
+                <div class="mini-bar-fill" [ngClass]="{
+                  'bar-green': tecnico.tickets_hoy <= 2,
+                  'bar-orange': tecnico.tickets_hoy > 2 && tecnico.tickets_hoy <= 5,
+                  'bar-red': tecnico.tickets_hoy > 5
+                }" [style.width.%]="(tecnico.tickets_hoy / 10) * 100 > 100 ? 100 : (tecnico.tickets_hoy / 10) * 100">
+                </div>
+              </div>
+            </div>
+          </td>
+
+          <td class="ultimo-ticket">{{ tecnico.ultimo_ticket || 'Sin tickets hoy' }}</td>
+          <td class="email-col">{{ tecnico.email }}</td>
+
+          <td>
+            <button class="btn-icon" 
+              (click)="navegarAFormularioTickets(tecnico.id)"
+              [disabled]="tecnico.estado_disponibilidad === 'ocupado' || tecnico.estado_disponibilidad === 'ausente'"
+              [ngClass]="{'btn-disabled': tecnico.estado_disponibilidad === 'ocupado' || tecnico.estado_disponibilidad === 'ausente'}">
               Enviar Ticket
             </button>
           </td>
         </tr>
         <tr *ngIf="listaTecnicos.length === 0">
-          <td colspan="4" class="text-center">No hay personal registrado en el sistema.</td>
+          <td colspan="5" class="text-center">No hay personal registrado en el sistema.</td>
         </tr>
       </tbody>
     </table>

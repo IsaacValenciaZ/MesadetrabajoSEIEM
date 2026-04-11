@@ -30,122 +30,76 @@ export class TicketsListComponent implements OnInit {
   diasDelCalendario: any[] = [];
   diaFiltroSeleccionado: number | null = null;
   estadoCargaActivo: boolean = false;
-  
-  idSecretariaActiva: number = 0;
 
-  ngOnInit() {
-    const sesionUsuarioStr = localStorage.getItem('usuario_actual');
-    
-    if (sesionUsuarioStr) {
-        const informacionUsuario = JSON.parse(sesionUsuarioStr);
-        this.idSecretariaActiva = informacionUsuario.id; 
-        this.solicitarDatosHistorial();
-    } else {
-        this.estadoCargaActivo = false;
-    }
-  }
+ngOnInit() {
+    this.apiService.getMesesDisponibles().subscribe({
+      next: (meses) => {
+        console.log('MESES:', meses);
+        this.opcionesMesesDisponibles = meses;
+        const mesActual = new Date().toISOString().substring(0, 7);
+        this.mesFiltroSeleccionado = meses.includes(mesActual) ? mesActual : meses[0];
+        this.cargarTicketsPorMes(this.mesFiltroSeleccionado);
+      },
+      error: (err) => { 
+        console.log('ERROR getMesesDisponibles:', err);
+        this.estadoCargaActivo = false; 
+      }
+    });
+}
 
-  solicitarDatosHistorial() {
+  cargarTicketsPorMes(mes: string) {
     this.estadoCargaActivo = true;
-    
-    this.apiService.getTicketsCreadosPorSecretaria(this.idSecretariaActiva).subscribe({
-      next: (respuestaApi) => {
-        this.listaHistorialCompleto = respuestaApi || [];
-        
-        this.construirListaDeMesesDisponibles();
-
-        const fechaActual = new Date();
-        const añoActual = fechaActual.getFullYear();
-        const mesActualFormato = String(fechaActual.getMonth() + 1).padStart(2, '0');
-        const cadenaMesActual = `${añoActual}-${mesActualFormato}`; 
-        
-        if (this.opcionesMesesDisponibles.includes(cadenaMesActual)) {
-            this.mesFiltroSeleccionado = cadenaMesActual;
-        } else if (this.opcionesMesesDisponibles.length > 0) {
-            this.mesFiltroSeleccionado = this.opcionesMesesDisponibles[0];
-        }
-
-        this.aplicarFiltroMensual(true);
-        
+    this.apiService.getTodosLosTickets(mes).subscribe({
+      next: (tickets) => {
+        this.listaHistorialCompleto = tickets || [];
+        this.listaTicketsFiltrados = tickets || [];
+        this.agruparTicketsPorDia(this.listaTicketsFiltrados);
+        this.construirEstructuraCalendario(this.listaTicketsFiltrados);
         this.estadoCargaActivo = false;
         this.cdr.detectChanges();
       },
-      error: () => { 
-          this.estadoCargaActivo = false; 
-      }
+      error: () => { this.estadoCargaActivo = false; }
     });
-  }
-
-  construirListaDeMesesDisponibles() {
-    const mesesUnicosSet = new Set<string>();
-    
-    this.listaHistorialCompleto.forEach(ticket => {
-      if(ticket.fecha) {
-         const cadenaMesAnio = ticket.fecha.substring(0, 7); 
-         mesesUnicosSet.add(cadenaMesAnio);
-      }
-    });
-    
-    this.opcionesMesesDisponibles = Array.from(mesesUnicosSet).sort().reverse();
   }
 
   aplicarFiltroMensual(reiniciarFiltroDia: boolean = true) {
     if (reiniciarFiltroDia) {
-        this.diaFiltroSeleccionado = null; 
+      this.diaFiltroSeleccionado = null;
     }
-    
-    if (!this.mesFiltroSeleccionado) {
-        this.listaTicketsFiltrados = this.listaHistorialCompleto;
-    } else {
-        this.listaTicketsFiltrados = this.listaHistorialCompleto.filter(ticket => 
-            ticket.fecha && ticket.fecha.startsWith(this.mesFiltroSeleccionado)
-        );
-    }
-
-    this.construirEstructuraCalendario(this.listaTicketsFiltrados); 
-    
-    if (this.diaFiltroSeleccionado === null) {
-        this.agruparTicketsPorDia(this.listaTicketsFiltrados);
-    }
-    
-    this.cdr.detectChanges();
+    this.cargarTicketsPorMes(this.mesFiltroSeleccionado);
   }
 
-aplicarFiltros(reiniciarFiltroDia: boolean = true) {
+  aplicarFiltros(reiniciarFiltroDia: boolean = true) {
     if (reiniciarFiltroDia) {
-        this.diaFiltroSeleccionado = null; 
+      this.diaFiltroSeleccionado = null; 
     }
     
-    let ticketsProcesados = this.mesFiltroSeleccionado 
-        ? this.listaHistorialCompleto.filter(ticket => ticket.fecha && ticket.fecha.startsWith(this.mesFiltroSeleccionado))
-        : this.listaHistorialCompleto;
+    let ticketsProcesados = [...this.listaHistorialCompleto];
 
     if (this.textoBusqueda && this.textoBusqueda.trim() !== '') {
-        const texto = this.textoBusqueda.toLowerCase().trim();
-        
-        ticketsProcesados = ticketsProcesados.filter(ticket => {
-          
-            if (this.tipoBusqueda === 'id') {
-                return ticket.id && ticket.id.toString().includes(texto);
-            } 
-            else if (this.tipoBusqueda === 'secretaria' ) {
-                const creador = ticket.nombre_creador ? ticket.nombre_creador.toLowerCase() : 'desconocido';
-                return creador.includes(texto);
-            }
-            else if (this.tipoBusqueda === 'tecnico') {
-                const tecnico = ticket.personal ? ticket.personal.toLowerCase() : 'sin asignar';
-                return tecnico.includes(texto);
-            }
-            
-            return true;
-        });
+      const texto = this.textoBusqueda.toLowerCase().trim();
+      
+      ticketsProcesados = ticketsProcesados.filter(ticket => {
+        if (this.tipoBusqueda === 'id') {
+          return ticket.id && ticket.id.toString().includes(texto);
+        } 
+        else if (this.tipoBusqueda === 'secretaria') {
+          const creador = ticket.nombre_creador ? ticket.nombre_creador.toLowerCase() : 'desconocido';
+          return creador.includes(texto);
+        }
+        else if (this.tipoBusqueda === 'tecnico') {
+          const tecnico = ticket.personal ? ticket.personal.toLowerCase() : 'sin asignar';
+          return tecnico.includes(texto);
+        }
+        return true;
+      });
     }
 
     this.listaTicketsFiltrados = ticketsProcesados;
     this.construirEstructuraCalendario(this.listaTicketsFiltrados); 
     
     if (this.diaFiltroSeleccionado === null) {
-        this.agruparTicketsPorDia(this.listaTicketsFiltrados);
+      this.agruparTicketsPorDia(this.listaTicketsFiltrados);
     }
     
     this.cdr.detectChanges();
@@ -153,20 +107,20 @@ aplicarFiltros(reiniciarFiltroDia: boolean = true) {
 
   agruparTicketsPorDia(listaParaAgrupar: any[]) {
     if (!listaParaAgrupar || listaParaAgrupar.length === 0) {
-        this.reportesAgrupadosPorDia = [];
-        return;
+      this.reportesAgrupadosPorDia = [];
+      return;
     }
     
     const objetoAgrupador: { [claveFecha: string]: any[] } = {};
     
     listaParaAgrupar.forEach(registro => {
-        const fechaExtraida = registro.fecha.split(' ')[0];
-        
-        if (!objetoAgrupador[fechaExtraida]) {
-            objetoAgrupador[fechaExtraida] = [];
-        }
-        
-        objetoAgrupador[fechaExtraida].push(registro);
+      const fechaExtraida = registro.fecha.split(' ')[0];
+      
+      if (!objetoAgrupador[fechaExtraida]) {
+        objetoAgrupador[fechaExtraida] = [];
+      }
+      
+      objetoAgrupador[fechaExtraida].push(registro);
     });
     
     this.reportesAgrupadosPorDia = Object.keys(objetoAgrupador)
@@ -175,7 +129,7 @@ aplicarFiltros(reiniciarFiltroDia: boolean = true) {
   }
 
   alternarVistaCalendario() { 
-      this.calendarioVisible = !this.calendarioVisible; 
+    this.calendarioVisible = !this.calendarioVisible; 
   }
 
   construirEstructuraCalendario(ticketsDelPeriodoSeleccionado: any[]) {
@@ -208,12 +162,12 @@ aplicarFiltros(reiniciarFiltroDia: boolean = true) {
     if (!objetoDiaCalendario.dia) return; 
     
     if (this.diaFiltroSeleccionado === objetoDiaCalendario.dia) {
-        this.diaFiltroSeleccionado = null;
-        this.agruparTicketsPorDia(this.listaTicketsFiltrados); 
+      this.diaFiltroSeleccionado = null;
+      this.agruparTicketsPorDia(this.listaTicketsFiltrados); 
     } else {
-        this.diaFiltroSeleccionado = objetoDiaCalendario.dia;
-        this.agruparTicketsPorDia(objetoDiaCalendario.tickets); 
-        this.calendarioVisible = false; 
+      this.diaFiltroSeleccionado = objetoDiaCalendario.dia;
+      this.agruparTicketsPorDia(objetoDiaCalendario.tickets); 
+      this.calendarioVisible = false; 
     }
   }
 
@@ -232,20 +186,20 @@ aplicarFiltros(reiniciarFiltroDia: boolean = true) {
   }
 
   mostrarGraficasDiarias(grupoDeTickets: any) {
-     this.lanzarModalGraficas(grupoDeTickets.tickets, `Reporte del Día: ${grupoDeTickets.fecha}`);
+    this.lanzarModalGraficas(grupoDeTickets.tickets, `Reporte del Día: ${grupoDeTickets.fecha}`);
   }
 
   lanzarModalGraficas(conjuntoDeTickets: any[], textoTitulo: string) {
     if (conjuntoDeTickets.length === 0) { 
-        Swal.fire({
-      title: 'Sin datos suficientes', 
-      text: 'No hay historial para generar reporte.', 
-      icon: 'info', 
-      iconColor: '#56212f',
-      confirmButtonText: 'Cerrar', 
-      confirmButtonColor: '#000000'
-    });
-        return; 
+      Swal.fire({
+        title: 'Sin datos suficientes', 
+        text: 'No hay historial para generar reporte.', 
+        icon: 'info', 
+        iconColor: '#56212f',
+        confirmButtonText: 'Cerrar', 
+        confirmButtonColor: '#000000'
+      });
+      return; 
     }
     
     const calculoMetricas = this.generarAnalisisDeTickets(conjuntoDeTickets);
@@ -268,93 +222,93 @@ aplicarFiltros(reiniciarFiltroDia: boolean = true) {
       </div>`;
     
     Swal.fire({ 
-        html: estructuraModalHtml, 
-        width: '700px', 
-        showConfirmButton: false, 
-        showCloseButton: true, 
-        didOpen: () => { 
-            this.inicializarInstanciasGraficas('graficaPrioridadesCanvas', 'graficaProblemasCanvas', calculoMetricas); 
-        } 
+      html: estructuraModalHtml, 
+      width: '700px', 
+      showConfirmButton: false, 
+      showCloseButton: true, 
+      didOpen: () => { 
+        this.inicializarInstanciasGraficas('graficaPrioridadesCanvas', 'graficaProblemasCanvas', calculoMetricas); 
+      } 
     });
   }
 
   generarAnalisisDeTickets(listaEntradaTickets: any[]) {
-      const cantidadTotal = listaEntradaTickets.length;
-      let contadorAlta = 0;
-      let contadorMedia = 0;
-      let contadorBaja = 0;
-      const categoriasProblemas: {[llaveCategoria: string]: number} = {};
+    const cantidadTotal = listaEntradaTickets.length;
+    let contadorAlta = 0;
+    let contadorMedia = 0;
+    let contadorBaja = 0;
+    const categoriasProblemas: {[llaveCategoria: string]: number} = {};
 
-      listaEntradaTickets.forEach(elementoTicket => {
-         if (elementoTicket.prioridad === 'Alta') contadorAlta++;
-         else if (elementoTicket.prioridad === 'Media') contadorMedia++;
-         else if (elementoTicket.prioridad === 'Baja') contadorBaja++;
+    listaEntradaTickets.forEach(elementoTicket => {
+      if (elementoTicket.prioridad === 'Alta') contadorAlta++;
+      else if (elementoTicket.prioridad === 'Media') contadorMedia++;
+      else if (elementoTicket.prioridad === 'Baja') contadorBaja++;
 
-         const nombreCategoria = elementoTicket.descripcion || 'Sin clasificar';
-         categoriasProblemas[nombreCategoria] = (categoriasProblemas[nombreCategoria] || 0) + 1;
-      });
-      
-      return { 
-          total: cantidadTotal, 
-          alta: contadorAlta, 
-          media: contadorMedia, 
-          baja: contadorBaja, 
-          problemas: categoriasProblemas 
-      };
+      const nombreCategoria = elementoTicket.descripcion || 'Sin clasificar';
+      categoriasProblemas[nombreCategoria] = (categoriasProblemas[nombreCategoria] || 0) + 1;
+    });
+    
+    return { 
+      total: cantidadTotal, 
+      alta: contadorAlta, 
+      media: contadorMedia, 
+      baja: contadorBaja, 
+      problemas: categoriasProblemas 
+    };
   }
 
   inicializarInstanciasGraficas(idLienzoPrioridad: string, idLienzoProblema: string, metricasAnalizadas: any) {
-      const lienzoPrioridadElem = document.getElementById(idLienzoPrioridad) as HTMLCanvasElement;
+    const lienzoPrioridadElem = document.getElementById(idLienzoPrioridad) as HTMLCanvasElement;
+    
+    if (lienzoPrioridadElem) { 
+      new Chart(lienzoPrioridadElem, { 
+        type: 'pie', 
+        data: { 
+          labels: ['Alta', 'Media', 'Baja'], 
+          datasets: [{ 
+            data: [metricasAnalizadas.alta, metricasAnalizadas.media, metricasAnalizadas.baja], 
+            backgroundColor: ['#f32828', '#f39c12', '#27ae60'], 
+            hoverOffset: 4 
+          }] 
+        }, 
+        options: { 
+          responsive: true, 
+          plugins: { 
+            legend: { position: 'bottom' } 
+          } 
+        } 
+      }); 
+    }
+    
+    const lienzoProblemaElem = document.getElementById(idLienzoProblema) as HTMLCanvasElement;
+    
+    if (lienzoProblemaElem) { 
+      const listaEtiquetasCategorias = Object.keys(metricasAnalizadas.problemas);
+      const listaDatosCantidades = Object.values(metricasAnalizadas.problemas);
+      const matrizColoresFondo = listaEtiquetasCategorias.map(() => '#56212f'); 
       
-      if(lienzoPrioridadElem) { 
-          new Chart(lienzoPrioridadElem, { 
-              type: 'pie', 
-              data: { 
-                  labels: ['Alta', 'Media', 'Baja'], 
-                  datasets: [{ 
-                      data: [metricasAnalizadas.alta, metricasAnalizadas.media, metricasAnalizadas.baja], 
-                      backgroundColor: ['#f32828', '#f39c12', '#27ae60'], 
-                      hoverOffset: 4 
-                  }] 
-              }, 
-              options: { 
-                  responsive: true, 
-                  plugins: { 
-                      legend: { position: 'bottom' } 
-                  } 
-              } 
-          }); 
-      }
-      
-      const lienzoProblemaElem = document.getElementById(idLienzoProblema) as HTMLCanvasElement;
-      
-      if(lienzoProblemaElem) { 
-          const listaEtiquetasCategorias = Object.keys(metricasAnalizadas.problemas);
-          const listaDatosCantidades = Object.values(metricasAnalizadas.problemas);
-          const matrizColoresFondo = listaEtiquetasCategorias.map(() => '#56212f'); 
-          
-          new Chart(lienzoProblemaElem, { 
-              type: 'bar', 
-              data: { 
-                  labels: listaEtiquetasCategorias, 
-                  datasets: [{ 
-                      label: 'Volumen de Tickets', 
-                      data: listaDatosCantidades, 
-                      backgroundColor: matrizColoresFondo, 
-                      borderRadius: 5 
-                  }] 
-              }, 
-              options: { 
-                  responsive: true, 
-                  plugins: { 
-                      legend: { display: false } 
-                  }, 
-                  scales: { 
-                      y: { beginAtZero: true, ticks: { stepSize: 1 } } 
-                  } 
-              } 
-          }); 
-      }
+      new Chart(lienzoProblemaElem, { 
+        type: 'bar', 
+        data: { 
+          labels: listaEtiquetasCategorias, 
+          datasets: [{ 
+            label: 'Volumen de Tickets', 
+            data: listaDatosCantidades, 
+            backgroundColor: matrizColoresFondo, 
+            borderRadius: 5 
+          }] 
+        }, 
+        options: { 
+          responsive: true, 
+          plugins: { 
+            legend: { display: false } 
+          }, 
+          scales: { 
+            y: { beginAtZero: true, ticks: { stepSize: 1 } } 
+          } 
+        } 
+      }); 
+    }
   }
 
   mostrarDetalleNota(textoNota: string) {
@@ -392,7 +346,7 @@ aplicarFiltros(reiniciarFiltroDia: boolean = true) {
     });
   }
 
-    descargarExcelMensual() {
+  descargarExcelMensual() {
     const urlDescarga = 'http://10.15.10.46/soporteSEIEM/MesadetrabajoSEIEM/backend/excel.php';
     window.open(urlDescarga, '_blank');
   }

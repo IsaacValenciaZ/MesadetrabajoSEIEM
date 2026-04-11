@@ -28,13 +28,13 @@
             style="min-width: 220px; cursor: text;"
         >
 
-        <select class="month-select" [(ngModel)]="mesFiltroSeleccionado" (change)="aplicarFiltros()">
-            <option value="">Todos los meses</option> 
-            <option *ngFor="let mes of opcionesMesesDisponibles" [value]="mes">
-                {{ obtenerNombreMesFormateado(mes) }}
-            </option>
-            <option *ngIf="opcionesMesesDisponibles.length === 0" value="" disabled>Sin registros</option>
-        </select>
+            <select class="month-select" [(ngModel)]="mesFiltroSeleccionado" (change)="aplicarFiltroMensual()">
+                <option value="">Todos los meses</option> 
+                <option *ngFor="let mes of opcionesMesesDisponibles" [value]="mes">
+                    {{ obtenerNombreMesFormateado(mes) }}
+                </option>
+                <option *ngIf="opcionesMesesDisponibles.length === 0" value="" disabled>Sin registros</option>
+            </select>
 
         <button class="btn-summary" (click)="alternarVistaCalendario()" title="Seleccionar Día">
             <span class="material-symbols-outlined">calendar_month</span>

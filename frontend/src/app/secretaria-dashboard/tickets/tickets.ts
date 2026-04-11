@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api'; 
 import Swal from 'sweetalert2';
 import { Subscription, interval } from 'rxjs'; 
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-tickets',
@@ -15,6 +16,7 @@ import { Subscription, interval } from 'rxjs';
 export class TicketsComponent implements OnInit, OnDestroy { 
   private apiService = inject(ApiService);
   private cdr = inject(ChangeDetectorRef);
+private route = inject(ActivatedRoute);
 
   listaTecnicos: any[] = [];
   reportesDelDia: any[] = []; 
@@ -180,6 +182,12 @@ export class TicketsComponent implements OnInit, OnDestroy {
     });
 
     this.mostrarNovedades();
+
+    this.route.queryParams.subscribe(params => {
+        if (params['tecnico']) {
+            this.nuevoTicket.personalId = params['tecnico'];
+        }
+    });
   }
 
   ngOnDestroy() {
