@@ -1,200 +1,163 @@
 <div class="view-section fade-in">
+  
   <div class="section-header">
     <div>
       <h1>Mis Asignaciones</h1>
       <p>Tickets pendientes de atención.</p>
     </div>
-
-<div class="big-counter">
-  <span class="number">{{ listaTicketsPendientes.length }}</span>
-  <span class="label">Pendientes</span>
-</div>
+    <div class="counters-container">
+      <div class="big-counter">
+        <span class="number">{{ listaTicketsPendientes.length }}</span>
+        <span class="label">Pendientes</span>
+      </div>
+      
+      <div class="big-counter counter-danger" *ngIf="listaTicketsIncompletos.length > 0">
+        <span class="number">{{ listaTicketsIncompletos.length }}</span>
+        <span class="label">Incompletos</span>
+      </div>
+    </div>
   </div>
 
   <div class="table-card">
     <div class="table-responsive">
       <table class="simple-table">
-    <thead>
-      <tr>
-        <th>#ID</th>
-        <th>Fecha Solicitud</th>
-        <th>Vencimiento</th>
-        <th>Solicitante</th>
-        <th>Departamento</th>
-        <th>Ext / Tel</th>
-        <th>Problema</th>
-        <th>Prioridad</th>
-        <th class="text-center">Estado</th>
-      </tr>
-    </thead>
-
-    <tbody>
-
-      <tr 
-        *ngFor="let ticket of listaTicketsPendientes"
-        class="row-clickable"
-        (click)="abrirModalTicket(ticket)"
-      >
-
-        <td class="text-muted">
-          <strong>#{{ ticket.id }}</strong>
-        </td>
-
-        <td class="time-col">
-          <div style="font-size:0.9rem;color:#1e293b;">
-            {{ ticket.fecha | date:'dd/MM/yyyy' }}
-          </div>
-
-          <div style="font-size:0.75rem;color:#64748b;margin-top:2px;">
-            {{ ticket.fecha | date:'HH:mm' }} hrs
-          </div>
-        </td>
-
-        <td class="time-col">
-
-          <div style="font-size:0.9rem;margin-bottom:4px;color:#56212f;">
-            {{ ticket.fecha_limite ? (ticket.fecha_limite | date:'dd/MM/yyyy HH:mm') : 'N/A' }}
-          </div>
-
-          <span 
-            *ngIf="verificarVencimiento(ticket.fecha_limite)"
-            class="badge-status late"
-          >
-            Vencido
-          </span>
-
-          <span 
-            *ngIf="ticket.fecha_limite && !verificarVencimiento(ticket.fecha_limite)"
-            class="badge-status pending"
-          >
-            En curso
-          </span>
-
-        </td>
-
-        <td>
-          <strong>{{ ticket.nombre_usuario }}</strong>
-        </td>
-
-        <td class="depto-col">
-          {{ ticket.departamento }}
-        </td>
-
-        <td style="font-weight:600;color:#475569;">
-          {{ ticket.extension_tel || '-' }}
-        </td>
-
-        <td>
-
-          <span
-            class="badge"
-            [ngClass]="{
-              'cat-internet': ticket.descripcion === 'Internet',
-              'cat-office': ticket.descripcion === 'Office',
-              'cat-telefonia': ticket.descripcion === 'Telefonia',
-              'cat-tecnico': ticket.descripcion === 'Tecnico',
-              'cat-dictaminar': ticket.descripcion === 'Dictaminar',
-              'cat-extension': ticket.descripcion === 'Extension/Telefono',
-              'cat-correo': ticket.descripcion === 'Correo'
-            }"
-          >
-            {{ ticket.descripcion }}
-          </span>
-
-          <span
-            *ngIf="ticket.descripcion === 'Dictaminar' && ticket.cantidad_dicta"
-            class="qty-badge"
-            style="margin-top:5px;display:block;"
-          >
-            EQ: {{ ticket.cantidad_dicta }}
-          </span>
-
-          <span
-            *ngIf="ticket.descripcion === 'Correo' && ticket.correo_tipo"
-            class="qty-badge"
-            style="margin-top:5px;display:block;"
-          >
-            Dom: {{ ticket.correo_tipo }}
-          </span>
-
-          <span
-            *ngIf="ticket.descripcion === 'Tecnico' && ticket.soporte_tipo"
-            class="qty-badge"
-            style="margin-top:5px;display:block;white-space:normal;line-height:1.2;"
-          >
-            {{ ticket.soporte_tipo }}
-          </span>
-
-        </td>
-
-        <td>
-
-          <span
-            class="badge"
-            [ngClass]="{
-              'prio-alta': ticket.prioridad === 'Alta',
-              'prio-media': ticket.prioridad === 'Media',
-              'prio-baja': ticket.prioridad === 'Baja'
-            }"
-          >
-            {{ ticket.prioridad }}
-          </span>
-
-        </td>
-        <td class="text-center">
-
-          <span
-            class="badge"
-            [ngClass]="{
-              'status-espera': ticket.estado === 'En espera',
-              'status-incompleto': ticket.estado === 'Incompleto'
-            }"
-          >
-            {{ ticket.estado || 'Pendiente' }}
-          </span>
-
-        </td>
-
-      </tr>
-
-      <tr *ngIf="listaTicketsPendientes.length === 0 && !cargandoDatos">
-        <td colspan="9" class="empty-state">
-          No tienes tickets pendientes en este momento.
-        </td>
-      </tr>
-
-    </tbody>
-  </table>
-
-
-</div>
+        <thead>
+          <tr>
+            <th>#ID</th>
+            <th>Fecha Solicitud</th>
+            <th>Vencimiento</th>
+            <th>Solicitante</th>
+            <th>Departamento</th>
+            <th>Ext / Tel</th>
+            <th>Problema</th>
+            <th>Prioridad</th>
+            <th class="text-center">Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let ticket of listaTicketsPendientes" class="row-clickable" (click)="abrirModalTicket(ticket)">
+            <td class="text-muted"><strong>#{{ ticket.id }}</strong></td>
+            <td class="time-col">
+              <div style="font-size:0.9rem;color:#1e293b;">{{ ticket.fecha | date:'dd/MM/yyyy' }}</div>
+              <div style="font-size:0.75rem;color:#64748b;margin-top:2px;">{{ ticket.fecha | date:'HH:mm' }} hrs</div>
+            </td>
+            <td class="time-col">
+              <div style="font-size:0.9rem;margin-bottom:4px;color:#56212f;">
+                {{ ticket.fecha_limite ? (ticket.fecha_limite | date:'dd/MM/yyyy HH:mm') : 'N/A' }}
+              </div>
+              <span *ngIf="verificarVencimiento(ticket.fecha_limite)" class="badge-status late">Vencido</span>
+              <span *ngIf="ticket.fecha_limite && !verificarVencimiento(ticket.fecha_limite)" class="badge-status pending">En curso</span>
+            </td>
+            <td><strong>{{ ticket.nombre_usuario }} {{ ticket.apellido_usuario }}</strong></td>
+            <td class="depto-col">{{ ticket.departamento }}</td>
+            <td style="font-weight:600;color:#475569;">{{ ticket.extension_tel || '-' }}</td>
+            <td>
+              <span class="badge" [ngClass]="{
+                'cat-internet': ticket.descripcion === 'Internet',
+                'cat-office': ticket.descripcion === 'Office',
+                'cat-telefonia': ticket.descripcion === 'Telefonia',
+                'cat-tecnico': ticket.descripcion === 'Tecnico',
+                'cat-dictaminar': ticket.descripcion === 'Dictaminar',
+                'cat-extension': ticket.descripcion === 'Extension/Telefono',
+                'cat-correo': ticket.descripcion === 'Correo'
+              }">{{ ticket.descripcion }}</span>
+              <span *ngIf="ticket.descripcion === 'Dictaminar' && ticket.cantidad_dicta" class="qty-badge" style="margin-top:5px;display:block;">EQ: {{ ticket.cantidad_dicta }}</span>
+              <span *ngIf="ticket.descripcion === 'Correo' && ticket.correo_tipo" class="qty-badge" style="margin-top:5px;display:block;">Dom: {{ ticket.correo_tipo }}</span>
+              <span *ngIf="ticket.descripcion === 'Tecnico' && ticket.soporte_tipo" class="qty-badge" style="margin-top:5px;display:block;white-space:normal;line-height:1.2;">{{ ticket.soporte_tipo }}</span>
+            </td>
+            <td>
+              <span class="badge" [ngClass]="{
+                'prio-alta': ticket.prioridad === 'Alta',
+                'prio-media': ticket.prioridad === 'Media',
+                'prio-baja': ticket.prioridad === 'Baja'
+              }">{{ ticket.prioridad }}</span>
+            </td>
+            <td class="text-center">
+              <span class="badge" [ngClass]="{
+                'status-espera': ticket.estado === 'En espera',
+                'status-incompleto': ticket.estado === 'Incompleto'
+              }">{{ ticket.estado || 'Pendiente' }}</span>
+            </td>
+          </tr>
+          <tr *ngIf="listaTicketsPendientes.length === 0 && !cargandoDatos">
+            <td colspan="9" class="empty-state">No tienes tickets pendientes en este momento.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
-  
-  <!-- VISTA MOVIL-->
-<div class="cards-movil">
-  <div
-    *ngFor="let ticket of listaTicketsPendientes"
-    class="ticket-card-movil"
-    [class.vencido]="verificarVencimiento(ticket.fecha_limite)"
-    (click)="abrirModalTicket(ticket)"
-  >
-    <div class="tcm-header">
-      <div>
-        <div class="tcm-id">#{{ ticket.id }}</div>
-        <div class="tcm-name">{{ ticket.nombre_usuario }}</div>
-        <div class="tcm-dept">{{ ticket.departamento }} · {{ ticket.extension_tel || 'sin ext.' }}</div>
+  <div class="table-card incompletos-card" *ngIf="listaTicketsIncompletos.length > 0" style="margin-top: 20px;">
+    <div class="card-header-incompletos">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span class="material-symbols-outlined" style="color: #e74c3c; font-size: 1.2rem;">warning</span>
+        <h3 style="margin: 0; color: #e74c3c; font-size: 1rem; font-weight: 700;">Tickets Incompletos del Mes</h3>
       </div>
-      <div class="tcm-vence">
-        <span class="vence-label">Vence</span>
-        {{ ticket.fecha_limite ? (ticket.fecha_limite | date:'dd/MM HH:mm') : 'N/A' }}
       </div>
+    <div class="table-responsive">
+      <table class="simple-table">
+        <thead>
+          <tr>
+            <th>#ID</th>
+            <th>Fecha</th>
+            <th>Solicitante</th>
+            <th>Departamento</th>
+            <th>Problema</th>
+            <th>Prioridad</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let ticket of listaTicketsIncompletos" style="opacity: 0.85; cursor: pointer;" (click)="abrirModalTicketIncompleto(ticket)">
+            <td><strong style="color: #e74c3c;">#{{ ticket.id }}</strong></td>
+            <td class="time-col">
+              <div style="font-size:0.9rem;color:#1e293b;">{{ ticket.fecha | date:'dd/MM/yyyy' }}</div>
+              <div style="font-size:0.75rem;color:#64748b;margin-top:2px;">{{ ticket.fecha | date:'HH:mm' }} hrs</div>
+            </td>
+            <td><strong>{{ ticket.nombre_usuario }} {{ ticket.apellido_usuario }}</strong></td>
+            <td class="depto-col">{{ ticket.departamento }}</td>
+            <td>
+              <span class="badge" [ngClass]="{
+                'cat-internet': ticket.descripcion === 'Internet',
+                'cat-office': ticket.descripcion === 'Office',
+                'cat-telefonia': ticket.descripcion === 'Telefonia',
+                'cat-tecnico': ticket.descripcion === 'Tecnico',
+                'cat-dictaminar': ticket.descripcion === 'Dictaminar',
+                'cat-extension': ticket.descripcion === 'Extension/Telefono',
+                'cat-correo': ticket.descripcion === 'Correo'
+              }">{{ ticket.descripcion }}</span>
+              <span *ngIf="ticket.descripcion === 'Dictaminar' && ticket.cantidad_dicta" class="qty-badge" style="margin-top:5px;display:block;">EQ: {{ ticket.cantidad_dicta }}</span>
+              <span *ngIf="ticket.descripcion === 'Correo' && ticket.correo_tipo" class="qty-badge" style="margin-top:5px;display:block;">Dom: {{ ticket.correo_tipo }}</span>
+              <span *ngIf="ticket.descripcion === 'Tecnico' && ticket.soporte_tipo" class="qty-badge" style="margin-top:5px;display:block;white-space:normal;line-height:1.2;">{{ ticket.soporte_tipo }}</span>
+            </td>
+            <td>
+              <span class="badge" [ngClass]="{
+                'prio-alta': ticket.prioridad === 'Alta',
+                'prio-media': ticket.prioridad === 'Media',
+                'prio-baja': ticket.prioridad === 'Baja'
+              }">{{ ticket.prioridad }}</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
+  </div>
 
-    <div class="tcm-badges">
-      <span
-        class="badge"
-        [ngClass]="{
+  <div class="cards-movil">
+    
+    <div *ngFor="let ticket of listaTicketsPendientes" class="ticket-card-movil" [class.vencido]="verificarVencimiento(ticket.fecha_limite)" (click)="abrirModalTicket(ticket)">
+      <div class="tcm-header">
+        <div>
+          <div class="tcm-id">#{{ ticket.id }}</div>
+          <div class="tcm-name">{{ ticket.nombre_usuario }} {{ ticket.apellido_usuario }}</div>
+          <div class="tcm-dept">{{ ticket.departamento }} · {{ ticket.extension_tel || 'sin ext.' }}</div>
+        </div>
+        <div class="tcm-vence">
+          <span class="vence-label">Vence</span>
+          {{ ticket.fecha_limite ? (ticket.fecha_limite | date:'dd/MM HH:mm') : 'N/A' }}
+        </div>
+      </div>
+      <div class="tcm-badges">
+        <span class="badge" [ngClass]="{
           'cat-internet':   ticket.descripcion === 'Internet',
           'cat-office':     ticket.descripcion === 'Office',
           'cat-telefonia':  ticket.descripcion === 'Telefonia',
@@ -202,34 +165,51 @@
           'cat-dictaminar': ticket.descripcion === 'Dictaminar',
           'cat-extension':  ticket.descripcion === 'Extension/Telefono',
           'cat-correo':     ticket.descripcion === 'Correo'
-        }"
-      >{{ ticket.descripcion }}</span>
-
-      <span
-        class="badge"
-        [ngClass]="{
+        }">{{ ticket.descripcion }}</span>
+        <span class="badge" [ngClass]="{
           'prio-alta':  ticket.prioridad === 'Alta',
           'prio-media': ticket.prioridad === 'Media',
           'prio-baja':  ticket.prioridad === 'Baja'
-        }"
-      >{{ ticket.prioridad }}</span>
+        }">{{ ticket.prioridad }}</span>
+        <span *ngIf="verificarVencimiento(ticket.fecha_limite)" class="badge-status late">Vencido</span>
+        <span *ngIf="ticket.fecha_limite && !verificarVencimiento(ticket.fecha_limite)" class="badge-status pending">En Espera</span>
+      </div>
+    </div>
 
-      <span
-        *ngIf="verificarVencimiento(ticket.fecha_limite)"
-        class="badge-status late"
-      >Vencido</span>
+    <div *ngIf="listaTicketsIncompletos.length > 0" class="incompletos-movil-header" style="margin-top: 15px; margin-bottom: 5px; color: #e74c3c; font-weight: bold; display: flex; align-items: center; gap: 5px;">
+      <span class="material-symbols-outlined" style="font-size: 1.2rem;">warning</span>
+      Tickets Incompletos del Mes
+    </div>
 
-      <span
-        *ngIf="ticket.fecha_limite && !verificarVencimiento(ticket.fecha_limite)"
-        class="badge-status pending"
-      >En Espera</span>
+    <div *ngFor="let ticket of listaTicketsIncompletos" class="ticket-card-movil incompleto-movil" (click)="abrirModalTicketIncompleto(ticket)">
+      <div class="tcm-header">
+        <div>
+          <div class="tcm-id" style="color: #e74c3c;">#{{ ticket.id }}</div>
+          <div class="tcm-name">{{ ticket.nombre_usuario }} {{ ticket.apellido_usuario }}</div>
+          <div class="tcm-dept">{{ ticket.departamento }}</div>
+        </div>
+        <div class="tcm-vence">
+          <span class="vence-label">Fecha</span>
+          {{ ticket.fecha | date:'dd/MM' }}
+        </div>
+      </div>
+      <div class="tcm-badges">
+        <span class="badge" [ngClass]="{
+          'cat-internet':   ticket.descripcion === 'Internet',
+          'cat-office':     ticket.descripcion === 'Office',
+          'cat-telefonia':  ticket.descripcion === 'Telefonia',
+          'cat-tecnico':    ticket.descripcion === 'Tecnico',
+          'cat-dictaminar': ticket.descripcion === 'Dictaminar',
+          'cat-extension':  ticket.descripcion === 'Extension/Telefono',
+          'cat-correo':     ticket.descripcion === 'Correo'
+        }">{{ ticket.descripcion }}</span>
+        <span class="badge-status late">Incompleto</span>
+      </div>
+    </div>
+
+    <div *ngIf="listaTicketsPendientes.length === 0 && !cargandoDatos" class="empty-state">
+      No tienes tickets pendientes en este momento.
     </div>
 
   </div>
-
-  <div *ngIf="listaTicketsPendientes.length === 0 && !cargandoDatos" class="empty-state">
-    No tienes tickets pendientes en este momento.
-  </div>
-</div>
-
 </div>

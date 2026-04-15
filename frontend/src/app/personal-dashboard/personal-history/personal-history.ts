@@ -54,6 +54,7 @@ export class PersonalHistoryComponent implements OnInit {
           }
   }
 
+
   cargarHistorialTickets() {
     this.cargando = true;
     
@@ -244,9 +245,9 @@ export class PersonalHistoryComponent implements OnInit {
     return '#dcfce7'; 
   }
 
-  abrirModalTicket(ticketSeleccionado: any) {
+abrirModalTicket(ticketSeleccionado: any) {
     let detallesExtraHtml = '';
-    let colorFondoCategoria = '#64748b'; 
+    let colorFondoCategoria = '#64748b';
 
     if (ticketSeleccionado.descripcion === 'Internet') colorFondoCategoria = '#2980b9';
     else if (ticketSeleccionado.descripcion === 'Office') colorFondoCategoria = '#d35400';
@@ -257,13 +258,13 @@ export class PersonalHistoryComponent implements OnInit {
         if (ticketSeleccionado.cantidad_dicta) {
           detallesExtraHtml = `<span style="color: #cbd5e1; margin: 0 10px;">|</span> <span style="font-size: 0.95rem; font-weight: 800; color: ${colorFondoCategoria};">Equipos: ${ticketSeleccionado.cantidad_dicta}</span>`;
         }
-    } 
+    }
     else if (ticketSeleccionado.descripcion === 'Correo') {
         colorFondoCategoria = '#96241c';
         if (ticketSeleccionado.correo_tipo) {
           detallesExtraHtml = `<span style="color: #cbd5e1; margin: 0 10px;">|</span> <span style="font-size: 0.95rem; font-weight: 800; color: ${colorFondoCategoria};">Dominio: ${ticketSeleccionado.correo_tipo}</span>`;
         }
-    } 
+    }
     else if (ticketSeleccionado.descripcion === 'Tecnico') {
         colorFondoCategoria = '#16a085';
         if (ticketSeleccionado.soporte_tipo) {
@@ -284,10 +285,10 @@ export class PersonalHistoryComponent implements OnInit {
         if (ticketSeleccionado.fecha_fin <= ticketSeleccionado.fecha_limite) {
             metricaHtml = `<span style="background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 700;">A Tiempo</span>`;
         } else {
-             metricaHtml = `<span style="background-color: #fefae2; color: #e09a31; border: 1px solid #fee7ca; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 700; animation: pulse 2s infinite;">Atrasado</span>`;
+            metricaHtml = `<span style="background-color: #fefae2; color: #e09a31; border: 1px solid #fee7ca; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 700;">Atrasado</span>`;
         }
     } else {
-         metricaHtml = `<span style="background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 700; animation: pulse 2s infinite;">Caducado</span>`;
+        metricaHtml = `<span style="background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 700;">Caducado</span>`;
     }
 
     const colorFondoEstado = this.obtenerColorEstado(ticketSeleccionado.estado);
@@ -295,13 +296,12 @@ export class PersonalHistoryComponent implements OnInit {
 
     const htmlModal = `
       <div style="text-align: left; font-family: 'Segoe UI', sans-serif; color: #1e293b;">
-        
         <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; margin-bottom: 15px; gap: 10px;">
-          <h2 style="margin: 0; color: #1e293b; font-size: 1.8rem; font-weight: 800; letter-spacing: -0.5px;">Ticket:  #${ticketSeleccionado.id} </h2>
+          <h2 style="margin: 0; color: #1e293b; font-size: 1.8rem; font-weight: 800; letter-spacing: -0.5px;">Ticket: #${ticketSeleccionado.id}</h2>
           <div style="display: flex; flex-wrap: wrap; gap: 8px;">
               ${metricaHtml}
               <span style="background-color: ${colorFondoEstado}; padding: 6px 12px; border-radius: 4px; font-size: 0.8rem; font-weight: 700; color: ${colorTextoEstado}; display: inline-block;">
-                ${ticketSeleccionado.estado === 'Completo' ? 'Completado' : 'Incumplido'} 
+                ${ticketSeleccionado.estado === 'Completo' ? 'Completado' : 'Incumplido'}
               </span>
           </div>
         </div>
@@ -320,7 +320,7 @@ export class PersonalHistoryComponent implements OnInit {
         <div style="display: flex; gap: 40px; margin-bottom: 25px;">
           <div>
             <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Solicitante</p>
-            <p style="margin: 4px 0 0 0; font-weight: 800; font-size: 1.1rem; color: #0f172a;">${ticketSeleccionado.nombre_usuario}</p>
+            <p style="margin: 4px 0 0 0; font-weight: 800; font-size: 1.1rem; color: #0f172a;">${ticketSeleccionado.nombre_usuario} ${ticketSeleccionado.apellido_usuario || ''}</p>
           </div>
           <div>
             <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Ext / Teléfono</p>
@@ -351,9 +351,9 @@ export class PersonalHistoryComponent implements OnInit {
           </div>
         </div>
 
-         <p style="margin: 0 0 8px 0; font-size: 0.75rem; color: 64748b; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;  display: inline-block; padding: 4px 8px; border-radius: 4px;">Clasificación del Problema</p>
-        
-        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; border: 1px solid #e2e8f0; border-left: 6px solid ${colorFondoCategoria}; border-radius: 8px; padding: 15px; margin-bottom: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); gap: 10px;">
+        <p style="margin: 0 0 8px 0; font-size: 0.75rem; color: #64748b; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; display: inline-block; padding: 4px 8px; border-radius: 4px;">Clasificación del Problema</p>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; border: 1px solid #e2e8f0; border-left: 6px solid ${colorFondoCategoria}; border-radius: 8px; padding: 15px; margin-bottom: 30px; gap: 10px;">
           <div style="display: flex; align-items: center; flex-wrap: wrap;">
             <span style="background-color: ${colorFondoCategoria}; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700; display: inline-block;">
               ${ticketSeleccionado.descripcion}
@@ -361,10 +361,10 @@ export class PersonalHistoryComponent implements OnInit {
             ${detallesExtraHtml}
           </div>
           <div style="display: flex; align-items: center; gap: 5px; flex-wrap: wrap;">
-             <p style="margin:0; color: #64748b; font-size: 0.85rem; font-weight: 700;">Prio:</p>
-             <span style="background-color: ${colorPrioridad}; color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: 700; display: inline-block;">
-               ${ticketSeleccionado.prioridad}
-             </span>
+            <p style="margin:0; color: #64748b; font-size: 0.85rem; font-weight: 700;">Prio:</p>
+            <span style="background-color: ${colorPrioridad}; color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: 700; display: inline-block;">
+              ${ticketSeleccionado.prioridad}
+            </span>
           </div>
         </div>
 
@@ -376,31 +376,25 @@ export class PersonalHistoryComponent implements OnInit {
             </p>
           </div>
         </div>
-
       </div>
     `;
 
     Swal.fire({
-      html: htmlModal,
-      width: '600px',
-      showDenyButton: true,
-      showCancelButton: true,
-      confirmButtonText: '<span class="material-symbols-outlined" style="vertical-align: middle; font-size: 1.1rem; margin-right: 5px;">visibility</span> Ver Resolución',
-      confirmButtonColor: '#56212f', 
-      denyButtonText: '<span class="material-symbols-outlined" style="vertical-align: middle; font-size: 1.1rem; margin-right: 5px;">refresh</span> Reabrir Ticket',
-      denyButtonColor: '#b45309', 
-      cancelButtonText: 'Cerrar',
-      cancelButtonColor: '#000000', 
-      padding: '2em',
-      showConfirmButton: !!(ticketSeleccionado.descripcion_resolucion || ticketSeleccionado.evidencia_archivo || ticketSeleccionado.firma_base64) 
+        html: htmlModal,
+        width: '600px',
+        showCancelButton: true,
+        confirmButtonText: '<span class="material-symbols-outlined" style="vertical-align: middle; font-size: 1.1rem; margin-right: 5px;">visibility</span> Ver Resolución',
+        confirmButtonColor: '#56212f',
+        cancelButtonText: 'Cerrar',
+        cancelButtonColor: '#000000',
+        padding: '2em',
+        showConfirmButton: !!(ticketSeleccionado.descripcion_resolucion || ticketSeleccionado.tiene_foto || ticketSeleccionado.tiene_firma)
     }).then((result) => {
-      if (result.isConfirmed) {
-        this.verEvidenciaFinal(ticketSeleccionado);
-      } else if (result.isDenied) {
-        this.cambiarEstado(ticketSeleccionado);
-      }
+        if (result.isConfirmed) {
+            this.verEvidenciaFinal(ticketSeleccionado);
+        }
     });
-  }
+}
 
   verEvidenciaFinal(ticket: any) {
       Swal.fire({

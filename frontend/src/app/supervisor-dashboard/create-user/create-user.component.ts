@@ -46,7 +46,7 @@ export class CreateUserComponent {
             Swal.fire({
               icon: 'error',
               title: 'Error de Registro',
-              text: 'Este correo electrónico ya está en uso',
+              text: res.message || 'Ocurrió un error al registrar el usuario',
               confirmButtonColor: '#56212f'
             });
           }

@@ -222,7 +222,7 @@ generarOpcionesMeses() {
         <div style="display: flex; gap: 40px; margin-bottom: 25px;">
           <div>
             <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Solicitante</p>
-            <p style="margin: 4px 0 0 0; font-weight: 800; font-size: 1.1rem; color: #0f172a;">${ticket.nombre_usuario}</p>
+            <p style="margin: 4px 0 0 0; font-weight: 800; font-size: 1.1rem; color: #0f172a;">${ticket.nombre_usuario} ${ticket.apellido_usuario}</p>
           </div>
           <div>
             <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Ext / Teléfono</p>

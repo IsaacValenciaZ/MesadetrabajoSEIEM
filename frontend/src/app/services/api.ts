@@ -22,8 +22,14 @@ private baseUrl = environment.apiUrl;
     return this.http.post<any>(`${this.baseUrl}/create_tickets.php`, ticketData);
   }
 
-  deleteTicket(id: number) {
-  return this.http.delete<any>(`${this.baseUrl}/delete_ticket.php`, { body: { id } });
+deleteTicket(ticketId: number, secretariaId: number) {
+  return this.http.request<any>('delete', `${this.baseUrl}/delete_ticket.php`, {
+    body: { id: ticketId, secretaria_id: secretariaId }
+  });
+}
+
+editarTicket(datos: any) {
+  return this.http.put<any>(`${this.baseUrl}/edit_ticket.php`, datos);
 }
  
   getMisTickets(nombreUsuario: string): Observable<any[]> {

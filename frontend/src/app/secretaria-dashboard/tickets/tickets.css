@@ -33,7 +33,7 @@
     border-radius: 10px;
     padding: 40px;
     margin: 0 auto 50px auto;
-    max-width: 950px;
+    max-width: 95%; 
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
 }
 
@@ -49,7 +49,7 @@
 
 .form-content {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
     gap: 20px;
     align-items: start;
 }
@@ -61,6 +61,27 @@
 
 .full-width {
     grid-column: 1 / -1;
+}
+
+.form-section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 8px;
+    margin-bottom: 10px;
+    border-bottom: 2px solid #f1f5f9;
+    color: #56212f;
+}
+
+.form-section-header h4 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.form-section-header span {
+    font-size: 1.4rem;
+    color: #d4a055;
 }
 
 .form-group label {
@@ -76,7 +97,7 @@
     padding: 12px 15px;
     border: 1px solid #e2e8f0;
     border-radius: 8px;
-    background-color: #ffffff;
+    background-color: #f8fafc;
     color: #334155;
     font-size: 0.95rem;
     font-family: inherit;
@@ -404,7 +425,7 @@ textarea.simple-input {
 .method-option-label {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
     font-weight: 500;
     color: #334155;
     cursor: pointer;
@@ -425,11 +446,13 @@ textarea.simple-input {
 .icon-llamada {
     font-size: 1.3rem;
     color: #d4a055; 
+    margin-right: 2px;
 }
 
 .icon-presencial {
     font-size: 1.3rem;
     color: #56212f; 
+    margin-right: 2px;
 }
 
 

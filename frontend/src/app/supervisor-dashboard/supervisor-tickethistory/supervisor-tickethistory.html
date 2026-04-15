@@ -71,7 +71,7 @@
             <tr *ngFor="let t of grupo.tickets" class="row-clickable" (click)="abrirModalTicket(t)">
               <td><strong>#{{ t.id }}</strong></td>
               <td>{{ t.fecha | date:'HH:mm' }}</td>
-              <td>{{ t.nombre_usuario }}</td>
+              <td>{{ t.nombre_usuario }} {{ t.apellido_usuario }}</td>
               <td>{{ t.departamento }}</td>
               <td><strong>{{ t.personal || 'N/A' }}</strong></td>
               <td><span class="badge" [ngClass]="'cat-' + t.descripcion.toLowerCase().split('/')[0]">{{ t.descripcion }}</span></td>

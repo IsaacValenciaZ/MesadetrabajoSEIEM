@@ -313,6 +313,143 @@ input[type="text"].month-select {
 .btn-excel .material-symbols-outlined {
     font-size: 1.2rem;
 }
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    backdrop-filter: blur(2px);
+}
+
+.modal-card {
+    background: white;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 380px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    background: #f8fafc;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #56212f;
+}
+
+.btn-close-x {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #94a3b8;
+    line-height: 1;
+    padding: 0;
+    transition: color 0.2s;
+}
+
+.btn-close-x:hover {
+    color: #56212f;
+}
+
+.modal-body {
+    padding: 24px;
+}
+
+.modal-body .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.modal-body label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.modal-body select {
+    height: 44px;
+    padding: 0 15px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background-color: #f8fafc;
+    color: #334155;
+    font-size: 0.9rem;
+    font-weight: 600;
+    outline: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.modal-body select:focus {
+    border-color: #56212f;
+    background-color: white;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 16px 24px;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+}
+
+.btn-cancel {
+    background: transparent;
+    border: 1px solid #e2e8f0;
+    color: #64748b;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+}
+
+.btn-cancel:hover {
+    background: #f1f5f9;
+    color: #334155;
+}
+
+.btn-save {
+    background-color: #10b981;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
+}
+
+.btn-save:hover {
+    background-color: #059669;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 12px rgba(16, 185, 129, 0.3);
+}
 @media (max-width: 768px) {
     .section-header { flex-direction: column; align-items: flex-start; gap: 15px; }
     .filters-container { flex-direction: column; width: 100%; align-items: stretch; border: none; box-shadow: none; }

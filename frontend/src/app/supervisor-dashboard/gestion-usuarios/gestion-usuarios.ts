@@ -54,7 +54,8 @@ export class GestionUsuariosComponent implements OnInit {
   selectedUser: any = {}; 
 
   showReportModal: boolean = false;
-  periodoReporte: string = 'semana';
+  periodoReporte: string = '';          
+  mesesDisponibles: { label: string, value: string }[] = [];  
   reportData: any = {};
   
   reportChart: any;
@@ -89,27 +90,33 @@ export class GestionUsuariosComponent implements OnInit {
   }
 
   destruirGraficas() {
-    if (this.reportChart) { this.reportChart.destroy(); this.reportChart = null; }
+    if (this.reportChart)   { this.reportChart.destroy();   this.reportChart   = null; }
     if (this.priorityChart) { this.priorityChart.destroy(); this.priorityChart = null; }
-    if (this.deptChart) { this.deptChart.destroy(); this.deptChart = null; }
-    if (this.metodoChart) { this.metodoChart.destroy(); this.metodoChart = null; } 
+    if (this.deptChart)     { this.deptChart.destroy();     this.deptChart     = null; }
+    if (this.metodoChart)   { this.metodoChart.destroy();   this.metodoChart   = null; } 
   }
 
-  cargarDatosReporte() {
-    this.apiService.getReportMetrics(this.periodoReporte).subscribe({
-      next: (res: any) => {
-        this.reportData = res;
-        this.cdr.detectChanges(); 
+cargarDatosReporte() {
+  this.apiService.getReportMetrics(this.periodoReporte).subscribe({
+    next: (res: any) => {
+      this.reportData = res;
 
-        setTimeout(() => {
-          this.dibujarGraficas();
-        }, 300);
-      },
-      error: () => {
-        Swal.fire('Error', 'No se pudieron cargar las estadísticas', 'error');
+      if (res.meses_disponibles?.length) {
+        this.mesesDisponibles = res.meses_disponibles;
+
+        if (!this.periodoReporte) {
+          this.periodoReporte = this.mesesDisponibles[0].value;
+        }
       }
-    });
-  }
+
+      this.cdr.detectChanges();
+      setTimeout(() => { this.dibujarGraficas(); }, 300);
+    },
+    error: () => {
+      Swal.fire('Error', 'No se pudieron cargar las estadísticas', 'error');
+    }
+  });
+}
   
   dibujarGraficas() {
     this.destruirGraficas();
@@ -192,7 +199,7 @@ export class GestionUsuariosComponent implements OnInit {
     if (ctxMetodo && this.reportData.metodos) {
       const coloresMetodo: { [key: string]: string } = {
         'Llamada / Remoto': '#2980b9',
-        'Presencial': '#16a085'     
+        'Presencial':       '#16a085'     
       };
 
       this.metodoChart = new Chart(ctxMetodo, {
@@ -224,20 +231,19 @@ export class GestionUsuariosComponent implements OnInit {
     });
 
     html2canvas(data, { scale: 2, useCORS: true }).then(canvas => {
-      const imgWidth = 210; 
-      let position = 0;    
+      const imgWidth   = 210; 
+      let position     = 0;    
       const pageHeight = 297;
       
-      const imgHeight = canvas.height * imgWidth / canvas.width;
+      const imgHeight      = canvas.height * imgWidth / canvas.width;
       const contentDataURL = canvas.toDataURL('image/png');
 
       const pdf = new jsPDF('p', 'mm', 'a4');
-
       pdf.addImage(contentDataURL, 'PNG', 0, position, imgWidth, imgHeight);
-      pdf.save(`Reporte_SEIEM_${this.periodoReporte}.pdf`);
+      pdf.save(`Reporte_SEIEM_${this.periodoReporte}.pdf`);  
       
       Swal.close();
-    }).catch(err => {
+    }).catch(() => {
       Swal.fire('Error', 'No se pudo generar el PDF', 'error');
     });
   }
@@ -250,6 +256,7 @@ export class GestionUsuariosComponent implements OnInit {
 
   openCreateModal() { this.showCreate = true; this.cdr.detectChanges(); }
   openViewModal(user: any) { this.selectedUser = { ...user }; this.showView = true; }
+
   openPerformance(user: any) {
     this.selectedUser = { ...user };
     const rol = user.rol.toLowerCase();
@@ -263,7 +270,7 @@ export class GestionUsuariosComponent implements OnInit {
     this.selectedUser = { ...user }; 
     if (this.selectedUser.rol) {
       const rolNormalizado = this.selectedUser.rol.toLowerCase().trim();
-      if (rolNormalizado === 'personal') this.selectedUser.rol = 'Personal';
+      if (rolNormalizado === 'personal')    this.selectedUser.rol = 'Personal';
       else if (rolNormalizado === 'secretaria') this.selectedUser.rol = 'Secretaria';
       else if (rolNormalizado === 'supervisor') this.selectedUser.rol = 'Supervisor';
     }
@@ -271,13 +278,13 @@ export class GestionUsuariosComponent implements OnInit {
   }
 
   closeModals() {
-    this.showView = false;
-    this.showEdit = false;
-    this.showPerformance = false;
+    this.showView         = false;
+    this.showEdit         = false;
+    this.showPerformance  = false;
     this.showSecretariaPerf = false;
-    this.showCreate = false;
-    this.showDelete = false; 
-    this.selectedUser = {};
+    this.showCreate       = false;
+    this.showDelete       = false; 
+    this.selectedUser     = {};
     this.cdr.detectChanges();
   }
 
@@ -296,12 +303,12 @@ export class GestionUsuariosComponent implements OnInit {
     if (!this.usersList) return;
     if (category === 'all') {
       this.filteredList = [...this.usersList];
-      this.filterTitle = 'Listado Completo';
+      this.filterTitle  = 'Listado Completo';
     } else {
       this.filteredList = this.usersList.filter(user =>
         user.rol && user.rol.toLowerCase() === category.toLowerCase()
       );
-      if (category === 'personal') this.filterTitle = 'Listado de Personal';
+      if (category === 'personal')   this.filterTitle = 'Listado de Personal';
       if (category === 'supervisor') this.filterTitle = 'Listado de Supervisores';
       if (category === 'secretaria') this.filterTitle = 'Listado de Secretarias';
     }
@@ -309,42 +316,32 @@ export class GestionUsuariosComponent implements OnInit {
 
   calcularEstadisticas() {
     if (!this.usersList) return;
-    this.totalUsers = this.usersList.length;
-    this.countPersonal = this.usersList.filter(u => u.rol && u.rol.trim().toLowerCase() === 'personal').length;
+    this.totalUsers      = this.usersList.length;
+    this.countPersonal   = this.usersList.filter(u => u.rol && u.rol.trim().toLowerCase() === 'personal').length;
     this.countSecretaria = this.usersList.filter(u => u.rol && (u.rol.trim().toLowerCase() === 'secretaria' || u.rol.trim().toLowerCase() === 'secretario')).length;
     this.countSupervisor = this.usersList.filter(u => u.rol && u.rol.trim().toLowerCase() === 'supervisor').length;
   }
 
- guardarEdicion() {
-  if (this.selectedUser.nombre && this.selectedUser.email && this.selectedUser.rol) {
-    this.apiService.updateUser(this.selectedUser).subscribe({
-      next: (res: any) => {
-
-        if (res.status) {
-
-          Swal.fire({
-            icon: 'success',
-            title: '¡Cambios Guardados!',
-            confirmButtonColor: '#56212f'
-          });
-
-          this.cargarDatos();
-          this.closeModals();
-
-        } else {
-
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: res.message
-          });
-
+  guardarEdicion() {
+    if (this.selectedUser.nombre && this.selectedUser.email && this.selectedUser.rol) {
+      this.apiService.updateUser(this.selectedUser).subscribe({
+        next: (res: any) => {
+          if (res.status) {
+            Swal.fire({
+              icon: 'success',
+              title: '¡Cambios Guardados!',
+              confirmButtonColor: '#56212f'
+            });
+            this.cargarDatos();
+            this.closeModals();
+          } else {
+            Swal.fire({ icon: 'error', title: 'Error', text: res.message });
+          }
+        },
+        error: () => {
+          Swal.fire('Error', 'No se pudo conectar con el servidor', 'error');
         }
-      },
-      error: () => {
-        Swal.fire('Error', 'No se pudo conectar con el servidor', 'error');
-      }
-    });
+      });
+    }
   }
- }
 }

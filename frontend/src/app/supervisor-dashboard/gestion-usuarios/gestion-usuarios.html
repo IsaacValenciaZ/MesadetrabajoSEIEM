@@ -45,7 +45,7 @@
             <th>NOMBRE</th>
             <th>CORREO ELECTRÓNICO</th>
             <th>ROL</th>
-            <th style="text-align: center;">RENDIMIENTO</th> 
+            <th style="text-align: center;">RENDIMIENTO</th>
             <th style="text-align: center;">ACCIONES</th>
           </tr>
         </thead>
@@ -69,21 +69,21 @@
               <button *ngIf="user.rol.toLowerCase() === 'personal'" 
                       class="btn-perf tecnico" 
                       (click)="openPerformance(user)">
-                <span class="material-symbols-outlined">analytics</span> </button>
-              
+                <span class="material-symbols-outlined">analytics</span>
+              </button>
               <button *ngIf="user.rol.toLowerCase() === 'secretaria' || user.rol.toLowerCase() === 'secretario'" 
                       class="btn-perf secretaria" 
                       (click)="openPerformance(user)">
-                <span class="material-symbols-outlined">monitoring</span>  </button>
-              
+                <span class="material-symbols-outlined">monitoring</span>
+              </button>
               <span *ngIf="user.rol.toLowerCase() === 'supervisor' || user.rol.toLowerCase() === 'admin'" class="text-muted small">N/A</span>
             </td>
 
             <td class="actions-cell">
               <div class="actions-buttons">
-                <button class="btn-action view" (click)="openViewModal(user)"><span class="material-symbols-outlined">visibility</span> </button>
-                <button class="btn-action edit" (click)="openEditModal(user)"><span class="material-symbols-outlined">edit</span> </button>
-                <button class="btn-action delete" (click)="openDeleteModal(user)"><span class="material-symbols-outlined">delete</span> </button>
+                <button class="btn-action view"   (click)="openViewModal(user)">  <span class="material-symbols-outlined">visibility</span></button>
+                <button class="btn-action edit"   (click)="openEditModal(user)">  <span class="material-symbols-outlined">edit</span>      </button>
+                <button class="btn-action delete" (click)="openDeleteModal(user)"><span class="material-symbols-outlined">delete</span>    </button>
               </div>
             </td>
           </tr>
@@ -156,24 +156,28 @@
     </div>
     <div class="modal-footer">
       <button class="btn-cancel" (click)="closeModals()">Cancelar</button>
-      <button class="btn-save" (click)="guardarEdicion()">Guardar cambios</button>
+      <button class="btn-save"   (click)="guardarEdicion()">Guardar cambios</button>
     </div>
   </div>
 </div>
 
-<app-performance-user *ngIf="showPerformance" [user]="selectedUser" (close)="closeModals()"></app-performance-user>
+<app-performance-user       *ngIf="showPerformance"    [user]="selectedUser" (close)="closeModals()"></app-performance-user>
 <app-performance-secretaria *ngIf="showSecretariaPerf" [user]="selectedUser" (close)="closeModals()"></app-performance-secretaria>
-<app-delete-user *ngIf="showDelete" [user]="selectedUser" (close)="closeModals()" (delete)="onUserDeleted()"></app-delete-user>
+<app-delete-user            *ngIf="showDelete"         [user]="selectedUser" (close)="closeModals()" (delete)="onUserDeleted()"></app-delete-user>
 
 <div class="modal-overlay" *ngIf="showReportModal">
   <div class="modal-card modal-lg fade-in">
-    
+
     <div class="modal-header" style="background-color: #f8fafc; border-bottom: 2px solid #e2e8f0; flex-shrink: 0;">
       <div class="report-controls">
+
         <select [(ngModel)]="periodoReporte" (change)="cargarDatosReporte()" class="select-periodo">
-          <option value="semana">Reporte Semanal (Lun - Vie)</option>
-          <option value="mes">Reporte Mensual</option>
+          <option value="semana">Semana actual</option>
+          <option *ngFor="let mes of mesesDisponibles" [value]="mes.value">
+            {{ mes.label }}
+          </option>
         </select>
+
         <button class="btn-download" (click)="descargarPDF()">
           <span class="material-symbols-outlined">download</span> Descargar PDF
         </button>
@@ -183,16 +187,20 @@
 
     <div class="modal-body-scroll">
       <div id="pdf-capture-area" style="background: white; padding: 30px; width: 100%;">
-        
+
         <div class="pdf-header">
           <div class="pdf-logo-placeholder">
-             <img src="icons/seiem_negro.svg" style="height: 50px;" alt="Logo">
+            <img src="icons/seiem_negro.svg" style="height: 50px;" alt="Logo">
           </div>
           <div class="pdf-title">
             <h2 style="color: #56212f; margin: 0; font-size: 1.5rem;">REPORTE DE TICKETS DE SOPORTE</h2>
-            <p style="color: #64748b; margin: 5px 0 0 0; font-weight: 600;">
-              Periodo: {{ periodoReporte === 'semana' ? 'Esta Semana' : 'Este Mes' }}
-            </p>
+              <p style="color: #64748b; margin: 5px 0 0 0; font-weight: 600;">
+                Periodo: {{ 
+                  periodoReporte === 'semana' 
+                    ? (reportData?.semana_label || 'Semana actual') 
+                    : (mesesDisponibles.find(m => m.value === periodoReporte)?.label || periodoReporte) 
+                }}
+              </p>
           </div>
         </div>
 
@@ -214,32 +222,24 @@
         </div>
 
         <div class="report-charts-grid-asymmetric">
-          
+
           <div class="left-charts-column">
             <div class="chart-box">
               <h4 class="chart-title">Incidencias por Problema</h4>
-              <div class="canvas-container">
-                <canvas id="reportPieChart"></canvas>
-              </div>
+              <div class="canvas-container"><canvas id="reportPieChart"></canvas></div>
             </div>
-
             <div class="chart-box">
               <h4 class="chart-title">Tickets por Prioridad</h4>
-              <div class="canvas-container">
-                <canvas id="reportPriorityChart"></canvas>
-              </div>
+              <div class="canvas-container"><canvas id="reportPriorityChart"></canvas></div>
             </div>
-
             <div class="chart-box">
               <h4 class="chart-title">Top Departamentos Atendidos</h4>
-              <div class="canvas-container">
-                <canvas id="reportDeptChart"></canvas>
-              </div>
+              <div class="canvas-container"><canvas id="reportDeptChart"></canvas></div>
             </div>
           </div>
 
           <div class="right-table-column">
-            
+
             <div class="table-box" style="margin-bottom: 20px;">
               <h4 class="chart-title">Rendimiento del Personal</h4>
               <table class="report-table">
@@ -263,36 +263,30 @@
 
             <div class="chart-box">
               <h4 class="chart-title">Vía de Atención</h4>
-              
               <div class="canvas-container" style="position: relative; height: 160px; width: 100%; display: flex; justify-content: center;">
                 <canvas id="reportMetodoChart"></canvas>
               </div>
-              
               <div style="display: flex; justify-content: space-around; margin-top: 15px; font-size: 0.85rem; font-weight: 700; color: #334155; border-top: 1px solid #f1f5f9; padding-top: 10px;">
-                  
-                  <div *ngFor="let metodo of reportData?.metodos" style="display: flex; align-items: center; gap: 5px;">
-                     <span class="material-symbols-outlined" 
-                           [ngStyle]="{'color': metodo.nombre === 'Presencial' ? '#16a085' : '#2980b9'}" 
-                           style="font-size: 1.2rem;">
-                        {{ metodo.nombre === 'Presencial' ? 'engineering' : 'support_agent' }}
-                     </span>
-                     <span>{{ metodo.nombre || 'Sin definir' }}:</span> 
-                     <span style="color: #56212f; font-size: 1rem;">{{ metodo.cantidad }}</span>
-                  </div>
-                  
-                  <div *ngIf="!reportData?.metodos?.length" style="color: #94a3b8; font-style: italic;">
-                    Sin datos de vía de atención
-                  </div>
-
+                <div *ngFor="let metodo of reportData?.metodos" style="display: flex; align-items: center; gap: 5px;">
+                  <span class="material-symbols-outlined"
+                        [ngStyle]="{'color': metodo.nombre === 'Presencial' ? '#16a085' : '#2980b9'}"
+                        style="font-size: 1.2rem;">
+                    {{ metodo.nombre === 'Presencial' ? 'engineering' : 'support_agent' }}
+                  </span>
+                  <span>{{ metodo.nombre || 'Sin definir' }}:</span>
+                  <span style="color: #56212f; font-size: 1rem;">{{ metodo.cantidad }}</span>
+                </div>
+                <div *ngIf="!reportData?.metodos?.length" style="color: #94a3b8; font-style: italic;">
+                  Sin datos de vía de atención
+                </div>
               </div>
             </div>
-            
-          </div>
 
+          </div>
         </div>
 
-      </div> 
-    </div> 
+      </div>
+    </div>
 
   </div>
 </div>

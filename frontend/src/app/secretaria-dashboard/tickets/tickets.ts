@@ -154,6 +154,7 @@ private route = inject(ActivatedRoute);
 
   nuevoTicket: any = { 
     nombre_usuario: '', 
+    apellido_usuario: '',
     departamento: '',
     municipio: '',
     personalId: '',     
@@ -181,7 +182,6 @@ private route = inject(ActivatedRoute);
         this.obtenerTecnicos();
     });
 
-    this.mostrarNovedades();
 
     this.route.queryParams.subscribe(params => {
         if (params['tecnico']) {
@@ -281,7 +281,7 @@ obtenerReportesDelDia() {
         </div>
       `,
       icon: 'info',
-      iconColor: '#977e5b',
+      iconColor: '#56212f',
       confirmButtonText: 'Cerrar',
       confirmButtonColor: '#000000',
       background: '#fff',
@@ -293,6 +293,7 @@ obtenerReportesDelDia() {
     const camposVacios: string[] = [];
 
     if (!this.nuevoTicket.nombre_usuario) camposVacios.push('Solicitante');
+    if (!this.nuevoTicket.apellido_usuario) camposVacios.push('Apellidos');
     if (!this.nuevoTicket.departamento)   camposVacios.push('Departamento');
     if (!this.nuevoTicket.municipio)      camposVacios.push('Municipio');
     if (!this.nuevoTicket.extension_tel)  camposVacios.push('Extensión o Teléfono');
@@ -304,19 +305,34 @@ obtenerReportesDelDia() {
     if (this.nuevoTicket.descripcion === 'Correo' && !this.nuevoTicket.correo_tipo) {
         camposVacios.push('Dominio del Correo (.edu o .gob)');
     }
-
     let detallesSoporte = '';
     if (this.nuevoTicket.descripcion === 'Tecnico') {
         const elementosSeleccionados = [];
-        if (this.nuevoTicket.soporte.impresora) elementosSeleccionados.push('Impresora');
-        if (this.nuevoTicket.soporte.escaner) elementosSeleccionados.push('Escáner');
-        if (this.nuevoTicket.soporte.software) elementosSeleccionados.push('Software');
-        if (this.nuevoTicket.soporte.hardware) elementosSeleccionados.push('Hardware');
-         if (this.nuevoTicket.soporte.garantias) elementosSeleccionados.push('Garantías');
+        
+        const tienePeriferico = this.nuevoTicket.soporte.impresora || this.nuevoTicket.soporte.escaner;
+        const tienePrincipal = this.nuevoTicket.soporte.software || this.nuevoTicket.soporte.hardware;
+        const tieneGarantias = this.nuevoTicket.soporte.garantias;
 
-        if (elementosSeleccionados.length === 0) {
-            camposVacios.push('Opciones de Soporte (Selecciona al menos una)');
+        if (tienePeriferico && !tienePrincipal) {
+            Swal.fire({
+                title: 'Falta especificar la falla',
+                text: 'Seleccionaste Impresora o Escáner. Por favor indica arriba si el problema es de Software o Hardware.',
+                icon: 'warning',
+                confirmButtonText: 'Entendido',
+                confirmButtonColor: '#56212f'
+            });
+            return; 
+        }
+
+        if (!tienePrincipal && !tieneGarantias) {
+            camposVacios.push('Tipo de Soporte (Debes seleccionar Software, Hardware o Gestión de Garantías)');
         } else {
+            if (this.nuevoTicket.soporte.software) elementosSeleccionados.push('Software');
+            if (this.nuevoTicket.soporte.hardware) elementosSeleccionados.push('Hardware');
+            if (this.nuevoTicket.soporte.impresora) elementosSeleccionados.push('Impresora');
+            if (this.nuevoTicket.soporte.escaner) elementosSeleccionados.push('Escáner');
+            if (this.nuevoTicket.soporte.garantias) elementosSeleccionados.push('Garantías');
+
             detallesSoporte = elementosSeleccionados.join(', ');
         }
     }
@@ -349,6 +365,7 @@ obtenerReportesDelDia() {
     const cargaDatosTicket = {
       secretaria_id: datosSecretaria.id || null,
       nombre_usuario: this.nuevoTicket.nombre_usuario,
+      apellido_usuario: this.nuevoTicket.apellido_usuario || '',
       departamento: this.nuevoTicket.departamento,
       municipio: this.nuevoTicket.municipio,
       descripcion: this.nuevoTicket.descripcion, 
@@ -391,6 +408,7 @@ obtenerReportesDelDia() {
 
           this.nuevoTicket = { 
             nombre_usuario: '', 
+            apellido_usuario: '',
             departamento: '', 
             municipio: "",
             personalId: '', 
@@ -418,72 +436,99 @@ obtenerReportesDelDia() {
     });
   }
 
+  
 confirmarEliminarTicket(reporte: any) {
+  const usuarioActual = JSON.parse(localStorage.getItem('usuario_actual') || '{}');
+  const esPropietaria = reporte.secretaria_id == usuarioActual.id;
+
   Swal.fire({
-    title: `¿Eliminar ticket #${reporte.id}?`,
+    title: `Ticket #${reporte.id}`,
     html: `
       <p style="color: #64748b; margin: 0;">
         Técnico: <strong>${reporte.personal}</strong><br>
-        Categoría: <strong>${reporte.descripcion}</strong>
+        Categoría: <strong>${reporte.descripcion}</strong><br>
+        Municipio: <strong>${reporte.municipio || '-'}</strong>
       </p>
-      <p style="color: #e74c3c; font-size: 0.85rem; margin-top: 10px;">
-        Esta acción no se puede deshacer.
-      </p>
+      
+      ${esPropietaria ? `
+        <div style="margin-top: 15px; text-align: left;">
+          <label style="font-size: 0.8rem; font-weight: 700; color: #64748b; text-transform: uppercase;">
+            Editar Municipio:
+          </label>
+          <input id="input-municipio" value="${reporte.municipio || ''}"
+            style="width: 100%; margin-top: 6px; padding: 10px 14px; border: 1px solid #e2e8f0;
+                   border-radius: 8px; font-size: 0.9rem; box-sizing: border-box; outline: none;">
+
+          <label style="font-size: 0.8rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-top: 10px; display:block;">
+            Editar Descripción:
+          </label>
+          <input id="input-descripcion" value="${reporte.descripcion || ''}"
+            style="width: 100%; margin-top: 6px; padding: 10px 14px; border: 1px solid #e2e8f0;
+                   border-radius: 8px; font-size: 0.9rem; box-sizing: border-box; outline: none;">
+        </div>
+        
+        <p style="color: #e74c3c; font-size: 0.85rem; margin-top: 15px; font-weight: 500;">
+          <span class="material-symbols-outlined" style="font-size: 1rem; vertical-align: text-bottom; margin-right: 4px;">warning</span>
+          Si eliminas este ticket, la acción no se podrá deshacer.
+        </p>
+      ` : `
+        <div style="margin-top: 15px; padding: 12px; background-color: #f8fafc; border-left: 4px solid #f59e0b; border-radius: 4px; text-align: left;">
+           <p style="color: #475569; font-size: 0.85rem; margin: 0; line-height: 1.4;">
+             Este ticket fue creado por otra persona. Solo puedes visualizar la información básica.
+           </p>
+        </div>
+      `}
     `,
-    icon: 'warning',
-    iconColor: '#e74c3c',
+    icon: 'info',
+    iconColor: '#56212f',
     showCancelButton: true,
-    confirmButtonText: 'Sí, eliminar',
-    confirmButtonColor: '#56212f',
-    cancelButtonText: 'Cancelar',
-    cancelButtonColor: '#000000'
+    showConfirmButton: esPropietaria, 
+    showDenyButton: esPropietaria,    
+    confirmButtonText: 'Eliminar',
+    confirmButtonColor: '#e74c3c',
+    denyButtonText: 'Guardar cambios',
+    denyButtonColor: '#2980b9',
+    cancelButtonText: 'Cerrar',
+    cancelButtonColor: '#000000',
+    width: '450px'
   }).then((result) => {
-    if (result.isConfirmed) {
-      this.apiService.deleteTicket(reporte.id).subscribe({
+    
+    if (result.isDenied && esPropietaria) {
+      const inputMuni = (document.getElementById('input-municipio') as HTMLInputElement)?.value?.trim() ?? '';
+      const inputDesc = (document.getElementById('input-descripcion') as HTMLInputElement)?.value?.trim() ?? '';
+      
+      if (inputMuni !== '' || inputDesc !== '') {
+        this.actualizarDatosTicket(reporte.id, inputMuni, inputDesc, usuarioActual.id, reporte);
+      } else {
+        Swal.fire('Atención', 'No ingresaste ningún dato nuevo para actualizar.', 'info');
+      }
+      return;
+    }
+
+    if (result.isConfirmed && esPropietaria) {
+      this.apiService.deleteTicket(reporte.id, usuarioActual.id).subscribe({
         next: (res) => {
           if (res.status) {
-            const toast = Swal.mixin({
-              toast: true, position: 'top-end',
-              showConfirmButton: false, timer: 2500
-            });
+            const toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2500 });
             toast.fire({ icon: 'success', title: 'Ticket eliminado' });
             this.obtenerReportesDelDia();
           } else {
             Swal.fire({
-              icon: 'info',
-              iconColor: '#56212f',
+              icon: 'info', iconColor: '#56212f',
               title: 'No se puede eliminar',
-              html: `
-                <p style="color: #64748b; margin: 0;">
-                  El ticket <strong>#${reporte.id}</strong> no puede eliminarse porque
-                  ya fue <strong style="color: #27ae60;">Completado</strong>
-                </p>
-                <p style="color: #94a3b8; font-size: 0.8rem; margin-top: 10px;">
-                  Solo se pueden eliminar tickets que estén  <strong style="color: #cebe35;">En Espera</strong>.
-                </p>
-              `,
-              confirmButtonText: 'Entendido',
-              confirmButtonColor: '#56212f'
+              html: `<p style="color:#64748b">El ticket <strong>#${reporte.id}</strong> no puede eliminarse porque ya fue <strong style="color:#27ae60">Completado</strong></p>
+                     <p style="color:#94a3b8; font-size:0.8rem">Solo se pueden eliminar tickets que estén <strong style="color:#cebe35">En Espera</strong>.</p>`,
+              confirmButtonText: 'Entendido', confirmButtonColor: '#56212f'
             });
           }
         },
         error: (err) => {
           if (err.status === 403) {
             Swal.fire({
-              icon: 'info',
-              iconColor: '#56212f',
+              icon: 'info', iconColor: '#56212f',
               title: 'No se puede eliminar',
-              html: `
-                <p style="color: #64748b; margin: 0;">
-                  El ticket <strong>#${reporte.id}</strong> no puede eliminarse porque
-                  ya fue <strong style="color: #27ae60;">Completado</strong>
-                </p>
-                <p style="color: #94a3b8; font-size: 0.8rem; margin-top: 10px;">
-                  Solo se pueden eliminar tickets que estén  <strong style="color: #cebe35;">En Espera</strong>.
-                </p>
-              `,
-              confirmButtonText: 'Entendido',
-              confirmButtonColor: '#56212f'
+              html: `<p style="color:#64748b">El ticket <strong>#${reporte.id}</strong> ya fue <strong style="color:#27ae60">Completado</strong></p>`,
+              confirmButtonText: 'Entendido', confirmButtonColor: '#56212f'
             });
           } else {
             Swal.fire('Error', 'No se pudo conectar con el servidor', 'error');
@@ -491,6 +536,32 @@ confirmarEliminarTicket(reporte: any) {
         }
       });
     }
+  });
+}
+
+actualizarDatosTicket(ticketId: number, municipio: string, notas: string, secretariaId: number, reporte: any) {
+  const payload: any = {
+    id: ticketId,
+    secretaria_id: secretariaId
+  };
+  
+  if (municipio !== '') payload.municipio = municipio;
+  if (notas !== '') payload.notas = notas;
+
+  this.apiService.editarTicket(payload).subscribe({
+    next: (res) => {
+      if (res.status) {
+        if (municipio !== '') reporte.municipio = municipio;
+        if (notas !== '') reporte.notas = notas;
+        this.cdr.detectChanges();
+        
+        const toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2500 });
+        toast.fire({ icon: 'success', title: 'Ticket actualizado correctamente' });
+      } else {
+        Swal.fire('Error', res.message, 'error');
+      }
+    },
+    error: () => Swal.fire('Error', 'No se pudo conectar con el servidor', 'error')
   });
 }
 
@@ -557,5 +628,7 @@ mostrarNovedades() {
     localStorage.setItem(claveVista, 'true');
   });
 }
+
+
 }
     

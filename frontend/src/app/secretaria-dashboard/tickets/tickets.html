@@ -3,12 +3,22 @@
   <div class="central-form-card">
     <h2 class="form-title">Registrar Nuevo Reporte</h2>
 
-    <div class="form-content">
+<div class="form-content">
       
+      <div class="form-section-header full-width">
+        <span class="material-symbols-outlined">person</span>
+        <h4>Datos del Solicitante</h4>
+      </div>
+
       <div class="form-group">
         <label>Nombre del Usuario:</label>
-        <input type="text" [(ngModel)]="nuevoTicket.nombre_usuario" class="simple-input" name="nombre_usuario" placeholder="Nombre completo">
+        <input type="text" [(ngModel)]="nuevoTicket.nombre_usuario" class="simple-input" name="nombre_usuario" placeholder="Escribe el nombre completo">
       </div>
+
+    <div class="form-group">
+      <label>Apellidos:</label>
+      <input type="text" [(ngModel)]="nuevoTicket.apellido_usuario" class="simple-input" name="apellido_usuario" placeholder="Escribe los apellidos completos">
+    </div>
 
       <div class="form-group" style="position: relative;">
         <label>Departamento:</label>
@@ -34,15 +44,20 @@
 
       <div class="form-group">
         <label>Municipio:</label>
-        <input type="text" [(ngModel)]="nuevoTicket.municipio" name="municipio" class="simple-input" placeholder="Ingresa el municipio" required>
+        <input type="text" [(ngModel)]="nuevoTicket.municipio" name="municipio" class="simple-input" placeholder="Escribe el municipio" required>
       </div>
 
       <div class="form-group">
         <label>Número de Extensión o Teléfono:</label>
-        <input type="tel" [(ngModel)]="nuevoTicket.extension_tel" name="extension_tel" placeholder="Escribe la extensión o número de teléfono" class="simple-input" maxlength="12" (keypress)="validarSoloNumeros($event)" required>
+        <input type="tel" [(ngModel)]="nuevoTicket.extension_tel" name="extension_tel" placeholder="Escribe la extensión o el teléfono" class="simple-input" maxlength="12" (keypress)="validarSoloNumeros($event)" required>
       </div>
 
-        <div class="form-group">
+<div class="form-section-header full-width" style="margin-top: 15px;">
+        <span class="material-symbols-outlined">support_agent</span>
+        <h4>Detalles del Soporte</h4>
+      </div>
+
+      <div class="form-group">
         <label>Técnico Asignado:</label>
         <select class="simple-input" [(ngModel)]="nuevoTicket.personalId" name="personalId" required>
           <option value="" disabled selected>-- Selecciona Técnico --</option>
@@ -87,25 +102,42 @@
           </label>
         </div>
       </div>
+<div class="form-group fade-in" *ngIf="nuevoTicket.descripcion === 'Tecnico'">
+        <label>Especifica el tipo de soporte (Requerido):</label>
+        
+        <div class="simple-input" style="padding: 15px; height: auto;">
+          
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+              <input type="checkbox" [(ngModel)]="nuevoTicket.soporte.software" name="soporte_software" style="width: 16px; height: 16px; accent-color: #56212f;"> 
+              <span style="font-weight: 600; color: #334155;">Software <span style="font-weight: 400; color: #64748b; font-size: 0.85rem;">(Configuración/Instalación)</span></span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+              <input type="checkbox" [(ngModel)]="nuevoTicket.soporte.hardware" name="soporte_hardware" style="width: 16px; height: 16px; accent-color: #56212f;"> 
+              <span style="font-weight: 600; color: #334155;">Hardware <span style="font-weight: 400; color: #64748b; font-size: 0.85rem;">(Falla física/Limpieza)</span></span>
+            </label>
+          </div>
 
-      <div class="form-group fade-in" *ngIf="nuevoTicket.descripcion === 'Tecnico'">
-        <label>Especifica el tipo de soporte (puedes elegir varios):</label>
-        <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 10px;">
-          <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
-            <input type="checkbox" [(ngModel)]="nuevoTicket.soporte.impresora" name="soporte_impresora"> <span>Impresora</span>
-          </label>
-          <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
-            <input type="checkbox" [(ngModel)]="nuevoTicket.soporte.escaner" name="soporte_escaner"> <span>Escáner</span>
-          </label>
-          <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
-            <input type="checkbox" [(ngModel)]="nuevoTicket.soporte.software" name="soporte_software"> <span>Software</span>
-          </label>
-          <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
-            <input type="checkbox" [(ngModel)]="nuevoTicket.soporte.hardware" name="soporte_hardware"> <span>Hardware</span>
-          </label>
-                    <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
-            <input type="checkbox" [(ngModel)]="nuevoTicket.soporte.garantias" name="soporte_garantias"> <span>Garantías</span>
-          </label>
+          <div style="margin-top: 15px; padding-top: 12px; border-top: 1px solid #e2e8f0;">
+            <span style="font-size: 0.75rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 10px;">
+              Opciones
+            </span>
+            <div style="display: flex; flex-wrap: wrap; gap: 15px;">
+              <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                <input type="checkbox" [(ngModel)]="nuevoTicket.soporte.impresora" name="soporte_impresora" style="accent-color: #56212f;"> 
+                <span style="font-size: 0.9rem; color: #475569;">Impresora</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                <input type="checkbox" [(ngModel)]="nuevoTicket.soporte.escaner" name="soporte_escaner" style="accent-color: #56212f;"> 
+                <span style="font-size: 0.9rem; color: #475569;">Escáner</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                <input type="checkbox" [(ngModel)]="nuevoTicket.soporte.garantias" name="soporte_garantias" style="accent-color: #56212f;"> 
+                <span style="font-size: 0.9rem; color: #475569;"> Garantías</span>
+              </label>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -123,7 +155,6 @@
         <label>Detalles del Problema (Notas):</label>
         <textarea [(ngModel)]="nuevoTicket.notas" rows="4"   name="notas" placeholder="Describe la falla..." class="simple-input"></textarea>
       </div>
-
       <div class="form-group full-width method-container">
         <label class="method-title">Vía de atención esperada</label>
         
@@ -131,13 +162,13 @@
           <label class="method-option-label">
             <input type="radio" [(ngModel)]="nuevoTicket.metodo_resolucion" name="metodo_resolucion" value="Llamada / Remoto">
             <span class="material-symbols-outlined icon-llamada">support_agent</span>
-             Llamada / Remoto
+            <span>Llamada / Remoto</span>
           </label>
           
           <label class="method-option-label">
             <input type="radio" [(ngModel)]="nuevoTicket.metodo_resolucion" name="metodo_resolucion" value="Presencial">
             <span class="material-symbols-outlined icon-presencial">engineering</span>
-            Servicio Presencial
+            <span>Servicio Presencial</span>
           </label>
         </div>
       </div>
@@ -179,7 +210,7 @@
             <td class="id-col">#{{ reporte.id }}</td>
             <td class="time-col">{{ reporte.fecha | date:'hh:mm a' }}</td>
 
-            <td class="solicitante-col">{{ reporte.nombre_usuario }}</td>
+            <td class="solicitante-col">{{ reporte.nombre_usuario }} {{ reporte.apellido_usuario }}</td>
             <td class="depto-col">{{ reporte.departamento }}</td>
             
             <td class="muni-col">{{ reporte.municipio || '-' }}</td> 

@@ -30,6 +30,8 @@ export class TicketsListComponent implements OnInit {
   diasDelCalendario: any[] = [];
   diaFiltroSeleccionado: number | null = null;
   estadoCargaActivo: boolean = false;
+mostrarSelectorDescarga: boolean = false;
+mesParaDescargar: string = '';
 
 ngOnInit() {
     this.apiService.getMesesDisponibles().subscribe({
@@ -346,8 +348,19 @@ ngOnInit() {
     });
   }
 
-  descargarExcelMensual() {
-    const urlDescarga = 'http://10.15.10.46/soporteSEIEM/MesadetrabajoSEIEM/backend/excel.php';
-    window.open(urlDescarga, '_blank');
-  }
+abrirSelectorDescarga() {
+  this.mesParaDescargar = this.mesFiltroSeleccionado || '';
+  this.mostrarSelectorDescarga = true;
+}
+
+cerrarSelectorDescarga() {
+  this.mostrarSelectorDescarga = false;
+}
+
+confirmarDescargaExcel() {
+  const mesParam = this.mesParaDescargar ? `?mes=${this.mesParaDescargar}` : '';
+  const urlDescarga = `http://10.15.10.46/soporteSEIEM/MesadetrabajoSEIEM/backend/excel.php${mesParam}`;
+  window.open(urlDescarga, '_blank');
+  this.mostrarSelectorDescarga = false;
+}
 }
