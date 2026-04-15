@@ -316,7 +316,7 @@ abrirModalFinalizacion(ticketSeleccionado: any) {
           </div>
         </div>
 
-          <label style="font-weight: 800; color: #56212f; font-size: 0.9rem; display: block; margin-top: 15px;">Evidencia Fotográfica (Opcional):</label>
+          <label style="font-weight: 800; color: #56212f; font-size: 0.9rem; display: block; margin-top: 15px;"> Evidencia Fotográfica (Obligatorio): </label>
 
           <input type="file" id="camera-input" accept="image/*" capture="environment" style="display: none;">
           <input type="file" id="gallery-input" accept="image/*" style="display: none;">
@@ -616,6 +616,12 @@ galleryInput?.addEventListener('change', manejarArchivo);
     Swal.showValidationMessage('Debes escribir la resolución.');
     return false;
   }
+
+  if (!archivoEvidenciaOriginal) {
+    Swal.showValidationMessage('Es obligatorio adjuntar una foto de evidencia para cerrar el ticket.');
+    return false;
+  }
+
   if (!sinFirma && isEmpty) {
     Swal.showValidationMessage('El usuario debe firmar o marcar "Cerrar sin firma".');
     return false;

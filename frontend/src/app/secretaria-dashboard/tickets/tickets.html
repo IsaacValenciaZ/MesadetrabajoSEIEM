@@ -10,27 +10,19 @@
         <h4>Datos del Solicitante</h4>
       </div>
 
-      <div class="form-group">
-        <label>Nombre del Usuario:</label>
-        <input type="text" [(ngModel)]="nuevoTicket.nombre_usuario" class="simple-input" name="nombre_usuario" placeholder="Escribe el nombre completo">
-      </div>
+<div class="form-group">
+  <label>Nombre del Usuario:</label>
+  <input type="text"   [(ngModel)]="nuevoTicket.nombre_usuario"  (input)="nuevoTicket.nombre_usuario = nuevoTicket.nombre_usuario.toUpperCase()"  class="simple-input uppercase-input" name="nombre_usuario"   placeholder="Escribe el nombre completo">
+</div>
 
-    <div class="form-group">
-      <label>Apellidos:</label>
-      <input type="text" [(ngModel)]="nuevoTicket.apellido_usuario" class="simple-input" name="apellido_usuario" placeholder="Escribe los apellidos completos">
-    </div>
+<div class="form-group">
+  <label>Apellidos:</label>
+  <input type="text" [(ngModel)]="nuevoTicket.apellido_usuario"  (input)="nuevoTicket.apellido_usuario = nuevoTicket.apellido_usuario.toUpperCase()"class="simple-input uppercase-input" name="apellido_usuario"  placeholder="Escribe los apellidos completos">
+</div>
 
-      <div class="form-group" style="position: relative;">
-        <label>Departamento:</label>
-        <input 
-          type="text" 
-          class="simple-input"
-          placeholder="Escribe o selecciona..." 
-          [value]="nuevoTicket.departamento"
-          (input)="buscarDepartamento($event)"
-          (focus)="mostrarSugerencias = true"
-          (blur)="cerrarSugerenciasConRetraso()"
-        >
+<div class="form-group" style="position: relative;">
+  <label>Departamento:</label>
+  <input  type="text" class="simple-input uppercase-input"placeholder="Escribe o selecciona..." [value]="nuevoTicket.departamento"(input)="nuevoTicket.departamento = $any($event.target).value.toUpperCase(); buscarDepartamento($event)" (focus)="mostrarSugerencias = true" (blur)="cerrarSugerenciasConRetraso()">
         
         <ul class="autocomplete-list" *ngIf="mostrarSugerencias && departamentosSugeridos.length > 0">
           <li *ngFor="let departamento of departamentosSugeridos" (click)="elegirDepartamento(departamento)">
@@ -42,10 +34,10 @@
         </ul>
       </div>
 
-      <div class="form-group">
-        <label>Municipio:</label>
-        <input type="text" [(ngModel)]="nuevoTicket.municipio" name="municipio" class="simple-input" placeholder="Escribe el municipio" required>
-      </div>
+        <div class="form-group">
+          <label>Municipio:</label>
+          <input type="text"  [(ngModel)]="nuevoTicket.municipio"  (input)="nuevoTicket.municipio = nuevoTicket.municipio.toUpperCase()" name="municipio" class="simple-input uppercase-input" placeholder="Escribe el municipio" required>
+        </div>
 
       <div class="form-group">
         <label>Número de Extensión o Teléfono:</label>
@@ -152,9 +144,17 @@
       </div>
 
       <div class="form-group full-width">
-        <label>Detalles del Problema (Notas):</label>
-        <textarea [(ngModel)]="nuevoTicket.notas" rows="4"   name="notas" placeholder="Describe la falla..." class="simple-input"></textarea>
-      </div>
+  <label>Detalles del Problema (Notas):</label>
+  <textarea 
+         [(ngModel)]="nuevoTicket.notas" 
+         (input)="nuevoTicket.notas = nuevoTicket.notas.toUpperCase()"
+         rows="4" 
+         name="notas" 
+         placeholder="Describe la falla..." 
+         class="simple-input uppercase-input"></textarea>
+</div>
+
+
       <div class="form-group full-width method-container">
         <label class="method-title">Vía de atención esperada</label>
         

@@ -64,8 +64,7 @@ export class PersonalHistoryComponent implements OnInit {
         
         this.ticketsTodos = registros.filter((ticket: any) => 
             ticket.estado === 'Completo' || 
-            ticket.estado === 'Incompleto' || 
-            ticket.estado === 'Completado'
+            ticket.estado === 'Incompleto' 
         );
         
         this.generarOpcionesMeses();
@@ -379,19 +378,74 @@ abrirModalTicket(ticketSeleccionado: any) {
       </div>
     `;
 
+    const estadoTicket = ticketSeleccionado.estado || '';
+    const esReabrible = estadoTicket === 'Completo';
+    const tieneResolucion = !!(ticketSeleccionado.descripcion_resolucion || ticketSeleccionado.tiene_foto || ticketSeleccionado.tiene_firma);
+
     Swal.fire({
         html: htmlModal,
         width: '600px',
+        padding: '2em',
         showCancelButton: true,
-        confirmButtonText: '<span class="material-symbols-outlined" style="vertical-align: middle; font-size: 1.1rem; margin-right: 5px;">visibility</span> Ver Resolución',
-        confirmButtonColor: '#56212f',
         cancelButtonText: 'Cerrar',
         cancelButtonColor: '#000000',
-        padding: '2em',
-        showConfirmButton: !!(ticketSeleccionado.descripcion_resolucion || ticketSeleccionado.tiene_foto || ticketSeleccionado.tiene_firma)
+        showConfirmButton: tieneResolucion,
+        confirmButtonText: '<span class="material-symbols-outlined" style="vertical-align: middle; font-size: 1.1rem; margin-right: 5px;">visibility</span> Ver Resolución',
+        confirmButtonColor: '#56212f',
+        showDenyButton: esReabrible,
+        denyButtonText: '<span class="material-symbols-outlined" style="vertical-align: middle; font-size: 1.1rem; margin-right: 5px;">restart_alt</span> Reabrir Ticket',
+        denyButtonColor: '#b45309', 
+        reverseButtons: true 
     }).then((result) => {
         if (result.isConfirmed) {
             this.verEvidenciaFinal(ticketSeleccionado);
+        } else if (result.isDenied) {
+            this.cambiarEstado(ticketSeleccionado);
+        }
+    });
+}
+
+reabrirTicket(ticket: any) {
+    Swal.fire({
+        title: '¿Reabrir este reporte?',
+        text: "El ticket regresará a tu lista de pendientes.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#56212f',
+        cancelButtonColor: '#000000',
+        confirmButtonText: 'Sí, reabrir'
+    }).then((res) => {
+        if (res.isConfirmed) {
+            const payload = {
+                id: ticket.id,
+                estado: 'En espera', 
+                descripcion_resolucion: null, 
+                firma: null,
+                evidencia: null
+            };
+
+            this.apiService.actualizarEstadoTicketConEvidencia(payload).subscribe({
+                next: (res: any) => {
+                    if (res.status === true) {
+                        Swal.fire({
+                            icon: 'success', 
+                            title: '¡Reabierto!', 
+                            text: 'El ticket se movió a pendientes.',
+                            timer: 2000, 
+                            showConfirmButton: false 
+                        });
+                        
+                        this.cargarHistorialTickets(); 
+                        
+                    } else {
+                        Swal.fire('Error', res.message || 'No se pudo reabrir', 'error');
+                    }
+                },
+                error: (err) => {
+                    console.error("Error al reabrir:", err);
+                    Swal.fire('Error', 'Error de conexión con el servidor', 'error');
+                }
+            });
         }
     });
 }
@@ -578,7 +632,7 @@ abrirModalTicket(ticketSeleccionado: any) {
       let ticketsConTiempoValido = 0;
       
       listaTickets.forEach(ticket => {
-         if (ticket.estado === 'Completo' || ticket.estado === 'Completado') {
+         if (ticket.estado === 'Completo') {
             estadisticas.completos++;
             
 if (ticket.fecha_fin && ticket.fecha_limite) { 

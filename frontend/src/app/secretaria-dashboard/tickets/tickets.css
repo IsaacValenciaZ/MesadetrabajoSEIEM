@@ -455,6 +455,14 @@ textarea.simple-input {
     margin-right: 2px;
 }
 
+.uppercase-input {
+  text-transform: uppercase;
+}
+
+.uppercase-input::placeholder {
+  text-transform: none;
+}
+
 
 @media (max-width: 768px) {
     .central-form-card {

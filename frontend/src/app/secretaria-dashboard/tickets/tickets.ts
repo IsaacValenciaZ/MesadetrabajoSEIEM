@@ -289,152 +289,164 @@ obtenerReportesDelDia() {
     });
   }
   
-  procesarRegistroTicket() {
-    const camposVacios: string[] = [];
+procesarRegistroTicket() {
+  const camposVacios: string[] = [];
 
-    if (!this.nuevoTicket.nombre_usuario) camposVacios.push('Solicitante');
-    if (!this.nuevoTicket.apellido_usuario) camposVacios.push('Apellidos');
-    if (!this.nuevoTicket.departamento)   camposVacios.push('Departamento');
-    if (!this.nuevoTicket.municipio)      camposVacios.push('Municipio');
-    if (!this.nuevoTicket.extension_tel)  camposVacios.push('Extensión o Teléfono');
-    if (!this.nuevoTicket.personalId)     camposVacios.push('Técnico');
-    if (!this.nuevoTicket.descripcion)    camposVacios.push('Categoría');
-    if (!this.nuevoTicket.metodo_resolucion) camposVacios.push('Vía de atención esperada');
-    if (!this.nuevoTicket.prioridad)      camposVacios.push('Prioridad');
-    
-    if (this.nuevoTicket.descripcion === 'Correo' && !this.nuevoTicket.correo_tipo) {
-        camposVacios.push('Dominio del Correo (.edu o .gob)');
-    }
-    let detallesSoporte = '';
-    if (this.nuevoTicket.descripcion === 'Tecnico') {
-        const elementosSeleccionados = [];
-        
-        const tienePeriferico = this.nuevoTicket.soporte.impresora || this.nuevoTicket.soporte.escaner;
-        const tienePrincipal = this.nuevoTicket.soporte.software || this.nuevoTicket.soporte.hardware;
-        const tieneGarantias = this.nuevoTicket.soporte.garantias;
+  if (!this.nuevoTicket.nombre_usuario) camposVacios.push('Solicitante');
+  if (!this.nuevoTicket.apellido_usuario) camposVacios.push('Apellidos');
+  if (!this.nuevoTicket.departamento) camposVacios.push('Departamento');
+  if (!this.nuevoTicket.municipio) camposVacios.push('Municipio');
+  if (!this.nuevoTicket.extension_tel) camposVacios.push('Extensión o Teléfono');
+  if (!this.nuevoTicket.personalId) camposVacios.push('Técnico');
+  if (!this.nuevoTicket.descripcion) camposVacios.push('Categoría');
+  if (!this.nuevoTicket.metodo_resolucion) camposVacios.push('Vía de atención esperada');
+  if (!this.nuevoTicket.prioridad) camposVacios.push('Prioridad');
 
-        if (tienePeriferico && !tienePrincipal) {
-            Swal.fire({
-                title: 'Falta especificar la falla',
-                text: 'Seleccionaste Impresora o Escáner. Por favor indica arriba si el problema es de Software o Hardware.',
-                icon: 'warning',
-                confirmButtonText: 'Entendido',
-                confirmButtonColor: '#56212f'
-            });
-            return; 
-        }
-
-        if (!tienePrincipal && !tieneGarantias) {
-            camposVacios.push('Tipo de Soporte (Debes seleccionar Software, Hardware o Gestión de Garantías)');
-        } else {
-            if (this.nuevoTicket.soporte.software) elementosSeleccionados.push('Software');
-            if (this.nuevoTicket.soporte.hardware) elementosSeleccionados.push('Hardware');
-            if (this.nuevoTicket.soporte.impresora) elementosSeleccionados.push('Impresora');
-            if (this.nuevoTicket.soporte.escaner) elementosSeleccionados.push('Escáner');
-            if (this.nuevoTicket.soporte.garantias) elementosSeleccionados.push('Garantías');
-
-            detallesSoporte = elementosSeleccionados.join(', ');
-        }
-    }
-
-    if (camposVacios.length > 0) {
-      Swal.fire({
-        title: 'Campos Incompletos',
-        text: 'Por favor completa: ' + camposVacios.join(', '), 
-        icon: 'warning', 
-        confirmButtonText: 'Entendido',
-        confirmButtonColor: '#56212f' 
-      });
-      return; 
-    }
-
-    const tecnicoElegido = this.listaTecnicos.find(tecnico => tecnico.id == this.nuevoTicket.personalId);
-
-    if (tecnicoElegido && (tecnicoElegido.estado_disponibilidad === 'ocupado' || tecnicoElegido.estado_disponibilidad === 'ausente')) {
-        Swal.fire({
-            title: 'Técnico no disponible',
-            text: `El técnico ${tecnicoElegido.nombre} se encuentra ${tecnicoElegido.estado_disponibilidad}. Por favor selecciona otro.`,
-            icon: 'error',
-            confirmButtonColor: '#56212f'
-        });
-        return; 
-    }
-
-    const datosSecretaria = JSON.parse(localStorage.getItem('usuario_actual') || '{}');
-
-    const cargaDatosTicket = {
-      secretaria_id: datosSecretaria.id || null,
-      nombre_usuario: this.nuevoTicket.nombre_usuario,
-      apellido_usuario: this.nuevoTicket.apellido_usuario || '',
-      departamento: this.nuevoTicket.departamento,
-      municipio: this.nuevoTicket.municipio,
-      descripcion: this.nuevoTicket.descripcion, 
-      metodo_resolucion: this.nuevoTicket.metodo_resolucion,
-      prioridad: this.nuevoTicket.prioridad,
-      notas: this.nuevoTicket.notas || '',
-      cantidad: this.nuevoTicket.cantidad_dicta, 
-      extension_tel: this.nuevoTicket.extension_tel, 
-      correo_tipo: this.nuevoTicket.correo_tipo, 
-      soporte_tipo: detallesSoporte,
-      personal: tecnicoElegido ? tecnicoElegido.nombre : 'Sin asignar',
-      personal_id: tecnicoElegido ? tecnicoElegido.id : null,
-      personal_email: tecnicoElegido ? tecnicoElegido.email : null
-    };
-
-    Swal.fire({
-      title: 'Procesando ticket...',
-      html: 'Guardando reporte y notificando al técnico. <br><b>Por favor espera...</b>',
-      allowOutsideClick: false,
-      showConfirmButton: false,
-      didOpen: () => {
-        Swal.showLoading();
-      }
-    });
-
-    this.apiService.createTicket(cargaDatosTicket).subscribe({
-      next: (respuestaServidor) => {
-        if(respuestaServidor.status === true) {
-          
-          Swal.close();
-
-          const alertaFlotante = Swal.mixin({
-            toast: true, 
-            position: 'top-end', 
-            showConfirmButton: false, 
-            timer: 3000, 
-            timerProgressBar: true
-          });
-          alertaFlotante.fire({ icon: 'success', title: 'Ticket registrado correctamente' });
-
-          this.nuevoTicket = { 
-            nombre_usuario: '', 
-            apellido_usuario: '',
-            departamento: '', 
-            municipio: "",
-            personalId: '', 
-            descripcion: '', 
-            prioridad: '', 
-            metodo_resolucion: '',
-            notas: '', 
-            cantidad_dicta: null, 
-            extension_tel: '', 
-            correo_tipo: '',
-            soporte: { impresora: false, escaner: false, software: false, hardware: false, garantias: false }
-          };
-          
-          setTimeout(() => {
-            window.location.reload();
-          }, 1500);
-
-        } else {
-          Swal.fire({ icon: 'error', title: 'Error al guardar', text: respuestaServidor.error || respuestaServidor.message, confirmButtonColor: '#56212f' });
-        }
-      },
-      error: () => {
-        Swal.fire({ icon: 'error', title: 'Error de conexión', text: 'No se pudo conectar con el servidor', confirmButtonColor: '#56212f' });
-      }
-    });
+  if (this.nuevoTicket.descripcion === 'Correo' && !this.nuevoTicket.correo_tipo) {
+    camposVacios.push('Dominio del Correo (.edu o .gob)');
   }
+
+  let detallesSoporte = '';
+  if (this.nuevoTicket.descripcion === 'Tecnico') {
+    const elementosSeleccionados = [];
+    const tienePeriferico = this.nuevoTicket.soporte.impresora || this.nuevoTicket.soporte.escaner;
+    const tienePrincipal = this.nuevoTicket.soporte.software || this.nuevoTicket.soporte.hardware;
+    const tieneGarantias = this.nuevoTicket.soporte.garantias;
+
+    if (tienePeriferico && !tienePrincipal) {
+      Swal.fire({
+        title: 'Falta especificar la falla',
+        text: 'Seleccionaste Impresora o Escáner. Por favor indica arriba si el problema es de Software o Hardware.',
+        icon: 'warning',
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#56212f'
+      });
+      return;
+    }
+
+    if (!tienePrincipal && !tieneGarantias) {
+      camposVacios.push('Tipo de Soporte (Software, Hardware o Garantías)');
+    } else {
+      if (this.nuevoTicket.soporte.software) elementosSeleccionados.push('Software');
+      if (this.nuevoTicket.soporte.hardware) elementosSeleccionados.push('Hardware');
+      if (this.nuevoTicket.soporte.impresora) elementosSeleccionados.push('Impresora');
+      if (this.nuevoTicket.soporte.escaner) elementosSeleccionados.push('Escáner');
+      if (this.nuevoTicket.soporte.garantias) elementosSeleccionados.push('Garantías');
+      detallesSoporte = elementosSeleccionados.join(', ');
+    }
+  }
+
+  if (camposVacios.length > 0) {
+    Swal.fire({
+      title: 'Campos Incompletos',
+      text: 'Por favor completa: ' + camposVacios.join(', '),
+      icon: 'warning',
+      confirmButtonText: 'Entendido',
+      confirmButtonColor: '#56212f'
+    });
+    return;
+  }
+
+  const tecnicoElegido = this.listaTecnicos.find(tecnico => tecnico.id == this.nuevoTicket.personalId);
+  if (tecnicoElegido && (tecnicoElegido.estado_disponibilidad === 'ocupado' || tecnicoElegido.estado_disponibilidad === 'ausente')) {
+    Swal.fire({
+      title: 'Técnico no disponible',
+      text: `El técnico ${tecnicoElegido.nombre} se encuentra ${tecnicoElegido.estado_disponibilidad}.`,
+      icon: 'error',
+      confirmButtonColor: '#56212f'
+    });
+    return;
+  }
+
+  const datosSecretaria = JSON.parse(localStorage.getItem('usuario_actual') || '{}');
+
+  const nombreMayus = (this.nuevoTicket.nombre_usuario || '').toUpperCase();
+  const apellidoMayus = (this.nuevoTicket.apellido_usuario || '').toUpperCase();
+  const deptoMayus = (this.nuevoTicket.departamento || '').toUpperCase();
+  const municipioMayus = (this.nuevoTicket.municipio || '').toUpperCase();
+  const notasMayus = (this.nuevoTicket.notas || '').toUpperCase();
+  const soporteMayus = (detallesSoporte || '').toUpperCase();
+
+  const cargaDatosTicket = {
+    secretaria_id: datosSecretaria.id || null,
+    nombre_usuario: nombreMayus,
+    apellido_usuario: apellidoMayus,
+    departamento: deptoMayus,
+    municipio: municipioMayus,
+    descripcion: this.nuevoTicket.descripcion,
+    metodo_resolucion: this.nuevoTicket.metodo_resolucion,
+    prioridad: this.nuevoTicket.prioridad,
+    notas: notasMayus,
+    cantidad: this.nuevoTicket.cantidad_dicta,
+    extension_tel: this.nuevoTicket.extension_tel,
+    correo_tipo: this.nuevoTicket.correo_tipo,
+    soporte_tipo: soporteMayus,
+    personal: tecnicoElegido ? tecnicoElegido.nombre : 'Sin asignar',
+    personal_id: tecnicoElegido ? tecnicoElegido.id : null,
+    personal_email: tecnicoElegido ? tecnicoElegido.email : null
+  };
+
+  Swal.fire({
+    title: 'Procesando ticket...',
+    html: 'Guardando reporte y notificando al técnico. <br><b>Por favor espera...</b>',
+    allowOutsideClick: false,
+    showConfirmButton: false,
+    didOpen: () => {
+      Swal.showLoading();
+    }
+  });
+
+  this.apiService.createTicket(cargaDatosTicket).subscribe({
+    next: (respuestaServidor) => {
+      if (respuestaServidor.status === true) {
+        Swal.close();
+        const alertaFlotante = Swal.mixin({
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true
+        });
+        alertaFlotante.fire({ icon: 'success', title: 'Ticket registrado correctamente' });
+
+        this.nuevoTicket = {
+          nombre_usuario: '',
+          apellido_usuario: '',
+          departamento: '',
+          municipio: "",
+          personalId: '',
+          descripcion: '',
+          prioridad: '',
+          metodo_resolucion: '',
+          notas: '',
+          cantidad_dicta: null,
+          extension_tel: '',
+          correo_tipo: '',
+          soporte: { impresora: false, escaner: false, software: false, hardware: false, garantias: false }
+        };
+
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al guardar',
+          text: respuestaServidor.error || respuestaServidor.message,
+          confirmButtonColor: '#56212f'
+        });
+      }
+    },
+    error: () => {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error de conexión',
+        text: 'No se pudo conectar con el servidor',
+        confirmButtonColor: '#56212f'
+      });
+    }
+  });
+}
 
   
 confirmarEliminarTicket(reporte: any) {
@@ -446,7 +458,7 @@ confirmarEliminarTicket(reporte: any) {
     html: `
       <p style="color: #64748b; margin: 0;">
         Técnico: <strong>${reporte.personal}</strong><br>
-        Categoría: <strong>${reporte.descripcion}</strong><br>
+        Categoría: <strong>${reporte.notas}</strong><br>
         Municipio: <strong>${reporte.municipio || '-'}</strong>
       </p>
       
@@ -460,9 +472,9 @@ confirmarEliminarTicket(reporte: any) {
                    border-radius: 8px; font-size: 0.9rem; box-sizing: border-box; outline: none;">
 
           <label style="font-size: 0.8rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-top: 10px; display:block;">
-            Editar Descripción:
+            Editar Notas:
           </label>
-          <input id="input-descripcion" value="${reporte.descripcion || ''}"
+          <input id="input-notas" value="${reporte.notas || ''}"
             style="width: 100%; margin-top: 6px; padding: 10px 14px; border: 1px solid #e2e8f0;
                    border-radius: 8px; font-size: 0.9rem; box-sizing: border-box; outline: none;">
         </div>
@@ -487,7 +499,7 @@ confirmarEliminarTicket(reporte: any) {
     confirmButtonText: 'Eliminar',
     confirmButtonColor: '#e74c3c',
     denyButtonText: 'Guardar cambios',
-    denyButtonColor: '#2980b9',
+    denyButtonColor: '#56212f',
     cancelButtonText: 'Cerrar',
     cancelButtonColor: '#000000',
     width: '450px'
@@ -495,7 +507,7 @@ confirmarEliminarTicket(reporte: any) {
     
     if (result.isDenied && esPropietaria) {
       const inputMuni = (document.getElementById('input-municipio') as HTMLInputElement)?.value?.trim() ?? '';
-      const inputDesc = (document.getElementById('input-descripcion') as HTMLInputElement)?.value?.trim() ?? '';
+      const inputDesc = (document.getElementById('input-notas') as HTMLInputElement)?.value?.trim() ?? '';
       
       if (inputMuni !== '' || inputDesc !== '') {
         this.actualizarDatosTicket(reporte.id, inputMuni, inputDesc, usuarioActual.id, reporte);
