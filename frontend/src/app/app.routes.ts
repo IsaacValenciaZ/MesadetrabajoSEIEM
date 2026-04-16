@@ -7,7 +7,6 @@ import { UsersListComponent } from './secretaria-dashboard/users-list/users-list
 import { TicketsComponent } from './secretaria-dashboard/tickets/tickets';
 import { TicketsListComponent } from './secretaria-dashboard/tickets-list/tickets-list';
 import { UserProfileComponent } from './secretaria-dashboard/user-profile/user-profile';
-import {DictamenesComponent}  from './secretaria-dashboard/dictamenes/dictamenes';
 
 //Supervisor
 import { SupervisorDashboardComponent } from './supervisor-dashboard/supervisor-dashboard';
@@ -38,7 +37,6 @@ export const routes: Routes = [
         children: [
         { path: '', redirectTo: 'tickets', pathMatch: 'full' }, 
         { path: 'tickets', component: TicketsComponent },
-        {path: 'dictamenes', component: DictamenesComponent},
         { path: 'usuarios', component: UsersListComponent },
         { path: 'tickets-list', component: TicketsListComponent },
         { path: 'perfil', component: UserProfileComponent }

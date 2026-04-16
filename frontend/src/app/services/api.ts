@@ -22,9 +22,7 @@ private baseUrl = environment.apiUrl;
     return this.http.post<any>(`${this.baseUrl}/create_tickets.php`, ticketData);
   }
 
-  createDictamen(dictamenData: any): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/create_dictamen.php`, dictamenData);
-  }
+  
 
 deleteTicket(ticketId: number, secretariaId: number) {
   return this.http.request<any>('delete', `${this.baseUrl}/delete_ticket.php`, {
@@ -94,10 +92,6 @@ getSupervisorUsers(): Observable<any[]> {
 
 getReportMetrics(periodo: string = 'mes') {
     return this.http.get(`${this.baseUrl}/get_report_metrics.php?periodo=${periodo}`);
-  }
-
-  getDictamenes(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/get_dictamenes.php`);
   }
 
   login(email: string, password: string): Observable<any> {
