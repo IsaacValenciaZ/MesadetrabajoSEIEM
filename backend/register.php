@@ -47,7 +47,7 @@ $email = filter_var($email, FILTER_VALIDATE_EMAIL);
 
 $rol = trim($request->rol);
 
-$rolesPermitidos = ["admin", "personal", "usuario"];
+$rolesPermitidos = ["personal", "supervisor", "secretaria"];
 
 if (!$email || !in_array($rol, $rolesPermitidos)) {
     echo json_encode([

@@ -1,8 +1,8 @@
 <?php
 
 ini_set('memory_limit', '256M');
-ini_set('post_max_size', '10M');
-ini_set('upload_max_filesize', '10M');
+ini_set('post_max_size', '16M');
+ini_set('upload_max_filesize', '16M');
 
 include_once("cors.php");
 include_once("db_connect.php");
@@ -31,7 +31,9 @@ if (!$data) {
 
 $id = filter_var($data['id'] ?? null, FILTER_VALIDATE_INT);
 $estado = trim($data['estado'] ?? '');
-$resolucion = trim($data['descripcion_resolucion'] ?? '');
+
+$resolucion = mb_strtoupper(trim($data['descripcion_resolucion'] ?? ''), 'UTF-8');
+
 $usuario_id = filter_var($data['usuario_id'] ?? null, FILTER_VALIDATE_INT);
 
 $firma = (!empty($data['firma']) && str_starts_with($data['firma'], 'data:image'))
@@ -58,7 +60,7 @@ if (($estado === 'Completo' || $estado === 'Completado') && empty($resolucion)) 
     exit();
 }
 
-if ($evidencia_base64 && strlen($evidencia_base64) > 8000000) {
+if ($evidencia_base64 && strlen($evidencia_base64) > 6000000) {
     echo json_encode([
         "status" => false,
         "message" => "La evidencia es demasiado grande"
@@ -67,11 +69,9 @@ if ($evidencia_base64 && strlen($evidencia_base64) > 8000000) {
 }
 
 try {
-
     $conn->beginTransaction();
 
     if ($estado === 'En espera' || $estado === 'Asignado') {
-
         $stmt = $conn->prepare("
             UPDATE tickets
             SET estado = :estado, fecha_fin = NULL
@@ -89,11 +89,9 @@ try {
         ");
 
         $stmtEv->execute([':tid' => $id]);
-
         $mensaje = "Ticket reabierto correctamente.";
 
     } else {
-
         $stmtCheck = $conn->prepare("
             SELECT id FROM evidencias_tickets
             WHERE ticket_id = :tid
@@ -103,7 +101,6 @@ try {
         $existe = $stmtCheck->fetch(PDO::FETCH_ASSOC);
 
         if ($existe) {
-
             $stmtEv = $conn->prepare("
                 UPDATE evidencias_tickets
                 SET descripcion_resolucion = :res,
@@ -111,15 +108,12 @@ try {
                     firma_base64 = :firma
                 WHERE ticket_id = :tid
             ");
-
         } else {
-
             $stmtEv = $conn->prepare("
                 INSERT INTO evidencias_tickets
                 (ticket_id, descripcion_resolucion, evidencia_archivo, firma_base64)
                 VALUES (:tid, :res, :evidencia, :firma)
             ");
-
         }
 
         $stmtEv->execute([
@@ -144,17 +138,14 @@ try {
         ]);
 
         if ($usuario_id) {
-
             $conn->prepare("
                 UPDATE usuarios
                 SET estado_disponibilidad = 'disponible'
                 WHERE id = ?
             ")->execute([$usuario_id]);
-
         }
 
         $mensaje = "Ticket finalizado exitosamente.";
-
     }
 
     $conn->commit();
@@ -165,13 +156,10 @@ try {
     ]);
 
 } catch (Exception $e) {
-
     if ($conn->inTransaction()) {
         $conn->rollBack();
     }
-
     http_response_code(500);
-
     echo json_encode([
         "status" => false,
         "message" => $e->getMessage()

@@ -26,7 +26,7 @@ export class SupervisorTickethistoryComponent implements OnInit {
   textoBusqueda: string = '';
   mesesDisponibles: string[] = [];
   mesSeleccionado: string = '';
-  
+  filtroCategoria: string = 'Todas';
   mostrarCalendario: boolean = false;
   diasCalendario: any[] = [];
   diaSeleccionado: number | null = null;
@@ -100,19 +100,30 @@ generarOpcionesMeses() {
   }
 }
 
-  aplicarFiltros(reiniciarFiltroDia: boolean = true) {
+aplicarFiltros(reiniciarFiltroDia: boolean = true) {
     if (reiniciarFiltroDia) this.diaSeleccionado = null; 
     
     let resultado = this.mesSeleccionado 
         ? this.listaHistorialCompleto.filter(t => t.fecha && t.fecha.startsWith(this.mesSeleccionado))
         : [...this.listaHistorialCompleto];
 
-    if (this.textoBusqueda.trim() !== '') {
+    if (this.filtroCategoria !== 'Todas') {
+        resultado = resultado.filter(t => t.descripcion === this.filtroCategoria);
+    }
+
+if (this.textoBusqueda.trim() !== '') {
         const txt = this.textoBusqueda.toLowerCase().trim();
         resultado = resultado.filter(t => {
+            if (this.tipoBusqueda === 'todos') {
+                return (t.id?.toString().includes(txt)) ||
+                       ((t.personal || '').toLowerCase().includes(txt)) ||
+                       ((t.nombre_creador || '').toLowerCase().includes(txt));
+            }
+            
             if (this.tipoBusqueda === 'id') return t.id?.toString().includes(txt);
             if (this.tipoBusqueda === 'tecnico') return (t.personal || '').toLowerCase().includes(txt);
             if (this.tipoBusqueda === 'asignadora') return (t.nombre_creador || '').toLowerCase().includes(txt);
+            
             return true;
         });
     }
@@ -127,7 +138,6 @@ generarOpcionesMeses() {
     } else {
         this.organizarTicketsPorFecha(this.listaTicketsFiltrados);
     }
-
   }
 
   organizarTicketsPorFecha(lista: any[]) {

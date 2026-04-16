@@ -30,6 +30,10 @@ export class SupervisorStartComponent implements OnInit, AfterViewInit, OnDestro
 
   listaPendientesHoy: any[] = [];
   listaCompletadosHoy: any[] = [];
+    pendientesFiltrados: any[] = [];
+    completadosFiltrados: any[] = [];
+    filtroPendientes: string = 'Todas';
+    filtroCompletados: string = 'Todas';
 
   chartLinea: any;
   chartDona: any; 
@@ -94,6 +98,9 @@ export class SupervisorStartComponent implements OnInit, AfterViewInit, OnDestro
           this.listaPendientesHoy = ticketsDeHoy.filter(t => t.estado === 'En espera' || t.estado === 'Incompleto' || !t.estado);
           this.listaCompletadosHoy = ticketsDeHoy.filter(t => t.estado === 'Completo');
 
+          this.aplicarFiltroPendientes();
+          this.aplicarFiltroCompletados();
+          
           this.ticketsPendientes = this.listaPendientesHoy.length;
           this.ticketsCompletados = this.listaCompletadosHoy.length;
           this.ticketsAltaPrioridad = ticketsDeHoy.filter(t => t.prioridad === 'Alta' && t.estado !== 'Completo').length;
@@ -540,4 +547,27 @@ cerrarModalKpi() {
   this.kpiModalList = [];
   this.cdr.detectChanges();
 }
+
+
+aplicarFiltroPendientes(categoria?: string) {
+    if (categoria) this.filtroPendientes = categoria;
+    
+    if (this.filtroPendientes === 'Todas') {
+      this.pendientesFiltrados = [...this.listaPendientesHoy];
+    } else {
+      this.pendientesFiltrados = this.listaPendientesHoy.filter(t => t.descripcion === this.filtroPendientes);
+    }
+    this.cdr.detectChanges();
+  }
+
+  aplicarFiltroCompletados(categoria?: string) {
+    if (categoria) this.filtroCompletados = categoria;
+    
+    if (this.filtroCompletados === 'Todas') {
+      this.completadosFiltrados = [...this.listaCompletadosHoy];
+    } else {
+      this.completadosFiltrados = this.listaCompletadosHoy.filter(t => t.descripcion === this.filtroCompletados);
+    }
+    this.cdr.detectChanges();
+  }
 }

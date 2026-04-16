@@ -24,6 +24,7 @@ try {
         SELECT
             t.id,
             t.nombre_usuario,
+            t.apellido_usuario,
             t.departamento,
             t.descripcion,
             t.prioridad,

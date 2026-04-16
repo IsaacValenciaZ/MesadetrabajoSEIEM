@@ -24,12 +24,14 @@ $data = json_decode(file_get_contents("php://input"));
 if (isset($data->nombre_usuario) && isset($data->personal) && isset($data->descripcion)) {
     try {
         $nombre_usuario = htmlspecialchars(trim($data->nombre_usuario));
+        $apellido_usuario = htmlspecialchars(trim($data->apellido_usuario ?? '')); 
         $departamento   = htmlspecialchars(trim($data->departamento ?? ''));
         $municipio      = htmlspecialchars(trim($data->municipio ?? ''));
         $descripcion    = htmlspecialchars(trim($data->descripcion));
         $prioridad      = htmlspecialchars(trim($data->prioridad ?? 'Normal'));
         $personal       = htmlspecialchars(trim($data->personal));
         $notas          = htmlspecialchars(trim($data->notas ?? ''));
+        $metodo_resolucion = htmlspecialchars(trim($data->metodo_resolucion ?? ''));
 
         $fecha_limite = date('Y-m-d H:i:s', strtotime('+24 hours'));
         $secretariaId = isset($data->secretaria_id) ? intval($data->secretaria_id) : null;
@@ -40,17 +42,18 @@ if (isset($data->nombre_usuario) && isset($data->personal) && isset($data->descr
         $extension_tel = isset($data->extension_tel) ? htmlspecialchars(trim($data->extension_tel)) : null;
 
                 $sql = "INSERT INTO tickets (
-                                    nombre_usuario, departamento, municipio, descripcion, prioridad, personal, 
+                                    nombre_usuario, apellido_usuario, departamento, municipio, descripcion, prioridad, personal, 
                                     notas, fecha_limite, fecha_fin, secretaria_id, cantidad_dicta, 
-                                    extension_tel, correo_tipo, soporte_tipo, estado
+                                    extension_tel, correo_tipo, soporte_tipo, metodo_resolucion, estado
                                 ) VALUES (
-                                    :user, :depto, :muni, :desc, :prio, :pers, :notas, :limite, NULL, 
-                                    :secretariaId, :cant, :ext_tel, :correo_tipo, :soporte_tipo, :estado
+                                    :user, :apellido, :depto, :muni, :desc, :prio, :pers, :notas, :limite, NULL, 
+                                    :secretariaId, :cant, :ext_tel, :correo_tipo, :soporte_tipo, :metodo_resolucion, :estado
                                 )";
 
         $stmt = $conn->prepare($sql);
         $stmt->execute([
             ':user'         => $nombre_usuario,
+            ':apellido' => $apellido_usuario,
             ':depto'        => $departamento,
             ':muni'         => $municipio,
             ':desc'         => $descripcion,
@@ -63,6 +66,7 @@ if (isset($data->nombre_usuario) && isset($data->personal) && isset($data->descr
             ':ext_tel'      => $extension_tel,
             ':correo_tipo'  => $correo_tipo,
             ':soporte_tipo' => $soporte_tipo,
+            ':metodo_resolucion' => $metodo_resolucion,
             ':estado'       => 'En espera'
         ]);
 
@@ -107,7 +111,7 @@ if (isset($data->nombre_usuario) && isset($data->personal) && isset($data->descr
                                         </tr>
                                         <tr>
                                             <td style='padding: 10px 0; color: #777777; border-bottom: 1px solid #eeeeee;'><strong>Solicitante:</strong></td>
-                                            <td style='padding: 10px 0; color: #333333; font-weight: 600; border-bottom: 1px solid #eeeeee;'>{$data->nombre_usuario}</td>
+                                            <td style='padding: 10px 0; color: #333333; font-weight: 600; border-bottom: 1px solid #eeeeee;'>{$data->nombre_usuario} {$apellido_usuario}</td>
                                         </tr>
                                         <tr>
                                             <td style='padding: 10px 0; color: #777777; border-bottom: 1px solid #eeeeee;'><strong>Departamento:</strong></td>

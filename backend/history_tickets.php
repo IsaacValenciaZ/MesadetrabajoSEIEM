@@ -17,6 +17,7 @@ try {
         SELECT
             id,
             nombre_usuario,
+            apellido_usuario,
             departamento,
             descripcion,
             prioridad,

@@ -40,23 +40,27 @@ try {
         $mes = date('Y-m');
     }
 
+
     $stmt = $conn->prepare("
-        SELECT
-            t.id,
-            t.nombre_usuario,
-            t.departamento,
-            t.descripcion,
-            t.prioridad,
-            t.personal,
-            t.extension_tel,
-            t.estado,
-            t.fecha,
+        SELECT 
+            t.id, 
+            t.nombre_usuario, 
+            t.apellido_usuario, 
+            t.departamento, 
+            t.municipio,
+            t.descripcion, 
+            t.prioridad, 
+            t.personal, 
+            t.metodo_resolucion,
+            t.extension_tel, 
+            t.estado, 
+            t.fecha, 
             t.fecha_limite,
-            t.fecha_fin,
-            t.notas,
-            t.cantidad_dicta,
+            t.fecha_fin, 
+            t.notas, 
+            t.cantidad_dicta, 
             t.correo_tipo,
-            t.soporte_tipo,
+            t.soporte_tipo, 
             u.nombre AS nombre_creador
         FROM tickets t
         LEFT JOIN usuarios u ON t.secretaria_id = u.id

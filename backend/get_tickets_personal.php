@@ -20,35 +20,23 @@ if (!isset($_GET['personal'])) {
 $nombre_personal = htmlspecialchars(trim($_GET['personal']));
 
 try {
-    $checkUpdate = $conn->query("
-        SELECT valor FROM config_sistema 
-        WHERE clave = 'ultima_actualizacion_vencidos_diario'
-    ")->fetch(PDO::FETCH_ASSOC);
-
-    $ultimaVez = $checkUpdate ? strtotime($checkUpdate['valor']) : 0;
-
-    if ((time() - $ultimaVez) > 86400) {
-        $conn->exec("
-            UPDATE tickets 
-            SET estado = 'Incompleto' 
-            WHERE estado NOT IN ('Completo', 'Completado', 'Incompleto')
-            AND fecha_limite < NOW()
-            AND fecha_limite >= DATE_SUB(NOW(), INTERVAL 1 DAY)
-        ");
-        $conn->exec("
-            INSERT INTO config_sistema (clave, valor) 
-            VALUES ('ultima_actualizacion_vencidos_diario', NOW())
-            ON DUPLICATE KEY UPDATE valor = NOW()
-        ");
-    }
+    $conn->exec("
+        UPDATE tickets 
+        SET estado = 'Incompleto' 
+        WHERE estado NOT IN ('Completo', 'Completado', 'Incompleto')
+        AND fecha_limite < NOW()
+    ");
 
     $stmt = $conn->prepare("
         SELECT 
             t.id,
             t.nombre_usuario,
+            t.apellido_usuario,
             t.departamento,
             t.descripcion,
             t.prioridad,
+            t.municipio,
+            t.metodo_resolucion,
             t.estado,
             t.fecha,
             t.extension_tel,

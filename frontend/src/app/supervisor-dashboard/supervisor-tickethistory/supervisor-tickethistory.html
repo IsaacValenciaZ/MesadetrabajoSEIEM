@@ -5,13 +5,27 @@
       <p>Reportes registrados por el personal técnico.</p>
     </div>
 
-    <div class="filters-container" style="position: relative;">
-      <select class="month-select" [(ngModel)]="tipoBusqueda" (change)="aplicarFiltros()">
+<div class="filters-container" style="position: relative;">
+      
+     <select class="month-select" [(ngModel)]="tipoBusqueda" (change)="aplicarFiltros()">
+        <option value="todos">Todos</option> 
         <option value="tecnico">Técnico</option>
         <option value="asignadora">Asignadora</option>
         <option value="id">ID Ticket</option>
       </select>
+
       <input type="text" class="month-select" placeholder="Escribe para buscar..." [(ngModel)]="textoBusqueda" (input)="aplicarFiltros()" style="min-width: 220px;">
+
+      <select class="month-select" [(ngModel)]="filtroCategoria" (change)="aplicarFiltros()" style="min-width: 150px; border: 1.5px solid #cbd5e1; border-radius: 8px;">
+        <option value="Todas">Todas las categorías</option>
+        <option value="Internet">Internet</option>
+        <option value="Office">Office</option>
+        <option value="Telefonia">Telefonía</option>
+        <option value="Tecnico">Técnico</option>
+        <option value="Dictaminar">Dictaminar</option>
+        <option value="Extension/Telefono">Ext. / Teléfono</option>
+        <option value="Correo">Correo</option>
+      </select>
 
       <select class="month-select" [(ngModel)]="mesSeleccionado" (ngModelChange)="cambiarMes()">
         <option *ngFor="let mes of mesesDisponibles" [value]="mes">{{ obtenerNombreMes(mes) }}</option>

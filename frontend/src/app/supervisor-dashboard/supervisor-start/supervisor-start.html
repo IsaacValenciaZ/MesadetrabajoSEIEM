@@ -56,11 +56,26 @@
     </div>
   </div>
 
-  <div class="tables-section mt-4 fade-in">
+<div class="tables-section mt-4 fade-in">
     <div class="tables-grid">
       
       <div class="table-card card-border-warning">
-        <h3 class="section-title" style="color: #f59e0b;">Listado de Pendientes</h3>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+          <h3 class="section-title" style="color: #f59e0b; margin: 0;">Listado de Pendientes</h3>
+          <select (change)="aplicarFiltroPendientes($any($event.target).value)" 
+                  style="padding: 6px 12px; border-radius: 6px; border: 1px solid #cbd5e1; outline: none; font-weight: 700; color: #475569; background-color: #f8fafc; cursor: pointer; font-size: 0.85rem;">
+            <option value="Todas">Todas las categorías</option>
+            <option value="Internet">Internet</option>
+            <option value="Office">Office</option>
+            <option value="Telefonia">Telefonía</option>
+            <option value="Tecnico">Técnico</option>
+            <option value="Dictaminar">Dictaminar</option>
+            <option value="Extension/Telefono">Extensión / Teléfono</option>
+            <option value="Correo">Correo</option>
+          </select>
+        </div>
+
         <div class="table-responsive">
           <table>
             <thead>
@@ -74,7 +89,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let t of listaPendientesHoy" (click)="abrirModalTicket(t)" style="cursor: pointer;">
+              <tr *ngFor="let t of pendientesFiltrados" (click)="abrirModalTicket(t)" style="cursor: pointer;">
                 <td class="fw-bold">#{{ t.id }}</td>
                 <td>{{ getHora(t.fecha) }}</td>
                 <td>
@@ -90,8 +105,8 @@
                 </td>
                 <td><span class="badge state-pending">{{ t.estado || 'En espera' }}</span></td>
               </tr>
-              <tr *ngIf="listaPendientesHoy.length === 0">
-                <td colspan="6" class="text-center empty-msg">Sin pendientes registrados hoy.</td>
+              <tr *ngIf="pendientesFiltrados.length === 0">
+                <td colspan="6" class="text-center empty-msg">No hay tickets pendientes para esta categoría.</td>
               </tr>
             </tbody>
           </table>
@@ -99,7 +114,22 @@
       </div>
 
       <div class="table-card card-border-success">
-        <h3 class="section-title" style="color: #10b981;">Listado de Completados</h3>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+          <h3 class="section-title" style="color: #10b981; margin: 0;">Listado de Completados</h3>
+          <select (change)="aplicarFiltroCompletados($any($event.target).value)" 
+                  style="padding: 6px 12px; border-radius: 6px; border: 1px solid #cbd5e1; outline: none; font-weight: 700; color: #475569; background-color: #f8fafc; cursor: pointer; font-size: 0.85rem;">
+            <option value="Todas">Todas las categorías</option>
+            <option value="Internet">Internet</option>
+            <option value="Office">Office</option>
+            <option value="Telefonia">Telefonía</option>
+            <option value="Tecnico">Técnico</option>
+            <option value="Dictaminar">Dictaminar</option>
+            <option value="Extension/Telefono">Extensión / Teléfono</option>
+            <option value="Correo">Correo</option>
+          </select>
+        </div>
+
         <div class="table-responsive">
           <table>
             <thead>
@@ -113,7 +143,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let t of listaCompletadosHoy" (click)="abrirModalTicket(t)" style="cursor: pointer;">
+              <tr *ngFor="let t of completadosFiltrados" (click)="abrirModalTicket(t)" style="cursor: pointer;">
                 <td class="fw-bold">#{{ t.id }}</td>
                 <td>{{ getHora(t.fecha_fin) }}</td>
                 <td>
@@ -129,13 +159,14 @@
                 </td>
                 <td><span class="badge state-success">{{ t.estado }}</span></td>
               </tr>
-              <tr *ngIf="listaCompletadosHoy.length === 0">
-                <td colspan="6" class="text-center empty-msg">Sin tickets completados hoy.</td>
+              <tr *ngIf="completadosFiltrados.length === 0">
+                <td colspan="6" class="text-center empty-msg">No hay tickets completados para esta categoría.</td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
+
     </div>
   </div>
 </div>
