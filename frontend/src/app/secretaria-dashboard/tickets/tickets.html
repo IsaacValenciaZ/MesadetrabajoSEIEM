@@ -21,7 +21,7 @@
 </div>
 
 <div class="form-group" style="position: relative;">
-  <label>Departamento:</label>
+  <label>Departamento / Escuela:</label>
   <input  type="text" class="simple-input uppercase-input"placeholder="Escribe o selecciona..." [value]="nuevoTicket.departamento"(input)="nuevoTicket.departamento = $any($event.target).value.toUpperCase(); buscarDepartamento($event)" (focus)="mostrarSugerencias = true" (blur)="cerrarSugerenciasConRetraso()">
         
         <ul class="autocomplete-list" *ngIf="mostrarSugerencias && departamentosSugeridos.length > 0">
@@ -79,6 +79,11 @@
       <div class="form-group fade-in" *ngIf="nuevoTicket.descripcion === 'Dictaminar'">
         <label>¿Cuántos equipos se dictaminarán?</label>
         <input type="number" [(ngModel)]="nuevoTicket.cantidad_dicta" name="cantidad_dicta" min="1" placeholder="Número de Equipos" class="simple-input">
+      </div>
+
+      <div class="form-group fade-in" *ngIf="nuevoTicket.descripcion === 'Dictaminar'">
+        <label>Día y Hora de la Visita:</label>
+        <input type="datetime-local" [(ngModel)]="nuevoTicket.fecha_programada" name="fecha_programada" class="simple-input">
       </div>
 
       <div class="form-group fade-in" *ngIf="nuevoTicket.descripcion === 'Correo'">
@@ -196,8 +201,9 @@
             <th class="id-col">ID</th>
             <th class="time-col">Hora</th>
             <th class="solicitante-col">Solicitante</th>
-            <th class="depto-col">Depto</th>
-            <th class="muni-col">Municipio</th> <th class="ext-col">Ext/Tel</th>
+            <th class="depto-col">Departamento / Escuela:</th>
+            <th class="muni-col">Municipio</th> 
+            <th class="ext-col">Ext/Tel</th>
             <th class="cat-col">Categoría</th>
             <th class="prio-col">Prioridad</th>
              <th class="tech-col">Técnico</th>
@@ -217,7 +223,7 @@
 
             <td class="ext-col">{{ reporte.extension_tel }}</td>
             
-            <td>
+             <td>
                 <span class="badge-solid" [ngClass]="{
                   'bg-internet': reporte.descripcion === 'Internet',
                   'bg-office': reporte.descripcion === 'Office',
@@ -228,7 +234,11 @@
                 }">{{ reporte.descripcion }}</span>
 
                 <span *ngIf="reporte.descripcion === 'Dictaminar' && reporte.cantidad_dicta" class="qty-badge" style="margin-top: 5px; display: block;">
-                    EQ: {{ reporte.cantidad_dicta }}
+                    EQPS: {{ reporte.cantidad_dicta }}
+                </span>
+
+                <span *ngIf="reporte.descripcion === 'Dictaminar' && reporte.fecha_programada" class="qty-badge" style="margin-top: 5px; display: block; font-weight: 600;">
+                    FECHA: {{ reporte.fecha_programada | date:'dd/MMM hh:mm a' }}
                 </span>
 
                 <span *ngIf="reporte.descripcion === 'Correo' && reporte.correo_tipo" class="qty-badge" style="margin-top: 5px; display: block;">

@@ -117,8 +117,9 @@
                 <th>ID</th>
                 <th>Hora</th>
                 <th>Solicitante</th>
-                <th>Depto</th>
-                <th class="muni-col">Municipio</th> <th>Técnico</th>
+                <th>Departamento / Escuela:</th>
+                <th class="muni-col">Municipio</th> 
+                <th>Técnico</th>
                 <th>Ext / Tel</th>
                 <th>Categoría</th>
                 <th>Prioridad</th>
@@ -152,6 +153,10 @@
                     <span *ngIf="ticket.descripcion === 'Dictaminar' && ticket.cantidad_dicta" class="qty-badge" style="margin-top: 5px; display: block;">
                         EQ: {{ ticket.cantidad_dicta }}
                     </span>
+
+                <span *ngIf="ticket.descripcion === 'Dictaminar' && ticket.fecha_programada" class="qty-badge" style="margin-top: 5px; display: block; font-weight: 600;">
+                    📅 {{ ticket.fecha_programada | date:'dd/MMM hh:mm a' }}
+                </span>
     
                     <span *ngIf="ticket.descripcion === 'Correo' && ticket.correo_tipo" class="qty-badge" style="margin-top: 5px; display: block;">
                         Dom: {{ ticket.correo_tipo }}

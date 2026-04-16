@@ -165,6 +165,7 @@ private route = inject(ActivatedRoute);
     cantidad_dicta: null,
     extension_tel: '',
     correo_tipo: '',
+    fecha_programada: '',
     soporte: {
       impresora: false,
       escaner: false,
@@ -641,6 +642,12 @@ mostrarNovedades() {
   });
 }
 
-
+alCambiarDescripcion() {
+  if (this.nuevoTicket.descripcion === 'Dictaminar') {
+    this.nuevoTicket.prioridad = 'Alta'; 
+    this.nuevoTicket.municipio = 'N/A'; 
+    this.nuevoTicket.notas = 'DICTAMINAR';
+  }
+}
 }
     
