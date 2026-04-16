@@ -37,23 +37,26 @@ if (isset($data->nombre_usuario) && isset($data->personal) && isset($data->descr
         $secretariaId = isset($data->secretaria_id) ? intval($data->secretaria_id) : null;
         
         $cantidad = ($descripcion === 'Dictaminar' && isset($data->cantidad)) ? intval($data->cantidad) : null;
+        
+        $fecha_programada = ($descripcion === 'Dictaminar' && !empty($data->fecha_programada)) ? date('Y-m-d H:i:s', strtotime($data->fecha_programada)) : null;
+        
         $correo_tipo = ($descripcion === 'Correo' && isset($data->correo_tipo)) ? htmlspecialchars(trim($data->correo_tipo)) : null;
         $soporte_tipo = ($descripcion === 'Tecnico' && isset($data->soporte_tipo)) ? htmlspecialchars(trim($data->soporte_tipo)) : null;
         $extension_tel = isset($data->extension_tel) ? htmlspecialchars(trim($data->extension_tel)) : null;
 
-                $sql = "INSERT INTO tickets (
-                                    nombre_usuario, apellido_usuario, departamento, municipio, descripcion, prioridad, personal, 
-                                    notas, fecha_limite, fecha_fin, secretaria_id, cantidad_dicta, 
-                                    extension_tel, correo_tipo, soporte_tipo, metodo_resolucion, estado
-                                ) VALUES (
-                                    :user, :apellido, :depto, :muni, :desc, :prio, :pers, :notas, :limite, NULL, 
-                                    :secretariaId, :cant, :ext_tel, :correo_tipo, :soporte_tipo, :metodo_resolucion, :estado
-                                )";
+        $sql = "INSERT INTO tickets (
+                    nombre_usuario, apellido_usuario, departamento, municipio, descripcion, prioridad, personal, 
+                    notas, fecha_limite, fecha_fin, secretaria_id, cantidad_dicta, 
+                    extension_tel, correo_tipo, soporte_tipo, metodo_resolucion, estado, fecha_programada
+                ) VALUES (
+                    :user, :apellido, :depto, :muni, :desc, :prio, :pers, :notas, :limite, NULL, 
+                    :secretariaId, :cant, :ext_tel, :correo_tipo, :soporte_tipo, :metodo_resolucion, :estado, :fecha_programada
+                )";
 
         $stmt = $conn->prepare($sql);
         $stmt->execute([
             ':user'         => $nombre_usuario,
-            ':apellido' => $apellido_usuario,
+            ':apellido'     => $apellido_usuario,
             ':depto'        => $departamento,
             ':muni'         => $municipio,
             ':desc'         => $descripcion,
@@ -67,7 +70,8 @@ if (isset($data->nombre_usuario) && isset($data->personal) && isset($data->descr
             ':correo_tipo'  => $correo_tipo,
             ':soporte_tipo' => $soporte_tipo,
             ':metodo_resolucion' => $metodo_resolucion,
-            ':estado'       => 'En espera'
+            ':estado'       => 'En espera',
+            ':fecha_programada' => $fecha_programada 
         ]);
 
         $ticket_id = $conn->lastInsertId();

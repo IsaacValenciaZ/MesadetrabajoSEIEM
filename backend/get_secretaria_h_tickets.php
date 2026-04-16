@@ -34,6 +34,7 @@ try {
                 t.cantidad_dicta,
                 t.correo_tipo,
                 t.soporte_tipo,
+                t.fecha_programada,
                 u.nombre AS nombre_creador
             FROM tickets t
             LEFT JOIN usuarios u 
