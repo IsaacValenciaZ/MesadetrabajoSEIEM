@@ -5,9 +5,14 @@
   </div>
 
   <div class="create-body">
+    
     <div class="input-group">
       <label>Nombre Completo</label>
-      <input type="text" [(ngModel)]="newUser.nombre" placeholder="Ej. Juan Pérez">
+      <input type="text" 
+             [ngModel]="newUser.nombre" 
+             (ngModelChange)="newUser.nombre = $event.toUpperCase()" 
+             style="text-transform: uppercase;" 
+             placeholder="EJ. JUAN PÉREZ">
     </div>
 
     <div class="input-group">
@@ -23,6 +28,7 @@
         <option value="supervisor">Supervisor</option>
       </select>
     </div>
+    
   </div>
 
   <div class="create-footer">

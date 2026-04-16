@@ -25,13 +25,12 @@ export class CreateUserComponent {
   @Output() close = new EventEmitter<void>();
   @Output() create = new EventEmitter<any>();
 
-  crear() {
+ crear() {
     if (this.newUser.nombre && this.newUser.email) {
       this.apiService.register(this.newUser).subscribe({
         next: (res) => {
           
           if (res && res.status) {
-            this.close.emit(); 
             Swal.fire({
               icon: 'success',
               title: '¡Usuario Registrado Correctamente!',
@@ -40,8 +39,8 @@ export class CreateUserComponent {
               confirmButtonColor: '#56212f'
             });
 
-            this.create.emit(res);
-            this.close.emit();
+            this.create.emit(res); 
+            
           } else {
             Swal.fire({
               icon: 'error',

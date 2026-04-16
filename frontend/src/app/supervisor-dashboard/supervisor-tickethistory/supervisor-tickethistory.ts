@@ -196,15 +196,54 @@ generarOpcionesMeses() {
     return '';
   }
 
-  abrirModalTicket(ticket: any) {
+abrirModalTicket(ticket: any) {
     const colorFondoCategoria = this.getProblemaColor(ticket.descripcion);
     const colorPrioridad = this.getPrioridadColor(ticket.prioridad);
     const detallesExtraHtml = this.getDetallesExtra(ticket, colorFondoCategoria);
     
+    const esCompletado = ticket.estado === 'Completo' || ticket.estado === 'Completado';
+    const ahora = new Date();
+    const fechaLimite = ticket.fecha_limite ? new Date(ticket.fecha_limite) : null;
+    const estaAtrasado = fechaLimite && (esCompletado
+        ? (ticket.fecha_fin ? new Date(ticket.fecha_fin) > fechaLimite : false)
+        : ahora > fechaLimite);
+
+    const badgeAtrasado = estaAtrasado
+        ? `<span style="background:#fff7ed; color:#c2410c; border:1.5px solid #fed7aa; padding:4px 12px; border-radius:999px; font-size:0.78rem; font-weight:800;">Atrasado</span>`
+        : '';
+
+    const badgeEstado = esCompletado
+        ? `<span style="background:#f0fdf4; color:#166534; border:1.5px solid #bbf7d0; padding:4px 12px; border-radius:999px; font-size:0.78rem; font-weight:800;">Completado</span>`
+        : `<span style="background:#fefce8; color:#854d0e; border:1.5px solid #fde68a; padding:4px 12px; border-radius:999px; font-size:0.78rem; font-weight:800;">Pendiente</span>`;
+
+    const tecnicoHtml = ticket.personal
+        ? `<div style="display:flex; align-items:center; gap:8px; margin-top:6px;">
+             <span class="material-symbols-outlined" style="font-size:1.2rem; color:#56212f;">engineering</span>
+             <span style="font-weight:800; font-size:1rem; color:#0f172a;">${ticket.personal}</span>
+           </div>`
+        : `<p style="margin:4px 0 0 0; color:#94a3b8; font-style:italic; font-size:.9rem;">Sin asignar</p>`;
+
+    const secretariaHtml = ticket.nombre_creador
+        ? `<div style="display:flex; align-items:center; gap:8px; margin-top:6px;">
+             <span class="material-symbols-outlined" style="font-size:1.2rem; color:#2980b9;">badge</span>
+             <span style="font-weight:800; font-size:1rem; color:#0f172a;">
+               ${ticket.nombre_creador}
+             </span>
+           </div>`
+        : `<p style="margin:4px 0 0 0; color:#94a3b8; font-style:italic; font-size:.9rem;">No registrada</p>`;
+
     const htmlModal = `
-            <div style="text-align: left; font-family: 'Segoe UI', sans-serif; color: #1e293b;">
+      <div style="text-align: left; font-family: 'Segoe UI', sans-serif; color: #1e293b;">
         
-        <h1 style="font-size: 2.2rem; font-weight: 900; margin: 0 0 20px 0; color: #0f172a; font-style: italic;">Ticket:  #${ticket.id}</h1>
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:20px; gap:10px;">
+          <h1 style="font-size: 2.2rem; font-weight: 900; margin: 0; color: #0f172a; font-style: italic;">
+            Ticket: #${ticket.id}
+          </h1>
+          <div style="display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; padding-top:6px;">
+            ${badgeAtrasado}
+            ${badgeEstado}
+          </div>
+        </div>
 
         <div style="display: flex; gap: 40px; margin-bottom: 25px;">
           <div>
@@ -215,6 +254,12 @@ generarOpcionesMeses() {
             <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Vencimiento</p>
             <p style="margin: 4px 0 0 0; font-size: 0.95rem; font-weight: 600; color: #d97706;">${ticket.fecha_limite || 'N/A'}</p>
           </div>
+          <div>
+            <p style="margin:0; font-size:0.75rem; color:#64748b; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Hora Término</p>
+            <p style="margin:4px 0 0 0; font-size:0.95rem; font-weight:600; color:${esCompletado ? '#059669' : '#d97706'};">
+              ${ticket.fecha_fin || 'Pendiente'}
+            </p>
+          </div>
         </div>
 
         <hr style="border: 0; border-top: 1px solid #f1f5f9; margin: 20px 0;">
@@ -222,7 +267,7 @@ generarOpcionesMeses() {
         <div style="display: flex; gap: 40px; margin-bottom: 25px;">
           <div>
             <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Solicitante</p>
-            <p style="margin: 4px 0 0 0; font-weight: 800; font-size: 1.1rem; color: #0f172a;">${ticket.nombre_usuario} ${ticket.apellido_usuario}</p>
+            <p style="margin: 4px 0 0 0; font-weight: 800; font-size: 1.1rem; color: #0f172a;">${ticket.nombre_usuario} ${ticket.apellido_usuario || ''}</p>
           </div>
           <div>
             <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Ext / Teléfono</p>
@@ -241,6 +286,17 @@ generarOpcionesMeses() {
           </div>
         </div>
 
+        <div style="display:flex; gap:40px; margin-bottom:25px;">
+          <div style="flex:1;">
+            <p style="margin:0; font-size:0.75rem; color:#64748b; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Técnico Asignado</p>
+            ${tecnicoHtml}
+          </div>
+          <div style="flex:1;">
+            <p style="margin:0; font-size:0.75rem; color:#64748b; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Asignado por</p>
+            ${secretariaHtml}
+          </div>
+        </div>
+
         <div style="margin-bottom: 30px;">
           <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Vía de Atención</p>
           <div style="display: flex; align-items: center; gap: 8px; margin-top: 6px;">
@@ -253,7 +309,7 @@ generarOpcionesMeses() {
           </div>
         </div>
 
-         <p style="margin: 0 0 8px 0; font-size: 0.75rem; color: 64748b; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;  display: inline-block; padding: 4px 8px; border-radius: 4px;">Clasificación del Problema</p>
+        <p style="margin: 0 0 8px 0; font-size: 0.75rem; color: #64748b; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">Clasificación del Problema</p>
         
         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; border: 1px solid #e2e8f0; border-left: 6px solid ${colorFondoCategoria}; border-radius: 8px; padding: 15px; margin-bottom: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); gap: 10px;">
           <div style="display: flex; align-items: center; flex-wrap: wrap;">
@@ -284,12 +340,13 @@ generarOpcionesMeses() {
 
     Swal.fire({
       html: htmlModal,
-      width: '550px',
+      width: '600px',
       showCancelButton: true,
       cancelButtonText: 'Cerrar',
+      cancelButtonColor: '#000000',
       confirmButtonText: '<span class="material-symbols-outlined" style="vertical-align:middle; margin-right:5px;">visibility</span> Ver Resolución',
       confirmButtonColor: '#56212f',
-      showConfirmButton: ticket.estado === 'Completo' || ticket.estado === 'Completado'
+      showConfirmButton: esCompletado
     }).then((result) => {
       if (result.isConfirmed) this.verEvidenciaFinal(ticket);
     });

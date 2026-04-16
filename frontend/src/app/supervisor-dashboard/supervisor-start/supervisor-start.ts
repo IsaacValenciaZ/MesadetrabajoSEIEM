@@ -35,6 +35,10 @@ export class SupervisorStartComponent implements OnInit, AfterViewInit, OnDestro
   chartDona: any; 
   ticketsParaGrafica: any[] = []; 
 
+  showKpiModal: boolean = false;
+  kpiModalTitle: string = '';
+  kpiModalList: any[] = [];
+
   @ViewChild('ticketsChartCanvas') chartCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('donaChartCanvas') donaCanvas!: ElementRef<HTMLCanvasElement>;
 
@@ -261,83 +265,132 @@ abrirModalTicket(ticketSeleccionado: any) {
     const colorPrioridad = this.getPrioridadColor(ticketSeleccionado.prioridad);
     const detallesExtraHtml = this.getDetallesExtra(ticketSeleccionado, colorFondoCategoria);
 
-    const fechaFormat = ticketSeleccionado.fecha ? new Date(ticketSeleccionado.fecha).toLocaleString('es-MX') : 'N/A';
-    const fechaFinFormat = ticketSeleccionado.fecha_fin ? new Date(ticketSeleccionado.fecha_fin).toLocaleString('es-MX') : 'Pendiente';
+    // --- Badges de estado ---
+    const esCompletado = ticketSeleccionado.estado === 'Completo' || ticketSeleccionado.estado === 'Completado';
+    const ahora = new Date();
+    const fechaLimite = ticketSeleccionado.fecha_limite ? new Date(ticketSeleccionado.fecha_limite) : null;
+    const estaAtrasado = fechaLimite && (esCompletado
+        ? (ticketSeleccionado.fecha_fin ? new Date(ticketSeleccionado.fecha_fin) > fechaLimite : false)
+        : ahora > fechaLimite);
+
+    const badgeAtrasado = estaAtrasado
+        ? `<span style="background:#fff7ed; color:#c2410c; border:1.5px solid #fed7aa; padding:4px 12px; border-radius:999px; font-size:0.78rem; font-weight:800;">Atrasado</span>`
+        : '';
+
+    const badgeEstado = esCompletado
+        ? `<span style="background:#f0fdf4; color:#166534; border:1.5px solid #bbf7d0; padding:4px 12px; border-radius:999px; font-size:0.78rem; font-weight:800;">Completado</span>`
+        : `<span style="background:#fefce8; color:#854d0e; border:1.5px solid #fde68a; padding:4px 12px; border-radius:999px; font-size:0.78rem; font-weight:800;">Pendiente</span>`;
+
+    const tecnicoHtml = ticketSeleccionado.personal
+        ? `<div style="display:flex; align-items:center; gap:8px; margin-top:6px;">
+             <span class="material-symbols-outlined" style="font-size:1.2rem; color:#56212f;">engineering</span>
+             <span style="font-weight:800; font-size:1rem; color:#0f172a;">${ticketSeleccionado.personal}</span>
+           </div>`
+        : `<p style="margin:4px 0 0 0; color:#94a3b8; font-style:italic; font-size:.9rem;">Sin asignar</p>`;
+
+const secretariaHtml = ticketSeleccionado.nombre_creador
+    ? `<div style="display:flex; align-items:center; gap:8px; margin-top:6px;">
+         <span class="material-symbols-outlined" style="font-size:1.2rem; color:#2980b9;">badge</span>
+         <span style="font-weight:800; font-size:1rem; color:#0f172a;">
+           ${ticketSeleccionado.nombre_creador}
+         </span>
+       </div>`
+    : `<p style="margin:4px 0 0 0; color:#94a3b8; font-style:italic; font-size:.9rem;">No registrada</p>`;
 
     let htmlModal = `
-            <div style="text-align: left; font-family: 'Segoe UI', sans-serif; color: #1e293b;">
-        
-        <h1 style="font-size: 2.2rem; font-weight: 900; margin: 0 0 20px 0; color: #0f172a; font-style: italic;">Ticket:  #${ticketSeleccionado.id}</h1>
+      <div style="text-align:left; font-family:'Segoe UI', sans-serif; color:#1e293b;">
 
-        <div style="display: flex; gap: 40px; margin-bottom: 25px;">
-          <div>
-            <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Fecha de Solicitud</p>
-            <p style="margin: 4px 0 0 0; font-size: 0.95rem; font-weight: 600; color: #334155;">${ticketSeleccionado.fecha || 'N/A'}</p>
-          </div>
-          <div>
-            <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Vencimiento</p>
-            <p style="margin: 4px 0 0 0; font-size: 0.95rem; font-weight: 600; color: #d97706;">${ticketSeleccionado.fecha_limite || 'N/A'}</p>
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:20px; gap:10px;">
+          <h1 style="font-size:2.2rem; font-weight:900; margin:0; color:#0f172a; font-style:italic;">
+            Ticket: #${ticketSeleccionado.id}
+          </h1>
+          <div style="display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; padding-top:6px;">
+            ${badgeAtrasado}
+            ${badgeEstado}
           </div>
         </div>
 
-        <hr style="border: 0; border-top: 1px solid #f1f5f9; margin: 20px 0;">
-
-        <div style="display: flex; gap: 40px; margin-bottom: 25px;">
+        <div style="display:flex; gap:40px; margin-bottom:25px;">
           <div>
-            <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Solicitante</p>
-            <p style="margin: 4px 0 0 0; font-weight: 800; font-size: 1.1rem; color: #0f172a;">${ticketSeleccionado.nombre_usuario}</p>
+            <p style="margin:0; font-size:0.75rem; color:#64748b; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Hora Asignación</p>
+            <p style="margin:4px 0 0 0; font-size:0.95rem; font-weight:600; color:#334155;">${ticketSeleccionado.fecha || 'N/A'}</p>
           </div>
           <div>
-            <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Ext / Teléfono</p>
-            <p style="margin: 4px 0 0 0; font-weight: 800; font-size: 1.1rem; color: #0f172a;">${ticketSeleccionado.extension_tel || '-'}</p>
+            <p style="margin:0; font-size:0.75rem; color:#64748b; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Hora Término</p>
+            <p style="margin:4px 0 0 0; font-size:0.95rem; font-weight:600; color:${esCompletado ? '#059669' : '#d97706'};">
+              ${ticketSeleccionado.fecha_fin || 'Pendiente'}
+            </p>
           </div>
         </div>
 
-        <div style="display: flex; gap: 40px; margin-bottom: 25px;">
-          <div style="flex: 1;">
-            <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Departamento</p>
-            <p style="margin: 4px 0 0 0; font-weight: 500; font-size: 1.05rem; color: #334155;">${ticketSeleccionado.departamento}</p>
+        <hr style="border:0; border-top:1px solid #f1f5f9; margin:20px 0;">
+
+        <div style="display:flex; gap:40px; margin-bottom:25px;">
+          <div>
+            <p style="margin:0; font-size:0.75rem; color:#64748b; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Solicitante</p>
+            <p style="margin:4px 0 0 0; font-weight:800; font-size:1.1rem; color:#0f172a;">${ticketSeleccionado.nombre_usuario} ${ticketSeleccionado.apellido_usuario || ''}</p>
           </div>
-          <div style="flex: 1;">
-            <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Municipio</p>
-            <p style="margin: 4px 0 0 0; font-weight: 500; font-size: 1.05rem; color: #334155;">${ticketSeleccionado.municipio || '-'}</p>
+          <div>
+            <p style="margin:0; font-size:0.75rem; color:#64748b; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Ext / Teléfono</p>
+            <p style="margin:4px 0 0 0; font-weight:800; font-size:1.1rem; color:#0f172a;">${ticketSeleccionado.extension_tel || '-'}</p>
           </div>
         </div>
 
-        <div style="margin-bottom: 30px;">
-          <p style="margin: 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Vía de Atención</p>
-          <div style="display: flex; align-items: center; gap: 8px; margin-top: 6px;">
-            <span class="material-symbols-outlined" style="font-size: 1.3rem; color: ${ticketSeleccionado.metodo_resolucion === 'Presencial' ? '#16a085' : (ticketSeleccionado.metodo_resolucion === 'Llamada / Remoto' ? '#2980b9' : '#94a3b8')};">
+        <div style="display:flex; gap:40px; margin-bottom:25px;">
+          <div style="flex:1;">
+            <p style="margin:0; font-size:0.75rem; color:#64748b; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Departamento</p>
+            <p style="margin:4px 0 0 0; font-weight:500; font-size:1.05rem; color:#334155;">${ticketSeleccionado.departamento}</p>
+          </div>
+          <div style="flex:1;">
+            <p style="margin:0; font-size:0.75rem; color:#64748b; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Municipio</p>
+            <p style="margin:4px 0 0 0; font-weight:500; font-size:1.05rem; color:#334155;">${ticketSeleccionado.municipio || '-'}</p>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:40px; margin-bottom:25px;">
+          <div style="flex:1;">
+            <p style="margin:0; font-size:0.75rem; color:#64748b; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Técnico Asignado</p>
+            ${tecnicoHtml}
+          </div>
+          <div style="flex:1;">
+            <p style="margin:0; font-size:0.75rem; color:#64748b; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Asignado por</p>
+            ${secretariaHtml}
+          </div>
+        </div>
+
+        <div style="margin-bottom:30px;">
+          <p style="margin:0; font-size:0.75rem; color:#64748b; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Vía de Atención</p>
+          <div style="display:flex; align-items:center; gap:8px; margin-top:6px;">
+            <span class="material-symbols-outlined" style="font-size:1.3rem; color:${ticketSeleccionado.metodo_resolucion === 'Presencial' ? '#16a085' : (ticketSeleccionado.metodo_resolucion === 'Llamada / Remoto' ? '#2980b9' : '#94a3b8')};">
               ${ticketSeleccionado.metodo_resolucion === 'Presencial' ? 'engineering' : (ticketSeleccionado.metodo_resolucion === 'Llamada / Remoto' ? 'support_agent' : 'help_outline')}
             </span>
-            <span style="font-weight: 700; font-size: 1rem; color: #334155;">
+            <span style="font-weight:700; font-size:1rem; color:#334155;">
               ${ticketSeleccionado.metodo_resolucion || 'No especificada por la asignadora'}
             </span>
           </div>
         </div>
 
-         <p style="margin: 0 0 8px 0; font-size: 0.75rem; color: 64748b; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;  display: inline-block; padding: 4px 8px; border-radius: 4px;">Clasificación del Problema</p>
-        
-        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; border: 1px solid #e2e8f0; border-left: 6px solid ${colorFondoCategoria}; border-radius: 8px; padding: 15px; margin-bottom: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); gap: 10px;">
-          <div style="display: flex; align-items: center; flex-wrap: wrap;">
-            <span style="background-color: ${colorFondoCategoria}; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.85rem; font-weight: 700; display: inline-block;">
+        <p style="margin:0 0 8px 0; font-size:0.75rem; color:#64748b; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">Clasificación del Problema</p>
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; border:1px solid #e2e8f0; border-left:6px solid ${colorFondoCategoria}; border-radius:8px; padding:15px; margin-bottom:30px; box-shadow:0 2px 4px rgba(0,0,0,0.02); gap:10px;">
+          <div style="display:flex; align-items:center; flex-wrap:wrap;">
+            <span style="background-color:${colorFondoCategoria}; color:white; padding:4px 12px; border-radius:4px; font-size:0.85rem; font-weight:700; display:inline-block;">
               ${ticketSeleccionado.descripcion}
             </span>
             ${detallesExtraHtml}
           </div>
-          <div style="display: flex; align-items: center; gap: 5px; flex-wrap: wrap;">
-             <p style="margin:0; color: #64748b; font-size: 0.85rem; font-weight: 700;">Prio:</p>
-             <span style="background-color: ${colorPrioridad}; color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: 700; display: inline-block;">
-               ${ticketSeleccionado.prioridad}
-             </span>
+          <div style="display:flex; align-items:center; gap:5px; flex-wrap:wrap;">
+            <p style="margin:0; color:#64748b; font-size:0.85rem; font-weight:700;">Prio:</p>
+            <span style="background-color:${colorPrioridad}; color:white; padding:4px 10px; border-radius:4px; font-size:0.8rem; font-weight:700; display:inline-block;">
+              ${ticketSeleccionado.prioridad}
+            </span>
           </div>
         </div>
 
         <div>
-          <p style="margin: 0 0 8px 0; font-size: 0.75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Notas Adicionales</p>
-          <div style="background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 8px; padding: 15px;">
-            <p style="margin: 0; font-size: 0.95rem; color: #475569; line-height: 1.5;">
-              ${ticketSeleccionado.notas ? ticketSeleccionado.notas : '<em style="color: #cbd5e1;">Sin notas adicionales.</em>'}
+          <p style="margin:0 0 8px 0; font-size:0.75rem; color:#64748b; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Notas Adicionales</p>
+          <div style="background-color:#f8fafc; border:1px solid #f1f5f9; border-radius:8px; padding:15px;">
+            <p style="margin:0; font-size:0.95rem; color:#475569; line-height:1.5;">
+              ${ticketSeleccionado.notas ? ticketSeleccionado.notas : '<em style="color:#cbd5e1;">Sin notas adicionales.</em>'}
             </p>
           </div>
         </div>
@@ -348,8 +401,8 @@ abrirModalTicket(ticketSeleccionado: any) {
     Swal.fire({
       html: htmlModal,
       width: '600px',
-      showConfirmButton: ticketSeleccionado.estado === 'Completo' || ticketSeleccionado.estado === 'Completado',
-      confirmButtonText: '<span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 5px;">visibility</span> Ver Evidencias de Resolución',
+      showConfirmButton: esCompletado,
+      confirmButtonText: '<span class="material-symbols-outlined" style="vertical-align:middle; margin-right:5px;">visibility</span> Ver Evidencias de Resolución',
       confirmButtonColor: '#56212f',
       showCancelButton: true,
       cancelButtonText: 'Cerrar',
@@ -457,5 +510,34 @@ abrirImagenCompleta(imagenBase64: string, idTicket: number, ticket: any) {
         showConfirmButton: false,
         showCloseButton: true
     });
+}
+
+abrirModalKpi(tipo: 'pendientes' | 'completados' | 'alta' | 'total') {
+  this.showKpiModal = true;
+  switch (tipo) {
+    case 'pendientes':
+      this.kpiModalTitle = 'Tickets Pendientes';
+      this.kpiModalList  = [...this.listaPendientesHoy];
+      break;
+    case 'completados':
+      this.kpiModalTitle = 'Tickets Completados';
+      this.kpiModalList  = [...this.listaCompletadosHoy];
+      break;
+    case 'alta':
+      this.kpiModalTitle = 'Tickets de Prioridad Alta';
+      this.kpiModalList  = this.ticketsParaGrafica.filter(t => t.prioridad === 'Alta' && t.estado !== 'Completo');
+      break;
+    case 'total':
+      this.kpiModalTitle = 'Todos los Tickets de Hoy';
+      this.kpiModalList  = [...this.ticketsParaGrafica];
+      break;
+  }
+  this.cdr.detectChanges();
+}
+
+cerrarModalKpi() {
+  this.showKpiModal = false;
+  this.kpiModalList = [];
+  this.cdr.detectChanges();
 }
 }

@@ -29,7 +29,7 @@
             <th>Solicitante</th>
             <th>Departamento</th>
             <th>Ext / Tel</th>
-            <th>Problema</th>
+            <th>Categoría</th>
             <th>Prioridad</th>
             <th class="text-center">Estado</th>
           </tr>
@@ -80,7 +80,10 @@
             </td>
           </tr>
           <tr *ngIf="listaTicketsPendientes.length === 0 && !cargandoDatos">
-            <td colspan="9" class="empty-state">No tienes tickets pendientes en este momento.</td>
+            <td colspan="9" class="empty-state">
+              <span class="material-symbols-outlined" style="font-size: 4rem; color: #cbd5e1;">Inbox</span>
+              <h3>No tienes tickets pendientes en este momento.</h3>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -102,7 +105,7 @@
             <th>Fecha</th>
             <th>Solicitante</th>
             <th>Departamento</th>
-            <th>Problema</th>
+            <th>Categoría</th>
             <th>Prioridad</th>
           </tr>
         </thead>
@@ -208,8 +211,11 @@
     </div>
 
     <div *ngIf="listaTicketsPendientes.length === 0 && !cargandoDatos" class="empty-state">
-      No tienes tickets pendientes en este momento.
+    <div class="empty-content">
+      <span class="material-symbols-outlined" style="font-size: 4rem; color: #cbd5e1;">Inbox</span>
+      <h3>No tienes tickets pendientes en este momento.</h3>
     </div>
+  </div>
 
   </div>
 </div>

@@ -7,7 +7,7 @@
   </header>
 
   <div class="kpi-grid">
-    <div class="kpi-card card-total">
+    <div class="kpi-card card-total" (click)="abrirModalKpi('total')" style="cursor:pointer;">
       <div class="kpi-icon"><span class="material-symbols-outlined">receipt_long</span></div>
       <div class="kpi-data">
         <h4>Tickets Creados</h4>
@@ -15,7 +15,7 @@
       </div>
     </div>
 
-    <div class="kpi-card card-pending">
+    <div class="kpi-card card-pending" (click)="abrirModalKpi('pendientes')" style="cursor:pointer;">
       <div class="kpi-icon"><span class="material-symbols-outlined">pending_actions</span></div>
       <div class="kpi-data">
         <h4>Pendientes</h4>
@@ -23,7 +23,7 @@
       </div>
     </div>
 
-    <div class="kpi-card card-completed">
+    <div class="kpi-card card-completed" (click)="abrirModalKpi('completados')" style="cursor:pointer;">
       <div class="kpi-icon"><span class="material-symbols-outlined">task_alt</span></div>
       <div class="kpi-data">
         <h4>Completados</h4>
@@ -31,7 +31,7 @@
       </div>
     </div>
 
-    <div class="kpi-card card-danger">
+    <div class="kpi-card card-danger" (click)="abrirModalKpi('alta')" style="cursor:pointer;">
       <div class="kpi-icon"><span class="material-symbols-outlined">warning</span></div>
       <div class="kpi-data">
         <h4>Prioridad Alta</h4>
@@ -67,7 +67,7 @@
               <tr>
                 <th>ID</th>
                 <th>HORA</th>
-                <th>PROBLEMA</th>
+                <th>CATEGORÍA</th>
                 <th>PERSONAL</th>
                 <th>PRIORIDAD</th>
                 <th>ESTADO</th>
@@ -106,7 +106,7 @@
               <tr>
                 <th>ID</th>
                 <th>HORA FIN</th> 
-                <th>PROBLEMA</th>
+                <th>CATEGORÍA</th>
                 <th>PERSONAL</th>
                 <th>PRIORIDAD</th>
                 <th>ESTADO</th>
@@ -137,5 +137,107 @@
         </div>
       </div>
     </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showKpiModal" 
+     (click)="cerrarModalKpi()" 
+     style="position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000; display:flex; align-items:center; justify-content:center;">
+
+  <div (click)="$event.stopPropagation()"
+       class="fade-in"
+       style="background:#fff; border-radius:16px; width:95%; max-width:750px; max-height:85vh; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+
+    <div style="padding:20px 24px; border-bottom:1px solid #e2e8f0; display:flex; align-items:center; justify-content:space-between; flex-shrink:0;">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <h3 style="margin:0; font-size:1.1rem; font-weight:800; color:#0f172a;">{{ kpiModalTitle }}</h3>
+        <span style="background:#f1f5f9; color:#475569; font-size:0.8rem; font-weight:700; padding:3px 10px; border-radius:999px;">
+          {{ kpiModalList.length }} tickets
+        </span>
+      </div>
+      <button (click)="cerrarModalKpi()"
+              style="background:none; border:none; font-size:1.4rem; cursor:pointer; color:#94a3b8; line-height:1;">×</button>
+    </div>
+
+    <div style="overflow-y:auto; flex:1;">
+
+      <div *ngIf="kpiModalList.length === 0"
+           style="padding:60px 20px; text-align:center; color:#94a3b8;">
+        <span class="material-symbols-outlined" style="font-size:3rem; display:block; margin-bottom:10px;">inbox</span>
+        <p style="margin:0; font-weight:600;">Sin tickets en esta categoría</p>
+      </div>
+
+      <table *ngIf="kpiModalList.length > 0" style="width:100%; border-collapse:collapse;">
+        <thead>
+          <tr style="background:#f8fafc; position:sticky; top:0;">
+            <th style="padding:12px 16px; text-align:left; font-size:0.7rem; color:#64748b; font-weight:700; letter-spacing:.5px;">ID</th>
+            <th style="padding:12px 16px; text-align:left; font-size:0.7rem; color:#64748b; font-weight:700; letter-spacing:.5px;">HORA</th>
+            <th style="padding:12px 16px; text-align:left; font-size:0.7rem; color:#64748b; font-weight:700; letter-spacing:.5px;">SOLICITANTE</th>
+            <th style="padding:12px 16px; text-align:left; font-size:0.7rem; color:#64748b; font-weight:700; letter-spacing:.5px;">CATEGORÍA</th>
+            <th style="padding:12px 16px; text-align:left; font-size:0.7rem; color:#64748b; font-weight:700; letter-spacing:.5px;">TÉCNICO</th>
+            <th style="padding:12px 16px; text-align:center; font-size:0.7rem; color:#64748b; font-weight:700; letter-spacing:.5px;">PRIORIDAD</th>
+            <th style="padding:12px 16px; text-align:center; font-size:0.7rem; color:#64748b; font-weight:700; letter-spacing:.5px;">ESTADO</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let t of kpiModalList"
+              (click)="cerrarModalKpi(); abrirModalTicket(t)"
+              style="border-bottom:1px solid #f1f5f9; cursor:pointer; transition:background .15s;"
+              onmouseover="this.style.background='#f8fafc'"
+              onmouseout="this.style.background='transparent'">
+
+            <td style="padding:12px 16px; font-weight:800; color:#56212f; font-size:.9rem;">#{{ t.id }}</td>
+
+            <td style="padding:12px 16px; color:#64748b; font-size:.85rem;">{{ getHora(t.fecha) }}</td>
+
+            <td style="padding:12px 16px;">
+              <div style="font-weight:700; font-size:.9rem; color:#0f172a;">{{ t.nombre_usuario }} {{ t.apellido_usuario }}</div>
+              <div style="font-size:.75rem; color:#94a3b8;">{{ t.departamento }}</div>
+            </td>
+
+            <td style="padding:12px 16px;">
+              <span class="badge" [ngClass]="getProblemaClass(t.descripcion)">{{ t.descripcion }}</span>
+            </td>
+
+            <td style="padding:12px 16px;">
+              <div style="font-weight:700; font-size:.9rem; color:#0f172a;">
+                {{ t.personal || '—' }}
+              </div>
+              <div *ngIf="t.estado === 'Completo'" 
+                  style="font-size:.72rem; color:#10b981; font-weight:600; display:flex; align-items:center; gap:3px;">
+                <span class="material-symbols-outlined" style="font-size:.85rem;">task_alt</span> Completó
+              </div>
+              <div *ngIf="t.estado !== 'Completo'" 
+                  style="font-size:.72rem; color:#f59e0b; font-weight:600; display:flex; align-items:center; gap:3px;">
+                <span class="material-symbols-outlined" style="font-size:.85rem;">pending_actions</span> Asignado
+              </div>
+            </td>
+
+            <td style="padding:12px 16px; text-align:center;">
+              <span class="badge" [ngClass]="'prio-' + (t.prioridad ? t.prioridad.toLowerCase() : 'media')">
+                {{ t.prioridad }}
+              </span>
+            </td>
+
+            <td style="padding:12px 16px; text-align:center;">
+              <span class="badge" 
+                [class.state-success]="t.estado === 'Completo'"
+                [class.state-pending]="t.estado !== 'Completo'">
+                {{ t.estado || 'En espera' }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Footer -->
+    <div style="padding:14px 24px; border-top:1px solid #f1f5f9; display:flex; justify-content:flex-end; flex-shrink:0;">
+      <button (click)="cerrarModalKpi()"
+              style="background:#0f172a; color:#fff; border:none; padding:8px 20px; border-radius:8px; font-weight:700; cursor:pointer; font-size:.9rem;">
+        Cerrar
+      </button>
+    </div>
+
   </div>
 </div>

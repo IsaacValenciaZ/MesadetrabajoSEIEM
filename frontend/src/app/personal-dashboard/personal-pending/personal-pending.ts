@@ -253,7 +253,7 @@ abrirModalFinalizacion(ticketSeleccionado: any) {
         <p style="color: #64748b; font-size: 0.85rem; margin-bottom: 8px;">Documenta la solución y solicita la firma.</p>
         
         <label style="font-weight: 800; color: #56212f; font-size: 0.9rem;">Resolución (Obligatorio):</label>
-        <textarea id="solucion-text" class="swal2-textarea" style="margin: 5px 0 10px 0; width: 100%; height: 60px; box-sizing: border-box; font-size: 0.9rem; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1;" placeholder="Descripción..."></textarea>
+        <textarea id="solucion-text" class="swal2-textarea" style=" text-transform: uppercase; margin: 5px 0 10px 0; width: 100%; height: 60px; box-sizing: border-box; font-size: 0.9rem; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1;" placeholder="Descripción..."></textarea>
         
         <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 6px;">
           <label style="font-weight: 800; color: #56212f; font-size: 0.9rem; margin: 0;">Firma del Solicitante:</label>
@@ -358,13 +358,11 @@ abrirModalFinalizacion(ticketSeleccionado: any) {
     didOpen: () => {
       canvas = document.getElementById('firma-canvas') as HTMLCanvasElement;
       ctx = canvas.getContext('2d');
-      const contenedor = document.getElementById('contenedor-firma');
+        const contenedor = document.getElementById('contenedor-firma');
 
         const esMovil = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 768;
-
         const btnCamera = document.getElementById('btn-camera') as HTMLElement;
         const btnGallery = document.getElementById('btn-gallery') as HTMLElement;
-
         if (!esMovil && btnCamera) {
           btnCamera.style.display = 'none';
         }
@@ -597,6 +595,13 @@ galleryInput?.addEventListener('change', manejarArchivo);
           document.body.style.overflow = '';
         });
       }
+
+    const input = document.getElementById('solucion-text') as HTMLTextAreaElement;
+    if (input) {
+    input.addEventListener('input', () => {
+      input.value = input.value.toUpperCase();
+    });
+  }
     },
 
     willClose: () => {
