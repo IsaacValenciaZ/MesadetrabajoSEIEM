@@ -116,12 +116,6 @@
     background-color: #fff;
 }
 
-.simple-input:disabled {
-    background-color: #f8fafc;
-    color: #94a3b8;
-    cursor: not-allowed;
-}
-
 textarea.simple-input {
     resize: vertical; 
     min-height: 100px;
@@ -477,6 +471,12 @@ textarea.simple-input {
   text-transform: none;
 }
 
+.simple-input:disabled {
+    background-color: #f1f5f9; 
+    color: #94a3b8; 
+    cursor: not-allowed; 
+    border-color: #e2e8f0;
+}
 
 @media (max-width: 768px) {
     .central-form-card {

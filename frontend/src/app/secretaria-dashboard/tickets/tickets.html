@@ -34,10 +34,16 @@
         </ul>
       </div>
 
-        <div class="form-group">
-          <label>Municipio:</label>
-          <input type="text"  [(ngModel)]="nuevoTicket.municipio"  (input)="nuevoTicket.municipio = nuevoTicket.municipio.toUpperCase()" name="municipio" class="simple-input uppercase-input" placeholder="Escribe el municipio" required>
-        </div>
+<div class="form-group">
+  <label [style.color]="nuevoTicket.descripcion === 'Dictaminar' ? '#cbd5e1' : ''">Municipio:</label>
+  <input 
+    type="text" 
+    [(ngModel)]="nuevoTicket.municipio" 
+    name="municipio" 
+    class="simple-input uppercase-input" 
+    [disabled]="nuevoTicket.descripcion === 'Dictaminar'" 
+    [placeholder]="nuevoTicket.descripcion === 'Dictaminar' ? 'CAMPO BLOQUEADO' : 'Escribe el municipio'">
+</div>
 
       <div class="form-group">
         <label>Número de Extensión o Teléfono:</label>
@@ -65,7 +71,7 @@
 
       <div class="form-group">
         <label>Tipo de Problema:</label>
-        <select [(ngModel)]="nuevoTicket.descripcion" name="descripcion" class="simple-input" required>
+        <select [(ngModel)]="nuevoTicket.descripcion" name="descripcion" class="simple-input" (ngModelChange)="alCambiarDescripcion()" required>
           <option value="" disabled selected>Selecciona un servicio</option>
           <option value="Internet">Internet</option>
           <option value="Office">Office</option>
@@ -138,25 +144,29 @@
         </div>
       </div>
 
-      <div class="form-group">
-        <label>Prioridad:</label>
-        <select [(ngModel)]="nuevoTicket.prioridad" name="prioridad" class="simple-input">
-          <option value="" disabled selected>-- Selecciona --</option>
-          <option value="Alta">Alta</option>
-          <option value="Media">Media</option>
-          <option value="Baja">Baja</option>
-        </select>
-      </div>
+     <div class="form-group">
+  <label [style.color]="nuevoTicket.descripcion === 'Dictaminar' ? '#cbd5e1' : ''">Prioridad:</label>
+  <select 
+    [(ngModel)]="nuevoTicket.prioridad" 
+    name="prioridad" 
+    class="simple-input" 
+    [disabled]="nuevoTicket.descripcion === 'Dictaminar'">
+    <option value="" disabled selected>-- Selecciona --</option>
+    <option value="Alta">Alta</option>
+    <option value="Media">Media</option>
+    <option value="Baja">Baja</option>
+  </select>
+</div>
 
       <div class="form-group full-width">
-  <label>Detalles del Problema (Notas):</label>
+  <label [style.color]="nuevoTicket.descripcion === 'Dictaminar' ? '#cbd5e1' : ''">Detalles del Problema (Notas):</label>
   <textarea 
-         [(ngModel)]="nuevoTicket.notas" 
-         (input)="nuevoTicket.notas = nuevoTicket.notas.toUpperCase()"
-         rows="4" 
-         name="notas" 
-         placeholder="Describe la falla..." 
-         class="simple-input uppercase-input"></textarea>
+    [(ngModel)]="nuevoTicket.notas" 
+    name="notas" 
+    rows="4" 
+    class="simple-input uppercase-input"
+    [disabled]="nuevoTicket.descripcion === 'Dictaminar'"
+    [placeholder]="nuevoTicket.descripcion === 'Dictaminar' ? 'NO APLICA PARA DICTAMEN' : 'Describe la falla...'"></textarea>
 </div>
 
 

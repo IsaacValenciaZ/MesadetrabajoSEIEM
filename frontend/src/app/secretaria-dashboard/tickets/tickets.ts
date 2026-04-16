@@ -644,9 +644,13 @@ mostrarNovedades() {
 
 alCambiarDescripcion() {
   if (this.nuevoTicket.descripcion === 'Dictaminar') {
-    this.nuevoTicket.prioridad = 'Alta'; 
-    this.nuevoTicket.municipio = 'N/A'; 
-    this.nuevoTicket.notas = 'DICTAMINAR';
+    this.nuevoTicket.prioridad = 'Alta';
+    this.nuevoTicket.municipio = 'N/A';
+    this.nuevoTicket.notas = 'N/A';
+  } else {
+    this.nuevoTicket.prioridad = '';
+    this.nuevoTicket.municipio = '';
+    this.nuevoTicket.notas = '';
   }
 }
 }
