@@ -35,14 +35,13 @@
       </div>
 
 <div class="form-group">
-  <label [style.color]="nuevoTicket.descripcion === 'Dictaminar' ? '#cbd5e1' : ''">Municipio:</label>
+  <label>Municipio:</label>
   <input 
     type="text" 
     [(ngModel)]="nuevoTicket.municipio" 
     name="municipio" 
     class="simple-input uppercase-input" 
-    [disabled]="nuevoTicket.descripcion === 'Dictaminar'" 
-    [placeholder]="nuevoTicket.descripcion === 'Dictaminar' ? 'CAMPO BLOQUEADO' : 'Escribe el municipio'">
+    placeholder="Escribe el municipio">
 </div>
 
       <div class="form-group">

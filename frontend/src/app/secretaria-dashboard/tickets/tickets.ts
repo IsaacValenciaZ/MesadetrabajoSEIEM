@@ -293,6 +293,17 @@ obtenerReportesDelDia() {
 procesarRegistroTicket() {
   const camposVacios: string[] = [];
 
+  if (this.nuevoTicket.descripcion === 'Dictaminar') {
+    if (!this.nuevoTicket.cantidad_dicta || this.nuevoTicket.cantidad_dicta <= 0) {
+      Swal.fire('Atención', 'Ingresa la cantidad de equipos a dictaminar.', 'warning');
+      return; 
+    }
+    if (!this.nuevoTicket.fecha_programada) {
+      Swal.fire('Atención', 'Selecciona la fecha y hora de la visita técnica.', 'warning');
+      return; 
+    }
+  }
+
   if (!this.nuevoTicket.nombre_usuario) camposVacios.push('Solicitante');
   if (!this.nuevoTicket.apellido_usuario) camposVacios.push('Apellidos');
   if (!this.nuevoTicket.departamento) camposVacios.push('Departamento');
@@ -305,6 +316,10 @@ procesarRegistroTicket() {
 
   if (this.nuevoTicket.descripcion === 'Correo' && !this.nuevoTicket.correo_tipo) {
     camposVacios.push('Dominio del Correo (.edu o .gob)');
+  }
+
+  if (this.nuevoTicket.descripcion === 'Dictaminar' && !this.nuevoTicket.fecha_programada) {
+    camposVacios.push('Día y Hora de la Visita');
   }
 
   let detallesSoporte = '';
@@ -379,6 +394,7 @@ procesarRegistroTicket() {
     prioridad: this.nuevoTicket.prioridad,
     notas: notasMayus,
     cantidad: this.nuevoTicket.cantidad_dicta,
+    fecha_programada: this.nuevoTicket.fecha_programada,
     extension_tel: this.nuevoTicket.extension_tel,
     correo_tipo: this.nuevoTicket.correo_tipo,
     soporte_tipo: soporteMayus,
@@ -645,11 +661,9 @@ mostrarNovedades() {
 alCambiarDescripcion() {
   if (this.nuevoTicket.descripcion === 'Dictaminar') {
     this.nuevoTicket.prioridad = 'Alta';
-    this.nuevoTicket.municipio = 'N/A';
     this.nuevoTicket.notas = 'N/A';
   } else {
     this.nuevoTicket.prioridad = '';
-    this.nuevoTicket.municipio = '';
     this.nuevoTicket.notas = '';
   }
 }

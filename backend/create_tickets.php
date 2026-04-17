@@ -38,8 +38,13 @@ if (isset($data->nombre_usuario) && isset($data->personal) && isset($data->descr
         
         $cantidad = ($descripcion === 'Dictaminar' && isset($data->cantidad)) ? intval($data->cantidad) : null;
         
-        $fecha_programada = ($descripcion === 'Dictaminar' && !empty($data->fecha_programada)) ? date('Y-m-d H:i:s', strtotime($data->fecha_programada)) : null;
-        
+       $fecha_programada = null;
+       if ($descripcion === 'Dictaminar' && !empty($data->fecha_programada)) {
+            $fecha_limpia = str_replace('T', ' ', $data->fecha_programada);
+            $fecha_programada = date('Y-m-d H:i:s', strtotime($fecha_limpia));
+            $fecha_limite = date('Y-m-d H:i:s', strtotime($fecha_programada . ' +24 hours'));
+        }
+
         $correo_tipo = ($descripcion === 'Correo' && isset($data->correo_tipo)) ? htmlspecialchars(trim($data->correo_tipo)) : null;
         $soporte_tipo = ($descripcion === 'Tecnico' && isset($data->soporte_tipo)) ? htmlspecialchars(trim($data->soporte_tipo)) : null;
         $extension_tel = isset($data->extension_tel) ? htmlspecialchars(trim($data->extension_tel)) : null;
@@ -98,6 +103,18 @@ if (isset($data->nombre_usuario) && isset($data->personal) && isset($data->descr
                 $mail->isHTML(true);
                 $mail->Subject = "Nuevo Ticket Asignado: #" . $ticket_id;
 
+                $fila_fecha_programada = '';
+                if ($descripcion === 'Dictaminar' && $fecha_programada != null) {
+
+                    $fecha_formateada = date('d/M/Y \a \l\a\s h:i A', strtotime($fecha_programada));
+                    
+                    $fila_fecha_programada = "
+                    <tr>
+                        <td style='padding: 12px 0; color: #56212f; border-bottom: 1px solid #eeeeee;'><strong>Día y Hora de Visita:</strong></td>
+                        <td style='padding: 12px 0; color: #ba9156; font-weight: 800; font-size: 16px; border-bottom: 1px solid #eeeeee;'>{$fecha_formateada}</td>
+                    </tr>";
+                }
+
                 $mail->Body = "
                     <div style='background-color: #f4f4f4; padding: 20px; font-family: sans-serif;'>
                         <div style='max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);'>
@@ -110,7 +127,7 @@ if (isset($data->nombre_usuario) && isset($data->personal) && isset($data->descr
                                 <div style='background-color: #fdfdfd; border: 1px solid #e0e0e0; padding: 20px; border-radius: 8px; margin: 25px 0;'>
                                     <table style='width: 100%; border-collapse: collapse; font-size: 15px;'>
                                         <tr>
-                                            <td style='padding: 10px 0; color: #777777; width: 35%; border-bottom: 1px solid #eeeeee;'><strong>Prioridad:</strong></td>
+                                            <td style='padding: 10px 0; color: #777777; width: 40%; border-bottom: 1px solid #eeeeee;'><strong>Prioridad:</strong></td>
                                             <td style='padding: 10px 0; color: #56212f; font-weight: bold; border-bottom: 1px solid #eeeeee;'>{$data->prioridad}</td>
                                         </tr>
                                         <tr>
@@ -122,9 +139,12 @@ if (isset($data->nombre_usuario) && isset($data->personal) && isset($data->descr
                                             <td style='padding: 10px 0; color: #333333; border-bottom: 1px solid #eeeeee;'>{$data->departamento}</td>
                                         </tr>
                                         <tr>
-                                            <td style='padding: 10px 0; color: #777777;'><strong>Problema:</strong></td>
-                                            <td style='padding: 10px 0; color: #333333;'>{$data->descripcion}</td>
+                                            <td style='padding: 10px 0; color: #777777; border-bottom: 1px solid #eeeeee;'><strong>Problema:</strong></td>
+                                            <td style='padding: 10px 0; color: #333333; border-bottom: 1px solid #eeeeee;'>{$data->descripcion}</td>
                                         </tr>
+                                        
+                                        {$fila_fecha_programada}
+                                        
                                     </table>
                                 </div>
                                 <p style='color: #666666; font-size: 15px; text-align: center; margin-bottom: 25px;'>Para aceptar este ticket y cambiar tu estado a <strong style='color: #ba9156;'>Ocupado</strong>, haz clic en el siguiente botón:</p>

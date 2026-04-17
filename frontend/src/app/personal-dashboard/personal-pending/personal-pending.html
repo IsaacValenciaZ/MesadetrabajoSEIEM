@@ -61,7 +61,10 @@
                 'cat-extension': ticket.descripcion === 'Extension/Telefono',
                 'cat-correo': ticket.descripcion === 'Correo'
               }">{{ ticket.descripcion }}</span>
-              <span *ngIf="ticket.descripcion === 'Dictaminar' && ticket.cantidad_dicta" class="qty-badge" style="margin-top:5px;display:block;">EQ: {{ ticket.cantidad_dicta }}</span>
+              <span *ngIf="ticket.descripcion === 'Dictaminar' && ticket.cantidad_dicta" class="qty-badge" style="margin-top:5px;display:block;">EQPS: {{ ticket.cantidad_dicta }}</span>
+                <span *ngIf="ticket.descripcion === 'Dictaminar' && ticket.fecha_programada" class="qty-badge" style="margin-top: 5px; display: block; font-weight: 600;">
+                    FECHA: {{ ticket.fecha_programada | date:'dd/MMM hh:mm a' }}
+                </span>
               <span *ngIf="ticket.descripcion === 'Correo' && ticket.correo_tipo" class="qty-badge" style="margin-top:5px;display:block;">Dom: {{ ticket.correo_tipo }}</span>
               <span *ngIf="ticket.descripcion === 'Tecnico' && ticket.soporte_tipo" class="qty-badge" style="margin-top:5px;display:block;white-space:normal;line-height:1.2;">{{ ticket.soporte_tipo }}</span>
             </td>

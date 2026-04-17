@@ -59,6 +59,7 @@ try {
             t.fecha_fin, 
             t.notas, 
             t.cantidad_dicta, 
+            t.fecha_programada,
             t.correo_tipo,
             t.soporte_tipo, 
             u.nombre AS nombre_creador
